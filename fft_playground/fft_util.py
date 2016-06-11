@@ -10,6 +10,7 @@ import numpy as np
 import cmath
 import math
 
+
 def zero_padding(x, output_length):
     """
 
@@ -24,6 +25,7 @@ def zero_padding(x, output_length):
     if output_length > len(x_temp):
         x_temp += (output_length - len(x_temp)) * [0]
     return x_temp
+
 
 def find_ceil_power_of_two(n):
     """
@@ -62,11 +64,20 @@ def flip_binary(x, bin_length):
 def get_w(num_point, exponent):
     return math.cos(2 * math.pi * exponent / num_point) - 1j * math.sin(2 * math.pi * exponent / num_point)
 
-def eight_point_fft(input):
-    assert len(input) == 8
+
+"""
+Test for 8 point FFT
+"""
+
+
+def eightPointFFTHelper(x, type):
+    if len(x) > 8:
+        raise Exception("input length can't be greater than 8")
+    elif len(x) < 8:
+        x = zero_padding(x, 8)
     shuffle_input = []
     for i in range(8):
-        shuffle_input.append(input[flip_binary(i, 3)])
+        shuffle_input.append(x[flip_binary(i, 3)])
 
     for i in range(4):
         shuffle_input[2 * i + 1] *= get_w(8, 0)
@@ -76,8 +87,12 @@ def eight_point_fft(input):
             shuffle_input[2 * i] + shuffle_input[2 * i + 1], shuffle_input[2 * i] - shuffle_input[2 * i + 1]
 
     for i in range(2):
+        if type == "fft":
+            exponent = 2
+        elif type == "ifft":
+            exponent = -2
         shuffle_input[4 * i + 2] *= get_w(8, 0)
-        shuffle_input[4 * i + 3] *= get_w(8, 2)
+        shuffle_input[4 * i + 3] *= get_w(8, exponent)
 
     for i in range(2):
         shuffle_input[4 * i], shuffle_input[4 * i + 1], shuffle_input[4 * i + 2], shuffle_input[4 * i + 3] = \
@@ -85,7 +100,11 @@ def eight_point_fft(input):
             shuffle_input[4 * i] - shuffle_input[4 * i + 2], shuffle_input[4 * i + 1] - shuffle_input[4 * i + 3]
 
     for i in range(4):
-        shuffle_input[4 + i] *= get_w(8, i)
+        if type == "fft":
+            exponent = i
+        elif type == "ifft":
+            exponent = -i
+        shuffle_input[4 + i] *= get_w(8, exponent)
 
     output = []
     for i in range(4):
@@ -94,10 +113,56 @@ def eight_point_fft(input):
     for i in range(4):
         output.append(shuffle_input[i] - shuffle_input[4 + i])
 
+    if type == "ifft":
+        for i in range(len(output)):
+            output[i] /= 8
+
     return output
+
+
+def eight_point_fft(x):
+    return eightPointFFTHelper(x, "fft")
+
+def eight_point_ifft(x):
+    return eightPointFFTHelper(x, "ifft")
+
+
+def dotProduct(x, y):
+    assert len(x) == len(y), "x and y must have the same length"
+    result = []
+    for i in range(len(x)):
+        result.append(x[i] * y[i])
+    return result
+
+"""
+1D convolution using overlap-and-add, only limited to 8 point, use python built-in list, not numpy
+"""
+def convolutionOverlapAndAdd(x, h):
+    # overhead
+    assert len(h) < 8
+    H = eight_point_fft(h)
+    M = len(h)       # length of the filter
+    L = 8 + 1 - M    # length of each fragment
+    ptr = 0
+    result = [0] * (len(x) + M - 1)
+    while ptr + L <= len(x):
+        xk = x[ptr:ptr + L]
+        Xk = eight_point_fft(xk)
+        Yk = dotProduct(Xk, H)
+        yk = eight_point_ifft(Yk)
+        for i in range(ptr, ptr + 8):
+            result[i] += yk[i - ptr]
+        ptr += L
+    if ptr < len(x):
+        xk = x[ptr:]
+        Xk = eight_point_fft(xk)
+        Yk = dotProduct(Xk, H)
+        yk = eight_point_ifft(Yk)
+        for i in range(ptr, len(result)):
+            result[i] += yk[i - ptr]
+        ptr += L
+    return result
 
 if __name__ == "__main__":
     import doctest
     doctest.testmod()
-
-
