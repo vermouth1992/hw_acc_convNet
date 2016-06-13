@@ -123,6 +123,7 @@ def eightPointFFTHelper(x, type):
 def eight_point_fft(x):
     return eightPointFFTHelper(x, "fft")
 
+
 def eight_point_ifft(x):
     return eightPointFFTHelper(x, "ifft")
 
@@ -134,15 +135,18 @@ def dotProduct(x, y):
         result.append(x[i] * y[i])
     return result
 
+
 """
 1D convolution using overlap-and-add, only limited to 8 point, use python built-in list, not numpy
 """
+
+
 def convolutionOverlapAndAdd(x, h):
     # overhead
     assert len(h) < 8
     H = eight_point_fft(h)
-    M = len(h)       # length of the filter
-    L = 8 + 1 - M    # length of each fragment
+    M = len(h)  # length of the filter
+    L = 8 + 1 - M  # length of each fragment
     ptr = 0
     result = [0] * (len(x) + M - 1)
     while ptr + L <= len(x):
@@ -163,6 +167,8 @@ def convolutionOverlapAndAdd(x, h):
         ptr += L
     return result
 
+
 if __name__ == "__main__":
     import doctest
+
     doctest.testmod()
