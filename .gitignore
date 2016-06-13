@@ -5,6 +5,13 @@ node_modules/
 lectureCode-sp16-master/
 *.swp
 *.vcd
+*.cpp
+*.o
+*.out
+*.fail
+*.h
+*/problems/
+
 # Created by https://www.gitignore.io/api/java,python,osx,windows,intellij,eclipse,bluej,netbeans,vim,emacs,microsoftoffice
 
 ### Java ###

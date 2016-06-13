@@ -10,6 +10,9 @@ class Accumulator_t : public mod_t {
   val_t __rand_val() { return ::__rand_val(&__rand_seed); }
  public:
   dat_t<1> Accumulator__io_in;
+  dat_t<1> reset;
+  dat_t<8> T2;
+  dat_t<8> Accumulator__acc;
   dat_t<8> Accumulator__io_out;
   clk_t clk;
 

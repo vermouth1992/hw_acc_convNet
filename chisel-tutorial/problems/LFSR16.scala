@@ -8,7 +8,15 @@ class LFSR16 extends Module {
     val out = UInt(OUTPUT, 16)
   }
   // COMPUTE LFSR16 HERE
-  io.out := UInt(0)
+  val reg = Reg(init = UInt(1, width = 16))
+  when (io.inc === UInt(1)) {
+    for (i <- 0 until 15) {
+      reg(i) := reg(i+1)
+    }
+    reg(15) := reg(0) ^ reg(2) ^ reg(3) ^ reg(5)
+  }
+
+  io.out := reg
 }
 
 class LFSR16Tests(c: LFSR16) extends Tester(c) {

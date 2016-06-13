@@ -9,7 +9,11 @@ class VecShiftRegisterSimple extends Module {
   }
   val delays = Reg(Vec(4, UInt(width = 8)))
   /// fill in here ...
-  io.out := UInt(0)
+  delays(0) := io.in
+  for (i <- 0 until 3) {
+    delays(i+1) := delays(i)
+  }
+  io.out := delays(3)
 }
 
 class VecShiftRegisterSimpleTests(c: VecShiftRegisterSimple) extends Tester(c) { 

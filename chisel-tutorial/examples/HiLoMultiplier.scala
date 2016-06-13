@@ -3,7 +3,7 @@ package TutorialExamples
 import Chisel._
 
 //A 4-bit adder with carry in and carry out
-class HiLoMultiplier() extends Module {
+class HiLoMultiplier extends Module {
   val io = new Bundle {
     val A  = UInt(INPUT, 16)
     val B  = UInt(INPUT, 16)

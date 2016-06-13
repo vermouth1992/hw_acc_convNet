@@ -9,7 +9,9 @@ class Accumulator extends Module {
   }
   // COUNT INCOMING TRUES
   // FILL IN HERE ...
-  io.out := UInt(0)
+  val acc = Reg(init = UInt(0, width = 8))  // init is used as always(@posedge clk) if (reset) ...
+  acc := acc + io.in
+  io.out := acc
 }
 
 class AccumulatorTests(c: Accumulator) extends Tester(c) {
