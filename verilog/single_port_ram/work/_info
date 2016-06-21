@@ -1,0 +1,52 @@
+m255
+K4
+z2
+13
+!s112 1.1
+!i10d 8192
+!i10e 25
+!i10f 100
+cModel Technology
+dC:/Modeltech_pe_edu_10.4a/examples
+vsingle_port_ram
+!s110 1466398979
+!i10b 1
+!s100 0;YbTdBQ8;k<Pl6RNaFBe3
+Id8zO@_1zlB8BF0c<Y@C:I3
+Z0 VDg1SIo80bB@j0V0VzS_@n1
+Z1 dZ:/verilog/single_port_ram
+w1466398549
+8src/single_port_ram.v
+Fsrc/single_port_ram.v
+L0 1
+Z2 OP;L;10.4a;61
+r1
+!s85 0
+31
+Z3 !s108 1466398979.000000
+Z4 !s107 src/single_port_ram_tb.v|src/single_port_ram.v|
+Z5 !s90 -reportprogress|300|+acc|src/single_port_ram.v|src/single_port_ram_tb.v|
+!s101 -O0
+!i113 1
+Z6 o+acc -L mtiAvm -L mtiRnm -L mtiOvm -L mtiUvm -L mtiUPF -L infact -O0
+vsingle_port_ram_tb
+!s110 1466398980
+!i10b 1
+!s100 TL7<S01lM8mL51bGl_[F;1
+IDRPNnh]BijG8JV8a2@=bA3
+R0
+R1
+w1466398908
+8src/single_port_ram_tb.v
+Fsrc/single_port_ram_tb.v
+L0 3
+R2
+r1
+!s85 0
+31
+R3
+R4
+R5
+!s101 -O0
+!i113 1
+R6
