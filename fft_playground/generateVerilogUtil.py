@@ -3,8 +3,6 @@ This file defines a set of class and function to help generate Verilog files
 """
 
 
-
-
 class ModuleIO:
     def __init__(self, length, name, type):
         assert type == "input" or type == "output" or "output reg"
@@ -33,14 +31,17 @@ class ModuleParam:
     def getDefaultValue(self):
         return self.defaultValue
 
+
 def generateVerilogLine(numSpace, text, isNewLine):
     result = " " * numSpace + text
     if isNewLine:
         result += "\n"
     return result
 
+
 def generateVerilogNewLine(numSpace, text):
     return generateVerilogLine(numSpace, text, True)
+
 
 def generateParam(param, isLastParam=False):
     assert isinstance(param, ModuleParam)
@@ -49,6 +50,7 @@ def generateParam(param, isLastParam=False):
         result += ","
     result += "\n"
     return result
+
 
 def generateIO(io, isLastIO=False):
     assert isinstance(io, ModuleIO)
@@ -61,6 +63,7 @@ def generateIO(io, isLastIO=False):
         result += ","
     result += "\n"
     return result
+
 
 class VerilogModule:
     def __init__(self, name):
@@ -96,7 +99,7 @@ class VerilogModule:
                 result += generateIO(self.io[i], isLastIO=True)
             else:
                 result += generateIO(self.io[i])
-        result += ");"
+        result += ");" + "\n"
         return result
 
 
