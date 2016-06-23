@@ -1,7 +1,9 @@
 """
 This file defines a set of class and function to help generate Verilog files
 """
+import unittest
 
+generatedVerilogFolder = "../verilog/generated/"
 
 class ModuleIO:
     def __init__(self, length, name, type):
@@ -103,17 +105,22 @@ class VerilogModule:
         return result
 
 
-def moduleGenTest():
-    singleRam = VerilogModule("single_port_ram")
-    singleRam.addParam(ModuleParam("DATA_WIDTH", 6))
-    singleRam.addParam(ModuleParam("ADDR_WIDTH", 8))
-    singleRam.addIO(ModuleIO("DATA_WIDTH", "data", "input"))
-    singleRam.addIO(ModuleIO("ADDR_WIDTH", "addr", "input"))
-    singleRam.addIO(ModuleIO(1, "we", "input"))
-    singleRam.addIO(ModuleIO(1, "clk", "input"))
-    singleRam.addIO(ModuleIO("DATA_WIDTH", "q", "output reg"))
-    print singleRam
+class GenVerilogTest(unittest.TestCase):
+
+    # the test name must start with test
+    @unittest.skip("")
+    def testModuleGen(self):
+        singleRam = VerilogModule("single_port_ram")
+        singleRam.addParam(ModuleParam("DATA_WIDTH", 6))
+        singleRam.addParam(ModuleParam("ADDR_WIDTH", 8))
+        singleRam.addIO(ModuleIO("DATA_WIDTH", "data", "input"))
+        singleRam.addIO(ModuleIO("ADDR_WIDTH", "addr", "input"))
+        singleRam.addIO(ModuleIO(1, "we", "input"))
+        singleRam.addIO(ModuleIO(1, "clk", "input"))
+        singleRam.addIO(ModuleIO("DATA_WIDTH", "q", "output reg"))
+        print singleRam
+
 
 
 if __name__ == "__main__":
-    moduleGenTest()
+    unittest.main()

@@ -33,8 +33,8 @@ class GCDTests(c: GCD) extends Tester(c) {
 
 object hello {
   def main(args: Array[String]): Unit = {
-    // val margs = Array("--backend", "v", "--genHarness")
-    val margs = Array("--backend", "c", "--genHarness", "--compile", "--test")
+    val margs = Array("--genHarness", "--backend", "v")
+    //val margs = Array("--backend", "c", "--genHarness", "--compile", "--test")
     chiselMainTest(margs, () => Module(new GCD()))(c => new GCDTests(c))
   }
 }
