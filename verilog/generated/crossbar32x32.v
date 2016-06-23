@@ -7,6 +7,7 @@ module crossbar32x32 # (
 ) (
   input clk,
   input clk_en,
+  input start,
   input [DATA_WIDTH-1:0] in0,
   input [DATA_WIDTH-1:0] in1,
   input [DATA_WIDTH-1:0] in2,
@@ -39,6 +40,7 @@ module crossbar32x32 # (
   input [DATA_WIDTH-1:0] in29,
   input [DATA_WIDTH-1:0] in30,
   input [DATA_WIDTH-1:0] in31,
+  output reg start_next_stage,
   output reg [DATA_WIDTH-1:0] out0,
   output reg [DATA_WIDTH-1:0] out1,
   output reg [DATA_WIDTH-1:0] out2,
@@ -72,6 +74,12 @@ module crossbar32x32 # (
   output reg [DATA_WIDTH-1:0] out30,
   output reg [DATA_WIDTH-1:0] out31
 );
+
+  always@(posedge clk) begin
+    if (clk_en) begin
+      start_next_stage <= start;
+    end
+  end
 
   always@(posedge clk) begin
     if (clk_en) begin

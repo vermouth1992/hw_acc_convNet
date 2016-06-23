@@ -6,6 +6,8 @@ module memArray2x32 # (
   parameter DATA_WIDTH = 32
 ) (
   input clk,
+  input clk_en,
+  input reset,
   input we,
   input [DATA_WIDTH-1:0] in0,
   input [DATA_WIDTH-1:0] in1,
@@ -39,14 +41,6 @@ module memArray2x32 # (
   input [DATA_WIDTH-1:0] in29,
   input [DATA_WIDTH-1:0] in30,
   input [DATA_WIDTH-1:0] in31,
-  input addr0_3,
-  input addr4_7,
-  input addr8_11,
-  input addr12_15,
-  input addr16_19,
-  input addr20_23,
-  input addr24_27,
-  input addr28_31,
   output [DATA_WIDTH-1:0] out0,
   output [DATA_WIDTH-1:0] out1,
   output [DATA_WIDTH-1:0] out2,
@@ -80,6 +74,74 @@ module memArray2x32 # (
   output [DATA_WIDTH-1:0] out30,
   output [DATA_WIDTH-1:0] out31
 );
+
+  reg addr0_3,
+  reg addr4_7,
+  reg addr8_11,
+  reg addr12_15,
+  reg addr16_19,
+  reg addr20_23,
+  reg addr24_27,
+  reg addr28_31,
+
+  localparam IDLE = 2'b00;
+  localparam P1 = 2'b01;
+  localparam P2 = 2'b10;
+
+  reg [1:0] state;
+  reg counter;
+
+  always@(posedge clk) begin
+    if (reset) begin
+      state <= IDLE;
+      counter <= 0;
+      addr0_3 <= 0;
+      ...
+    end else if (clk_en) begin
+      case(state)
+        IDLE: begin
+          if (we) begin
+            state <= P1;
+            counter <= counter + 1;
+            addr0_3 <= addr0_3 + 1;
+            ...
+          end
+        end
+        P1: begin
+          if (we) begin
+            counter <= counter + 1;
+            if (counter == -1) begin
+              state <= P2;
+              addr0_3 <= 0;
+              addr4_7 <= 1;
+              ...
+            end else begin
+              state <= P1;
+              addr0_3 <= addr0_3 + 1;
+              ...
+            end
+          end
+        end
+        P2: begin
+          if (we) begin
+            counter <= counter + 1;
+            if (counter == -1) begin
+              state <= P1;
+              addr0_3 <= 0;
+              addr4_7 <= 0;
+              ...
+            end else begin
+              state <= P2;
+              addr0_3 <= addr0_3 - 1;
+              ...
+            end
+          end
+        end
+      endcase
+    end
+  end
+
+
 
   single_port_ram # (
     .DATA_WIDTH(DATA_WIDTH),
