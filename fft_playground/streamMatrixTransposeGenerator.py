@@ -82,11 +82,13 @@ def generateShiftCrossbarVerilog(k, M, defaultInputWidth, fileName):
     f.write(generateVerilogNewLine(1, "* k = " + str(k) + ", M = " + str(M)))
     f.write(generateVerilogNewLine(1, "*/"))
     crossbarSize = k * M
+    timestamp = M / k
+    timestampLength = int(math.log(timestamp, 2))
     # generate module io
     crossbar = VerilogModule("crossbarShift" + str(crossbarSize) + "x" + str(crossbarSize))
     crossbar.addIO(ModuleIO(1, "clk", "input"))
     crossbar.addIO(ModuleIO(1, "clk_en", "input"))
-    crossbar.addIO(ModuleIO(int(math.log(M / k, 2)), "timestamp", "input"))
+    crossbar.addIO(ModuleIO(timestampLength, "timestamp", "input"))
     crossbar.addParam(ModuleParam("DATA_WIDTH", defaultInputWidth))
     inputWidth = "DATA_WIDTH"
     for i in range(k  * M):
@@ -97,7 +99,24 @@ def generateShiftCrossbarVerilog(k, M, defaultInputWidth, fileName):
     f.write(crossbar.__str__())
     f.write("\n")
 
-    # generate the
+    # generate the always block
+    f.write(generateVerilogNewLine(2, "always@(posedge clk) begin"))
+    f.write(generateVerilogNewLine(4, "if (clk_en) begin"))
+    f.write(generateVerilogNewLine(6, "case (timestamp)"))
+    for i in range(timestamp):
+        f.write(generateVerilogNewLine(8, numToVerilogBit(i, timestampLength) + ": begin"))
+        shiftNum = i * k
+        inOutPair = getShiftCrossbarPair(k, M, shiftNum)
+        for inPort, outPort in inOutPair:
+            f.write(generateVerilogNewLine(10, outPort + " <= " + inPort + ";"))
+        f.write(generateVerilogNewLine(8, "end"))
+    f.write(generateVerilogNewLine(6, "endcase"))
+    f.write(generateVerilogNewLine(4, "end"))
+    f.write(generateVerilogNewLine(2, "end"))
+    f.write("\n")
+    f.write(generateVerilogNewLine(0, "endmodule"))
+    f.close()
+
 
 if __name__ == "__main__":
     k, M = 4, 8

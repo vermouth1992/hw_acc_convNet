@@ -74,3 +74,79 @@ module crossbarShift32x32 # (
   output reg [DATA_WIDTH-1:0] out31
 );
 
+  always@(posedge clk) begin
+    if (clk_en) begin
+      case (timestamp)
+        1'b0: begin
+          out0 <= in0;
+          out1 <= in1;
+          out2 <= in2;
+          out3 <= in3;
+          out4 <= in4;
+          out5 <= in5;
+          out6 <= in6;
+          out7 <= in7;
+          out8 <= in8;
+          out9 <= in9;
+          out10 <= in10;
+          out11 <= in11;
+          out12 <= in12;
+          out13 <= in13;
+          out14 <= in14;
+          out15 <= in15;
+          out16 <= in16;
+          out17 <= in17;
+          out18 <= in18;
+          out19 <= in19;
+          out20 <= in20;
+          out21 <= in21;
+          out22 <= in22;
+          out23 <= in23;
+          out24 <= in24;
+          out25 <= in25;
+          out26 <= in26;
+          out27 <= in27;
+          out28 <= in28;
+          out29 <= in29;
+          out30 <= in30;
+          out31 <= in31;
+        end
+        1'b1: begin
+          out0 <= in28;
+          out1 <= in29;
+          out2 <= in30;
+          out3 <= in31;
+          out4 <= in0;
+          out5 <= in1;
+          out6 <= in2;
+          out7 <= in3;
+          out8 <= in4;
+          out9 <= in5;
+          out10 <= in6;
+          out11 <= in7;
+          out12 <= in8;
+          out13 <= in9;
+          out14 <= in10;
+          out15 <= in11;
+          out16 <= in12;
+          out17 <= in13;
+          out18 <= in14;
+          out19 <= in15;
+          out20 <= in16;
+          out21 <= in17;
+          out22 <= in18;
+          out23 <= in19;
+          out24 <= in20;
+          out25 <= in21;
+          out26 <= in22;
+          out27 <= in23;
+          out28 <= in24;
+          out29 <= in25;
+          out30 <= in26;
+          out31 <= in27;
+        end
+      endcase
+    end
+  end
+
+endmodule

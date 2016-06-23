@@ -5,6 +5,19 @@ import unittest
 
 generatedVerilogFolder = "../verilog/generated/"
 
+
+def numToVerilogBit(num, length):
+    """
+    >>> numToVerilogBit(0, 3)
+    "3'b000"
+    >>> numToVerilogBit(1, 3)
+    "3'b001"
+    """
+    binStr = bin(num)[2:]
+    binStr = (length - len(binStr)) * "0" + binStr
+    return str(length) + "'b" + binStr
+
+
 class ModuleIO:
     def __init__(self, length, name, type):
         assert type == "input" or type == "output" or "output reg"
