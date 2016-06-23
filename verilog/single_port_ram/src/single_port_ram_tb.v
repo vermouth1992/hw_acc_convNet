@@ -37,7 +37,7 @@ module single_port_ram_tb;
   end
 
   initial begin
-    $monitor($time, ", addr = %h, we = %h, input data = %h, output data = %h", addr, we, data, q);
+    $monitor("@%0d, addr = %h, we = %h, input data = %h, output data = %h", $time, addr, we, data, q);
   end
 
   always@(negedge clk) begin
