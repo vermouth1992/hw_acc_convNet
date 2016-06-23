@@ -19,11 +19,12 @@ def numToVerilogBit(num, length):
 
 
 class ModuleIO:
-    def __init__(self, length, name, type):
+    def __init__(self, length, name, type, defaultValue=None):
         assert type == "input" or type == "output" or "output reg"
         self.type = type
         self.length = str(length)
         self.name = name
+        self.defaultValue = defaultValue  # used for instantiation
 
     def getLength(self):
         return self.length
@@ -66,6 +67,9 @@ def generateParam(param, isLastParam=False):
     result += "\n"
     return result
 
+def generateParamInstance(param, isLastParam=False):
+    assert isinstance(param, ModuleParam)
+
 
 def generateIO(io, isLastIO=False):
     assert isinstance(io, ModuleIO)
@@ -81,10 +85,11 @@ def generateIO(io, isLastIO=False):
 
 
 class VerilogModule:
-    def __init__(self, name):
+    def __init__(self, name, baseIndent=0):
         self.name = name
         self.params = []
         self.io = []
+        self.baseIndent = baseIndent
 
     def addParam(self, parameter):
         assert isinstance(parameter, ModuleParam)
@@ -116,6 +121,15 @@ class VerilogModule:
                 result += generateIO(self.io[i])
         result += ");" + "\n"
         return result
+
+
+class InstantiateModule(VerilogModule):
+    def __init__(self, name, instanceName, baseIndent=0):
+        VerilogModule.__init__(self, name, baseIndent)
+        self.instanceName = instanceName
+
+    def __str__(self):
+        pass
 
 
 class GenVerilogTest(unittest.TestCase):

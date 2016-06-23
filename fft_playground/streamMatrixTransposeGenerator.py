@@ -118,6 +118,14 @@ def generateShiftCrossbarVerilog(k, M, defaultInputWidth, fileName):
     f.close()
 
 
+"""
+helper function to generate a single_port_ram for memArray
+"""
+def genSinglePortRam(k, M, index, baseIndent):
+    result = ""
+    result += generateVerilogNewLine(baseIndent, "single_port_ram # (")
+    result += generateVerilogNewLine(baseIndent + 2, "")
+
 def genMemArrayVerilog(k, M, defaultInputWidth, fileName):
     f = open(fileName, "w")
     # generate the top comment
