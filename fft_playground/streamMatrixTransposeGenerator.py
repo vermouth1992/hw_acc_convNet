@@ -23,6 +23,7 @@ def getInputIndexShiftCrossbar(outputIndex, k, M, shiftNum):
     assert shiftNum % k == 0, "k must be a divisor of shiftNum"
     return (outputIndex - shiftNum) % (k * M)
 
+
 def getShiftCrossbarPair(k, M, shiftNum):
     result = []
     for i in range(k * M):
@@ -45,7 +46,7 @@ def generateCrossbarVerilog(k, M, inputWidth, pipeline, fileName):
     crossbar.addIO(ModuleIO(1, "clk_en", "input"))
     crossbar.addParam(ModuleParam("DATA_WIDTH", inputWidth))
     inputWidth = "DATA_WIDTH"
-    for i in range(k  * M):
+    for i in range(k * M):
         crossbar.addIO(ModuleIO(inputWidth, "in" + str(i), "input"))
 
     if pipeline:
@@ -91,10 +92,10 @@ def generateShiftCrossbarVerilog(k, M, defaultInputWidth, fileName):
     crossbarShift.addIO(ModuleIO(timestampLength, "timestamp", "input"))
     crossbarShift.addParam(ModuleParam("DATA_WIDTH", defaultInputWidth))
     inputWidth = "DATA_WIDTH"
-    for i in range(k  * M):
+    for i in range(k * M):
         crossbarShift.addIO(ModuleIO(inputWidth, "in" + str(i), "input"))
     for i in range(k * M):
-            crossbarShift.addIO(ModuleIO(inputWidth, "out" + str(i), "output reg"))
+        crossbarShift.addIO(ModuleIO(inputWidth, "out" + str(i), "output reg"))
 
     f.write(crossbarShift.__str__())
     f.write("\n")
@@ -121,10 +122,13 @@ def generateShiftCrossbarVerilog(k, M, defaultInputWidth, fileName):
 """
 helper function to generate a single_port_ram for memArray
 """
+
+
 def genSinglePortRam(k, M, index, baseIndent):
     result = ""
     result += generateVerilogNewLine(baseIndent, "single_port_ram # (")
     result += generateVerilogNewLine(baseIndent + 2, "")
+
 
 def genMemArrayVerilog(k, M, defaultInputWidth, fileName):
     f = open(fileName, "w")
@@ -134,23 +138,40 @@ def genMemArrayVerilog(k, M, defaultInputWidth, fileName):
     f.write(generateVerilogNewLine(1, "* k = " + str(k) + ", M = " + str(M)))
     f.write(generateVerilogNewLine(1, "*/"))
     # generate module io
-    memArray = VerilogModule("memArray")
+    memArray = VerilogModule("memArray" + str(M / k) + "x" + str(M * k))
     memArray.addIO(ModuleIO(1, "clk", "input"))
     memArray.addIO(ModuleIO(1, "we", "input"))
     memArray.addParam(ModuleParam("DATA_WIDTH", defaultInputWidth))
     inputWidth = "DATA_WIDTH"
-    for i in range(k  * M):
+    for i in range(k * M):
         memArray.addIO(ModuleIO(inputWidth, "in" + str(i), "input"))
-        memArray.addIO(ModuleIO(inputWidth, "out" + str(i), "output"))
     addressWidth = int(math.log(M / k, 2))
     for i in range(M):
-        start = i * k
-        endIndex = start + k - 1
-        memArray.addIO(ModuleIO(addressWidth, "addr" + str(start) + "_" + str(endIndex), "input"))
+        startIndex = i * k
+        endIndex = startIndex + k - 1
+        memArray.addIO(ModuleIO(addressWidth, "addr" + str(startIndex) + "_" + str(endIndex), "input"))
+    for i in range(k * M):
+        memArray.addIO(ModuleIO(inputWidth, "out" + str(i), "output"))
 
     f.write(memArray.__str__())
     f.write("\n")
 
+    # generate the mem instantiation
+    for i in range(M * k):
+        mem = InstantiateModule("single_port_ram", "mem" + str(i), 2)
+        mem.addParam(ModuleParam("DATA_WIDTH", "DATA_WIDTH"))
+        mem.addParam(ModuleParam("ADDR_WIDTH", str(addressWidth)))
+        mem.addIO(ModuleIO(None, "data", "input", "in" + str(i)))
+        startIndex = int(i // k) * k
+        endIndex = startIndex + k - 1
+        mem.addIO(ModuleIO(None, "addr", "input", "addr" + str(startIndex) + "_" + str(endIndex)))
+        mem.addIO(ModuleIO(None, "we", "input", "we"))
+        mem.addIO(ModuleIO(None, "clk", "input", "clk"))
+        mem.addIO(ModuleIO(None, "q", "out", "out" + str(i)))
+        f.write(mem.__str__())
+        f.write("\n")
+
+    f.write(generateVerilogNewLine(0, "endmodule"))
     f.close()
 
 

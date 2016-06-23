@@ -16,7 +16,7 @@ module memArray (
     .we(we)
     .clk(clk),
     .q(out0)
-    )
+    );
 
 
 

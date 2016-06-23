@@ -35,6 +35,9 @@ class ModuleIO:
     def getType(self):
         return self.type
 
+    def getDefaultValue(self):
+        return self.defaultValue
+
 
 class ModuleParam:
     def __init__(self, name, defaultValue):
@@ -59,6 +62,10 @@ def generateVerilogNewLine(numSpace, text):
     return generateVerilogLine(numSpace, text, True)
 
 
+"""
+Used to generate verilog module
+"""
+
 def generateParam(param, isLastParam=False):
     assert isinstance(param, ModuleParam)
     result = generateVerilogLine(2, "parameter " + param.getName() + " = " + str(param.getDefaultValue()), False)
@@ -66,10 +73,6 @@ def generateParam(param, isLastParam=False):
         result += ","
     result += "\n"
     return result
-
-def generateParamInstance(param, isLastParam=False):
-    assert isinstance(param, ModuleParam)
-
 
 def generateIO(io, isLastIO=False):
     assert isinstance(io, ModuleIO)
@@ -83,6 +86,26 @@ def generateIO(io, isLastIO=False):
     result += "\n"
     return result
 
+"""
+Use to generate instance
+"""
+
+def generateParamInstance(param, isLastParam=False):
+    assert isinstance(param, ModuleParam)
+    assert type(param.getDefaultValue()) == str, "For module instantiation, the parameter's default value must be a string."
+    result = "." + param.getName() + "(" + param.getDefaultValue() + ")"
+    if not isLastParam:
+        result += ","
+    return result
+
+
+def generateIOInstance(io, isLastIO=False):
+    assert isinstance(io, ModuleIO)
+    assert io.defaultValue is not None
+    result = "." + io.getName() + "(" + io.getDefaultValue() + ")"
+    if not isLastIO:
+        result += ","
+    return result
 
 class VerilogModule:
     def __init__(self, name, baseIndent=0):
@@ -129,7 +152,31 @@ class InstantiateModule(VerilogModule):
         self.instanceName = instanceName
 
     def __str__(self):
-        pass
+        result = ""
+        # module name
+        result += generateVerilogLine(self.baseIndent, self.name, isNewLine=False)
+        if len(self.params) != 0:
+            result += " # (" + "\n"
+            # parameter
+            for i in range(len(self.params)):
+                if i == len(self.params) - 1:
+                    result += generateVerilogNewLine(self.baseIndent + 2,
+                                                     generateParamInstance(self.params[i], isLastParam=True))
+                else:
+                    result += generateVerilogNewLine(self.baseIndent + 2,
+                                                     generateParamInstance(self.params[i]))
+            # instance name line
+            result += generateVerilogLine(self.baseIndent + 2, ") ", isNewLine=False)
+        result += self.instanceName + " (" + "\n"
+        for i in range(len(self.io)):
+            if i == len(self.io) - 1:
+                result += generateVerilogNewLine(self.baseIndent + 2,
+                                                 generateIOInstance(self.io[i], isLastIO=True))
+            else:
+                result += generateVerilogNewLine(self.baseIndent + 2,
+                                                 generateIOInstance(self.io[i]))
+        result += generateVerilogNewLine(self.baseIndent, ");")
+        return result
 
 
 class GenVerilogTest(unittest.TestCase):
@@ -147,6 +194,16 @@ class GenVerilogTest(unittest.TestCase):
         singleRam.addIO(ModuleIO("DATA_WIDTH", "q", "output reg"))
         print singleRam
 
+    def testInstanceGen(self):
+        singleRam = InstantiateModule("single_port_ram", "mem0", 2)
+        singleRam.addParam(ModuleParam("DATA_WIDTH", "DATA_WIDTH"))
+        singleRam.addParam(ModuleParam("ADDR_WIDTH", "1"))
+        singleRam.addIO(ModuleIO("DATA_WIDTH", "data", "input", numToVerilogBit(0, 32)))
+        singleRam.addIO(ModuleIO("ADDR_WIDTH", "addr", "input", "addr0_3"))
+        singleRam.addIO(ModuleIO(1, "we", "input", defaultValue="we"))
+        singleRam.addIO(ModuleIO(1, "clk", "input", defaultValue="clk"))
+        singleRam.addIO(ModuleIO("DATA_WIDTH", "q", "output reg", defaultValue="out0"))
+        print singleRam
 
 
 if __name__ == "__main__":
