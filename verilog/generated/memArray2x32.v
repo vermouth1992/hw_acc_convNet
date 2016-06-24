@@ -5,10 +5,10 @@
 module memArray2x32 # (
   parameter DATA_WIDTH = 32
 ) (
-  input clk,
-  input clk_en,
-  input reset,
-  input we,  // the same as start
+  input [1-1:0] clk,
+  input [1-1:0] clk_en,
+  input [1-1:0] reset,
+  input [1-1:0] start,
   input [DATA_WIDTH-1:0] in0,
   input [DATA_WIDTH-1:0] in1,
   input [DATA_WIDTH-1:0] in2,
@@ -73,74 +73,105 @@ module memArray2x32 # (
   output [DATA_WIDTH-1:0] out29,
   output [DATA_WIDTH-1:0] out30,
   output [DATA_WIDTH-1:0] out31,
-  output reg start_next_stage
+  output reg [1-1:0] start_next_stage
 );
 
-  reg addr0_3,
-  reg addr4_7,
-  reg addr8_11,
-  reg addr12_15,
-  reg addr16_19,
-  reg addr20_23,
-  reg addr24_27,
-  reg addr28_31,
+  reg [1-1:0] addr0_3;
+  reg [1-1:0] addr4_7;
+  reg [1-1:0] addr8_11;
+  reg [1-1:0] addr12_15;
+  reg [1-1:0] addr16_19;
+  reg [1-1:0] addr20_23;
+  reg [1-1:0] addr24_27;
+  reg [1-1:0] addr28_31;
 
   localparam IDLE = 2'b00;
   localparam P1 = 2'b01;
   localparam P2 = 2'b10;
 
-  reg [1:0] state;
-  reg counter;
+  reg [2-1:0] state;
+  reg [1-1:0] counter;
 
   always@(posedge clk) begin
     if (reset) begin
       state <= IDLE;
-      counter <= 0;
-      start_next_stage <= 0;
-      addr0_3 <= 0;
-      ...
-    end else if (clk_en & we) begin
+      counter <= 1'b0;
+      start_next_stage <= 1'b0;
+      addr0_3 <= 1'b0;
+      addr4_7 <= 1'b0;
+      addr8_11 <= 1'b0;
+      addr12_15 <= 1'b0;
+      addr16_19 <= 1'b0;
+      addr20_23 <= 1'b0;
+      addr24_27 <= 1'b0;
+      addr28_31 <= 1'b0;
+    end else if (clk_en & start) begin
       case(state)
         IDLE: begin
           state <= P1;
-          counter <= counter + 1;
-          addr0_3 <= addr0_3 + 1;
-          ...
+          counter <= counter + 1'b1;
+          addr0_3 <= addr0_3 + 1'b1;
+          addr4_7 <= addr4_7 + 1'b1;
+          addr8_11 <= addr8_11 + 1'b1;
+          addr12_15 <= addr12_15 + 1'b1;
+          addr16_19 <= addr16_19 + 1'b1;
+          addr20_23 <= addr20_23 + 1'b1;
+          addr24_27 <= addr24_27 + 1'b1;
+          addr28_31 <= addr28_31 + 1'b1;
         end
         P1: begin
-          counter <= counter + 1;
-          if (counter == -1) begin
+          counter <= counter + 1'b1;
+          if (counter == 1'b1) begin
             state <= P2;
-            addr0_3 <= 0;
-            addr4_7 <= 1;
-            ...
             start_next_stage <= 1'b1;
+            addr0_3 <= 1'b0;
+            addr4_7 <= 1'b1;
+            addr8_11 <= 1'b0;
+            addr12_15 <= 1'b1;
+            addr16_19 <= 1'b0;
+            addr20_23 <= 1'b1;
+            addr24_27 <= 1'b0;
+            addr28_31 <= 1'b1;
           end else begin
             state <= P1;
-            addr0_3 <= addr0_3 + 1;
-            ...
+            addr0_3 <= addr0_3 + 1'b1;
+            addr4_7 <= addr4_7 + 1'b1;
+            addr8_11 <= addr8_11 + 1'b1;
+            addr12_15 <= addr12_15 + 1'b1;
+            addr16_19 <= addr16_19 + 1'b1;
+            addr20_23 <= addr20_23 + 1'b1;
+            addr24_27 <= addr24_27 + 1'b1;
+            addr28_31 <= addr28_31 + 1'b1;
           end
         end
         P2: begin
-          if (we) begin
-            counter <= counter + 1;
-            if (counter == -1) begin
-              state <= P1;
-              addr0_3 <= 0;
-              addr4_7 <= 0;
-              ...
-            end else begin
-              state <= P2;
-              addr0_3 <= addr0_3 - 1;
-              ...
-            end
+          counter <= counter + 1'b1;
+          if (counter == 1'b1) begin
+            state <= P1;
+            addr0_3 <= 1'b0;
+            addr4_7 <= 1'b0;
+            addr8_11 <= 1'b0;
+            addr12_15 <= 1'b0;
+            addr16_19 <= 1'b0;
+            addr20_23 <= 1'b0;
+            addr24_27 <= 1'b0;
+            addr28_31 <= 1'b0;
+          end else begin
+            state <= P2;
+            addr0_3 <= addr0_3 - 1'b1;
+            addr4_7 <= addr4_7 - 1'b1;
+            addr8_11 <= addr8_11 - 1'b1;
+            addr12_15 <= addr12_15 - 1'b1;
+            addr16_19 <= addr16_19 - 1'b1;
+            addr20_23 <= addr20_23 - 1'b1;
+            addr24_27 <= addr24_27 - 1'b1;
+            addr28_31 <= addr28_31 - 1'b1;
           end
         end
+        default: begin end
       endcase
     end
   end
-
-
 
   single_port_ram # (
     .DATA_WIDTH(DATA_WIDTH),
@@ -148,7 +179,7 @@ module memArray2x32 # (
     ) mem0 (
     .data(in0),
     .addr(addr0_3),
-    .we(we&clk_en),
+    .we(start & clk_en),
     .clk(clk),
     .q(out0)
   );
@@ -159,7 +190,7 @@ module memArray2x32 # (
     ) mem1 (
     .data(in1),
     .addr(addr0_3),
-    .we(we),
+    .we(start & clk_en),
     .clk(clk),
     .q(out1)
   );
@@ -170,7 +201,7 @@ module memArray2x32 # (
     ) mem2 (
     .data(in2),
     .addr(addr0_3),
-    .we(we),
+    .we(start & clk_en),
     .clk(clk),
     .q(out2)
   );
@@ -181,7 +212,7 @@ module memArray2x32 # (
     ) mem3 (
     .data(in3),
     .addr(addr0_3),
-    .we(we),
+    .we(start & clk_en),
     .clk(clk),
     .q(out3)
   );
@@ -192,7 +223,7 @@ module memArray2x32 # (
     ) mem4 (
     .data(in4),
     .addr(addr4_7),
-    .we(we),
+    .we(start & clk_en),
     .clk(clk),
     .q(out4)
   );
@@ -203,7 +234,7 @@ module memArray2x32 # (
     ) mem5 (
     .data(in5),
     .addr(addr4_7),
-    .we(we),
+    .we(start & clk_en),
     .clk(clk),
     .q(out5)
   );
@@ -214,7 +245,7 @@ module memArray2x32 # (
     ) mem6 (
     .data(in6),
     .addr(addr4_7),
-    .we(we),
+    .we(start & clk_en),
     .clk(clk),
     .q(out6)
   );
@@ -225,7 +256,7 @@ module memArray2x32 # (
     ) mem7 (
     .data(in7),
     .addr(addr4_7),
-    .we(we),
+    .we(start & clk_en),
     .clk(clk),
     .q(out7)
   );
@@ -236,7 +267,7 @@ module memArray2x32 # (
     ) mem8 (
     .data(in8),
     .addr(addr8_11),
-    .we(we),
+    .we(start & clk_en),
     .clk(clk),
     .q(out8)
   );
@@ -247,7 +278,7 @@ module memArray2x32 # (
     ) mem9 (
     .data(in9),
     .addr(addr8_11),
-    .we(we),
+    .we(start & clk_en),
     .clk(clk),
     .q(out9)
   );
@@ -258,7 +289,7 @@ module memArray2x32 # (
     ) mem10 (
     .data(in10),
     .addr(addr8_11),
-    .we(we),
+    .we(start & clk_en),
     .clk(clk),
     .q(out10)
   );
@@ -269,7 +300,7 @@ module memArray2x32 # (
     ) mem11 (
     .data(in11),
     .addr(addr8_11),
-    .we(we),
+    .we(start & clk_en),
     .clk(clk),
     .q(out11)
   );
@@ -280,7 +311,7 @@ module memArray2x32 # (
     ) mem12 (
     .data(in12),
     .addr(addr12_15),
-    .we(we),
+    .we(start & clk_en),
     .clk(clk),
     .q(out12)
   );
@@ -291,7 +322,7 @@ module memArray2x32 # (
     ) mem13 (
     .data(in13),
     .addr(addr12_15),
-    .we(we),
+    .we(start & clk_en),
     .clk(clk),
     .q(out13)
   );
@@ -302,7 +333,7 @@ module memArray2x32 # (
     ) mem14 (
     .data(in14),
     .addr(addr12_15),
-    .we(we),
+    .we(start & clk_en),
     .clk(clk),
     .q(out14)
   );
@@ -313,7 +344,7 @@ module memArray2x32 # (
     ) mem15 (
     .data(in15),
     .addr(addr12_15),
-    .we(we),
+    .we(start & clk_en),
     .clk(clk),
     .q(out15)
   );
@@ -324,7 +355,7 @@ module memArray2x32 # (
     ) mem16 (
     .data(in16),
     .addr(addr16_19),
-    .we(we),
+    .we(start & clk_en),
     .clk(clk),
     .q(out16)
   );
@@ -335,7 +366,7 @@ module memArray2x32 # (
     ) mem17 (
     .data(in17),
     .addr(addr16_19),
-    .we(we),
+    .we(start & clk_en),
     .clk(clk),
     .q(out17)
   );
@@ -346,7 +377,7 @@ module memArray2x32 # (
     ) mem18 (
     .data(in18),
     .addr(addr16_19),
-    .we(we),
+    .we(start & clk_en),
     .clk(clk),
     .q(out18)
   );
@@ -357,7 +388,7 @@ module memArray2x32 # (
     ) mem19 (
     .data(in19),
     .addr(addr16_19),
-    .we(we),
+    .we(start & clk_en),
     .clk(clk),
     .q(out19)
   );
@@ -368,7 +399,7 @@ module memArray2x32 # (
     ) mem20 (
     .data(in20),
     .addr(addr20_23),
-    .we(we),
+    .we(start & clk_en),
     .clk(clk),
     .q(out20)
   );
@@ -379,7 +410,7 @@ module memArray2x32 # (
     ) mem21 (
     .data(in21),
     .addr(addr20_23),
-    .we(we),
+    .we(start & clk_en),
     .clk(clk),
     .q(out21)
   );
@@ -390,7 +421,7 @@ module memArray2x32 # (
     ) mem22 (
     .data(in22),
     .addr(addr20_23),
-    .we(we),
+    .we(start & clk_en),
     .clk(clk),
     .q(out22)
   );
@@ -401,7 +432,7 @@ module memArray2x32 # (
     ) mem23 (
     .data(in23),
     .addr(addr20_23),
-    .we(we),
+    .we(start & clk_en),
     .clk(clk),
     .q(out23)
   );
@@ -412,7 +443,7 @@ module memArray2x32 # (
     ) mem24 (
     .data(in24),
     .addr(addr24_27),
-    .we(we),
+    .we(start & clk_en),
     .clk(clk),
     .q(out24)
   );
@@ -423,7 +454,7 @@ module memArray2x32 # (
     ) mem25 (
     .data(in25),
     .addr(addr24_27),
-    .we(we),
+    .we(start & clk_en),
     .clk(clk),
     .q(out25)
   );
@@ -434,7 +465,7 @@ module memArray2x32 # (
     ) mem26 (
     .data(in26),
     .addr(addr24_27),
-    .we(we),
+    .we(start & clk_en),
     .clk(clk),
     .q(out26)
   );
@@ -445,7 +476,7 @@ module memArray2x32 # (
     ) mem27 (
     .data(in27),
     .addr(addr24_27),
-    .we(we),
+    .we(start & clk_en),
     .clk(clk),
     .q(out27)
   );
@@ -456,7 +487,7 @@ module memArray2x32 # (
     ) mem28 (
     .data(in28),
     .addr(addr28_31),
-    .we(we),
+    .we(start & clk_en),
     .clk(clk),
     .q(out28)
   );
@@ -467,7 +498,7 @@ module memArray2x32 # (
     ) mem29 (
     .data(in29),
     .addr(addr28_31),
-    .we(we),
+    .we(start & clk_en),
     .clk(clk),
     .q(out29)
   );
@@ -478,7 +509,7 @@ module memArray2x32 # (
     ) mem30 (
     .data(in30),
     .addr(addr28_31),
-    .we(we),
+    .we(start & clk_en),
     .clk(clk),
     .q(out30)
   );
@@ -489,7 +520,7 @@ module memArray2x32 # (
     ) mem31 (
     .data(in31),
     .addr(addr28_31),
-    .we(we),
+    .we(start & clk_en),
     .clk(clk),
     .q(out31)
   );
