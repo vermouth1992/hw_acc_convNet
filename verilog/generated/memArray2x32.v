@@ -72,7 +72,8 @@ module memArray2x32 # (
   output [DATA_WIDTH-1:0] out28,
   output [DATA_WIDTH-1:0] out29,
   output [DATA_WIDTH-1:0] out30,
-  output [DATA_WIDTH-1:0] out31
+  output [DATA_WIDTH-1:0] out31,
+  output reg start_next_stage
 );
 
   reg addr0_3,
@@ -149,7 +150,7 @@ module memArray2x32 # (
     ) mem0 (
     .data(in0),
     .addr(addr0_3),
-    .we(we),
+    .we(we&clk_en),
     .clk(clk),
     .q(out0)
   );

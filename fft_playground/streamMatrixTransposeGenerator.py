@@ -44,11 +44,13 @@ def generateCrossbarVerilog(k, M, inputWidth, pipeline, fileName):
     crossbar = VerilogModule("crossbar" + str(crossbarSize) + "x" + str(crossbarSize))
     crossbar.addIO(ModuleIO(1, "clk", "input"))
     crossbar.addIO(ModuleIO(1, "clk_en", "input"))
+    crossbar.addIO(ModuleIO(1, "start", "input"))
     crossbar.addParam(ModuleParam("DATA_WIDTH", inputWidth))
     inputWidth = "DATA_WIDTH"
     for i in range(k * M):
         crossbar.addIO(ModuleIO(inputWidth, "in" + str(i), "input"))
 
+    crossbar.addIO(ModuleIO(1, "start_next_stage", "output reg"))
     if pipeline:
         for i in range(k * M):
             crossbar.addIO(ModuleIO(inputWidth, "out" + str(i), "output reg"))
@@ -75,7 +77,7 @@ def generateCrossbarVerilog(k, M, inputWidth, pipeline, fileName):
         raise NotImplementedError("Not pipeline design is not implemented yet.")
 
 
-def generateShiftCrossbarVerilog(k, M, defaultInputWidth, fileName):
+def generateShiftCrossbarVerilog(k, M, defaultInputWidth, fileName, direction="down"):
     f = open(fileName, "w")
     # generate the top comment
     f.write(generateVerilogNewLine(0, "/* " + fileName))
@@ -89,24 +91,47 @@ def generateShiftCrossbarVerilog(k, M, defaultInputWidth, fileName):
     crossbarShift = VerilogModule("crossbarShift" + str(crossbarSize) + "x" + str(crossbarSize))
     crossbarShift.addIO(ModuleIO(1, "clk", "input"))
     crossbarShift.addIO(ModuleIO(1, "clk_en", "input"))
-    crossbarShift.addIO(ModuleIO(timestampLength, "timestamp", "input"))
+    crossbarShift.addIO(ModuleIO(1, "start", "input"))
+    crossbarShift.addIO(ModuleIO(1, "reset", "input"))
     crossbarShift.addParam(ModuleParam("DATA_WIDTH", defaultInputWidth))
     inputWidth = "DATA_WIDTH"
     for i in range(k * M):
         crossbarShift.addIO(ModuleIO(inputWidth, "in" + str(i), "input"))
+    startNextStageModule = ModuleIO(1, "start_next_stage", "output reg")
+    crossbarShift.addIO(startNextStageModule)
     for i in range(k * M):
         crossbarShift.addIO(ModuleIO(inputWidth, "out" + str(i), "output reg"))
 
     f.write(crossbarShift.__str__())
     f.write("\n")
 
+    # generate control block
+    t = ModuleReg(timestampLength, "timestamp")
+    f.write(generateVerilogNewLine(2, t.__str__()))
+    f.write("\n")
+    f.write(generateVerilogNewLine(2, "always@(posedge clk) begin"))
+    f.write(generateVerilogNewLine(4, "if (reset) begin"))
+    f.write(generateVerilogNewLine(6, generateAssignment(startNextStageModule, 0, "non-blocking")))
+    f.write(generateVerilogNewLine(6, generateAssignment(t, 0, "non-blocking")))
+    f.write(generateVerilogNewLine(4, "end else if (clk_en & start) begin"))
+    f.write(generateVerilogNewLine(6, generateAssignment(startNextStageModule, "start", "non-blocking")))
+    f.write(generateVerilogNewLine(6, generateAssignment(t, "timestamp + 1", "non-blocking")))
+    f.write(generateVerilogNewLine(4, "end"))
+    f.write(generateVerilogNewLine(2, "end"))
+    f.write("\n")
+
     # generate the always block
     f.write(generateVerilogNewLine(2, "always@(posedge clk) begin"))
-    f.write(generateVerilogNewLine(4, "if (clk_en) begin"))
+    f.write(generateVerilogNewLine(4, "if (clk_en & start) begin"))
     f.write(generateVerilogNewLine(6, "case (timestamp)"))
     for i in range(timestamp):
         f.write(generateVerilogNewLine(8, numToVerilogBit(i, timestampLength) + ": begin"))
-        shiftNum = i * k
+        if direction == "down":
+            shiftNum = i * k
+        elif direction == "up":
+            shiftNum = - i * k
+        else:
+            raise NotImplementedError("Unknown direction")
         inOutPair = getShiftCrossbarPair(k, M, shiftNum)
         for inPort, outPort in inOutPair:
             f.write(generateVerilogNewLine(10, outPort + " <= " + inPort + ";"))
@@ -178,12 +203,23 @@ def genMemArrayVerilog(k, M, defaultInputWidth, fileName):
 if __name__ == "__main__":
     k, M = 4, 8
     crossbarSize = k * M
-    if False:
+    generateCrossbar = False
+    generateCrossbarShiftDown = True
+    generateCrossbarShiftUp = True
+    generateMemArray = False
+
+    if generateCrossbar:
         fileName = generatedVerilogFolder + "crossbar" + str(crossbarSize) + "x" + str(crossbarSize) + ".v"
         generateCrossbarVerilog(k, M, inputWidth=32, pipeline=True, fileName=fileName)
-    if False:
-        fileName = generatedVerilogFolder + "crossbarShift" + str(crossbarSize) + "x" + str(crossbarSize) + ".v"
-        generateShiftCrossbarVerilog(k, M, defaultInputWidth=32, fileName=fileName)
-    if True:
+
+    if generateCrossbarShiftDown:
+        fileName = generatedVerilogFolder + "crossbarShiftDown" + str(crossbarSize) + "x" + str(crossbarSize) + ".v"
+        generateShiftCrossbarVerilog(k, M, defaultInputWidth=32, fileName=fileName, direction="down")
+
+    if generateCrossbarShiftUp:
+        fileName = generatedVerilogFolder + "crossbarShiftUp" + str(crossbarSize) + "x" + str(crossbarSize) + ".v"
+        generateShiftCrossbarVerilog(k, M, defaultInputWidth=32, fileName=fileName, direction="up")
+
+    if generateMemArray:
         fileName = generatedVerilogFolder + "memArray" + str(M / k) + "x" + str(M * k) + ".v"
         genMemArrayVerilog(k, M, defaultInputWidth=32, fileName=fileName)

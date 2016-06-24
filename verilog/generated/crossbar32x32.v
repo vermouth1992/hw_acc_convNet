@@ -7,6 +7,7 @@ module crossbar32x32 # (
 ) (
   input clk,
   input clk_en,
+  input reset,
   input start,
   input [DATA_WIDTH-1:0] in0,
   input [DATA_WIDTH-1:0] in1,
@@ -76,13 +77,17 @@ module crossbar32x32 # (
 );
 
   always@(posedge clk) begin
-    if (clk_en) begin
-      start_next_stage <= start;
+    if (reset) begin
+      start_next_stage <= 1'b0;
+    else if (clk_en & start) begin
+      start_next_stage <= start;    
+      // This means that as long as start_next_stage becomes 1, it will never go back to zero
+      // The rule of start_next_stage is to trigger the next stage when filling the pipeline
     end
   end
 
   always@(posedge clk) begin
-    if (clk_en) begin
+    if (clk_en & start) begin
       out0 <= in0;
       out1 <= in8;
       out2 <= in16;

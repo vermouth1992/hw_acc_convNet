@@ -20,7 +20,7 @@ def numToVerilogBit(num, length):
 
 class ModuleIO:
     def __init__(self, length, name, type, defaultValue=None):
-        assert type == "input" or type == "output" or "output reg"
+        assert type == "input" or type == "output" or "output reg" or "reg" or "wire"
         self.type = type
         self.length = str(length)
         self.name = name
@@ -38,6 +38,24 @@ class ModuleIO:
     def getDefaultValue(self):
         return self.defaultValue
 
+    def __str__(self):
+        result = self.getType() + " [" + str(self.getLength()) + "-1:0] " + self.getName()
+        return result
+
+
+class ModuleReg(ModuleIO):
+    def __init__(self, length, name):
+        ModuleIO.__init__(self, length, name, "reg")
+
+    def __str__(self):
+        return ModuleIO.__str__(self) + ";"
+
+class ModuleWire(ModuleIO):
+    def __init__(self, length, name):
+        ModuleIO.__init__(self, length, name, "wire")
+
+    def __str__(self):
+        return ModuleIO.__str__(self) + ";"
 
 class ModuleParam:
     def __init__(self, name, defaultValue):
@@ -51,15 +69,30 @@ class ModuleParam:
         return self.defaultValue
 
 
-def generateVerilogLine(numSpace, text, isNewLine):
+def generateAssignment(m, value, assignType):
+    assert assignType == "blocking" or assignType == "non-blocking"
+    assert isinstance(m, ModuleIO)
+    if assignType == "blocking":
+        assign = " = "
+    else:
+        assign = " <= "
+    if type(value) == int:
+        return m.getName() + assign + numToVerilogBit(value, int(m.getLength())) + ";"
+    else:
+        return m.getName() + assign + value + ";"
+
+
+def generateVerilogLine(numSpace, text, isNewLine, comment=""):
     result = " " * numSpace + text
+    if comment != "":
+        result += 5 * " " + comment
     if isNewLine:
         result += "\n"
     return result
 
 
-def generateVerilogNewLine(numSpace, text):
-    return generateVerilogLine(numSpace, text, True)
+def generateVerilogNewLine(numSpace, text, comment=""):
+    return generateVerilogLine(numSpace, text, True, comment)
 
 
 """
@@ -76,11 +109,7 @@ def generateParam(param, isLastParam=False):
 
 def generateIO(io, isLastIO=False):
     assert isinstance(io, ModuleIO)
-    result = ""
-    if io.getLength() == "1":
-        result += generateVerilogLine(2, io.getType() + " " + io.getName(), False)
-    else:
-        result += generateVerilogLine(2, io.getType() + " [" + str(io.getLength()) + "-1:0] " + io.getName(), False)
+    result = generateVerilogLine(2, io.__str__(), False)
     if not isLastIO:
         result += ","
     result += "\n"
