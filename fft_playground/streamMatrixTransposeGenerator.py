@@ -170,21 +170,27 @@ def genMemArrayVerilog(k, M, defaultInputWidth, fileName):
     # generate module io
     memArray = VerilogModule("memArray" + str(M / k) + "x" + str(M * k))
     memArray.addIO(ModuleIO(1, "clk", "input"))
-    memArray.addIO(ModuleIO(1, "we", "input"))
+    memArray.addIO(ModuleIO(1, "clk_en", "input"))
+    memArray.addIO(ModuleIO(1, "reset", "input"))
+    memArray.addIO(ModuleIO(1, "start", "input"))
     memArray.addParam(ModuleParam("DATA_WIDTH", defaultInputWidth))
     inputWidth = "DATA_WIDTH"
     for i in range(k * M):
         memArray.addIO(ModuleIO(inputWidth, "in" + str(i), "input"))
+    for i in range(k * M):
+        memArray.addIO(ModuleIO(inputWidth, "out" + str(i), "output"))
+    memArray.addIO(ModuleIO(1, "start_next_stage", "output reg"))
+    f.write(memArray.__str__())
+    f.write("\n")
+
+    # generate control block
     addressWidth = int(math.log(M / k, 2))
     for i in range(M):
         startIndex = i * k
         endIndex = startIndex + k - 1
-        memArray.addIO(ModuleIO(addressWidth, "addr" + str(startIndex) + "_" + str(endIndex), "input"))
-    for i in range(k * M):
-        memArray.addIO(ModuleIO(inputWidth, "out" + str(i), "output"))
+        addressReg = ModuleReg(addressWidth, "addr" + str(startIndex) + "_" + str(endIndex))
+        f.write(generateVerilogNewLine(2, addressReg.__str__()))
 
-    f.write(memArray.__str__())
-    f.write("\n")
 
     # generate the mem instantiation
     for i in range(M * k):
@@ -195,7 +201,7 @@ def genMemArrayVerilog(k, M, defaultInputWidth, fileName):
         startIndex = int(i // k) * k
         endIndex = startIndex + k - 1
         mem.addIO(ModuleIO(None, "addr", "input", "addr" + str(startIndex) + "_" + str(endIndex)))
-        mem.addIO(ModuleIO(None, "we", "input", "we"))
+        mem.addIO(ModuleIO(None, "we", "input", "start & clk_en"))
         mem.addIO(ModuleIO(None, "clk", "input", "clk"))
         mem.addIO(ModuleIO(None, "q", "out", "out" + str(i)))
         f.write(mem.__str__())
@@ -208,10 +214,10 @@ def genMemArrayVerilog(k, M, defaultInputWidth, fileName):
 if __name__ == "__main__":
     k, M = 4, 8
     crossbarSize = k * M
-    generateCrossbar = True
+    generateCrossbar = False
     generateCrossbarShiftDown = False
     generateCrossbarShiftUp = False
-    generateMemArray = False
+    generateMemArray = True
 
     if generateCrossbar:
         fileName = generatedVerilogFolder + "crossbar" + str(crossbarSize) + "x" + str(crossbarSize) + ".v"
