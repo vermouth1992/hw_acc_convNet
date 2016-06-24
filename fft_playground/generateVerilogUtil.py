@@ -14,7 +14,7 @@ def numToVerilogBit(num, length):
     "3'b001"
     """
     binStr = bin(num)[2:]
-    binStr = (length - len(binStr)) * "0" + binStr
+    binStr = (int(length) - len(binStr)) * "0" + binStr
     return str(length) + "'b" + binStr
 
 
@@ -69,7 +69,7 @@ class ModuleParam:
         return self.defaultValue
 
 
-def generateAssignment(m, value, assignType):
+def generateAssignment(m, value, assignType="non-blocking"):
     assert assignType == "blocking" or assignType == "non-blocking"
     assert isinstance(m, ModuleIO)
     if assignType == "blocking":

@@ -179,18 +179,96 @@ def genMemArrayVerilog(k, M, defaultInputWidth, fileName):
         memArray.addIO(ModuleIO(inputWidth, "in" + str(i), "input"))
     for i in range(k * M):
         memArray.addIO(ModuleIO(inputWidth, "out" + str(i), "output"))
-    memArray.addIO(ModuleIO(1, "start_next_stage", "output reg"))
+
+    startNextStageReg = ModuleIO(1, "start_next_stage", "output reg")
+    memArray.addIO(startNextStageReg)
     f.write(memArray.__str__())
     f.write("\n")
 
     # generate control block
     addressWidth = int(math.log(M / k, 2))
+    addressRegList = []
     for i in range(M):
         startIndex = i * k
         endIndex = startIndex + k - 1
         addressReg = ModuleReg(addressWidth, "addr" + str(startIndex) + "_" + str(endIndex))
         f.write(generateVerilogNewLine(2, addressReg.__str__()))
+        addressRegList.append(addressReg)
 
+    f.write("\n")
+
+    # add localparams
+    f.write(generateVerilogNewLine(2, "localparam IDLE = 2'b00;"))
+    f.write(generateVerilogNewLine(2, "localparam P1 = 2'b01;"))
+    f.write(generateVerilogNewLine(2, "localparam P2 = 2'b10;"))
+    f.write("\n")
+
+    stateReg = ModuleReg(2, "state")
+    f.write(generateVerilogNewLine(2, stateReg.__str__()))
+
+    counterReg = ModuleReg(M / k, "counter")
+    f.write(generateVerilogNewLine(2, counterReg.__str__()))
+    f.write("\n")
+
+    # create the FSM
+    f.write(generateVerilogNewLine(2, "always@(posedge clk) begin"))
+    f.write(generateVerilogNewLine(4, "if (reset) begin"))
+    f.write(generateVerilogNewLine(6, generateAssignment(stateReg, "IDLE", "non-blocking")))
+    f.write(generateVerilogNewLine(6, generateAssignment(counterReg, 0, "non-blocking")))
+    f.write(generateVerilogNewLine(6, generateAssignment(startNextStageReg, 0, "non-blocking")))
+    for addr in addressRegList:
+        f.write(generateVerilogNewLine(6, generateAssignment(addr, 0, "non-blocking")))
+    f.write(generateVerilogNewLine(4, "end else if (clk_en & start) begin"))
+    f.write(generateVerilogNewLine(6, "case(state)"))
+    # IDLE
+    f.write(generateVerilogNewLine(8, "IDLE: begin"))
+    f.write(generateVerilogNewLine(10, generateAssignment(stateReg, "P1")))
+    f.write(generateVerilogNewLine(10, generateAssignment(counterReg, counterReg.getName() +
+                                                          " + " + numToVerilogBit(1, counterReg.getLength()))))
+    for addr in addressRegList:
+        f.write(generateVerilogNewLine(10, generateAssignment(addr, addr.getName() +
+                                                              " + " + numToVerilogBit(1, addr.getLength()))))
+    f.write(generateVerilogNewLine(8, "end"))
+    # P1
+    f.write(generateVerilogNewLine(8, "P1: begin"))
+    f.write(generateVerilogNewLine(10, generateAssignment(counterReg, counterReg.getName() +
+                                                          " + " + numToVerilogBit(1, counterReg.getLength()))))
+    f.write(generateVerilogNewLine(10, "if (counter == " + numToVerilogBit(M / k - 1, counterReg.getLength())
+                                   + ") begin"))
+    f.write(generateVerilogNewLine(12, generateAssignment(stateReg, "P2")))
+    f.write(generateVerilogNewLine(12, generateAssignment(startNextStageReg, 1, "non-blocking")))
+    for i in range(len(addressRegList)):
+        f.write(generateVerilogNewLine(12, generateAssignment(addressRegList[i], i % (M / k))))
+    f.write(generateVerilogNewLine(10, "end else begin"))
+    f.write(generateVerilogNewLine(12, generateAssignment(stateReg, "P1")))
+    for addr in addressRegList:
+        f.write(generateVerilogNewLine(12, generateAssignment(addr, addr.getName() +
+                                                              " + " + numToVerilogBit(1, addr.getLength()))))
+    f.write(generateVerilogNewLine(10, "end"))
+    f.write(generateVerilogNewLine(8, "end"))
+    # P2
+    f.write(generateVerilogNewLine(8, "P2: begin"))
+    f.write(generateVerilogNewLine(10, generateAssignment(counterReg, counterReg.getName() +
+                                                          " + " + numToVerilogBit(1, counterReg.getLength()))))
+    f.write(generateVerilogNewLine(10, "if (counter == " + numToVerilogBit(M / k - 1, counterReg.getLength())
+                                   + ") begin"))
+    f.write(generateVerilogNewLine(12, generateAssignment(stateReg, "P1")))
+    for i in range(len(addressRegList)):
+        f.write(generateVerilogNewLine(12, generateAssignment(addressRegList[i], 0)))
+
+    f.write(generateVerilogNewLine(10, "end else begin"))
+    f.write(generateVerilogNewLine(12, generateAssignment(stateReg, "P2")))
+    for addr in addressRegList:
+        f.write(generateVerilogNewLine(12, generateAssignment(addr, addr.getName() +
+                                                              " - " + numToVerilogBit(1, addr.getLength()))))
+    f.write(generateVerilogNewLine(10, "end"))
+    f.write(generateVerilogNewLine(8, "end"))
+    f.write(generateVerilogNewLine(8, "default: begin end"))
+    f.write(generateVerilogNewLine(6, "endcase"))
+    f.write(generateVerilogNewLine(4, "end"))
+    f.write(generateVerilogNewLine(2, "end"))
+
+    f.write("\n")
 
     # generate the mem instantiation
     for i in range(M * k):

@@ -84,6 +84,95 @@ module memArray2x32 # (
   reg [1-1:0] addr20_23;
   reg [1-1:0] addr24_27;
   reg [1-1:0] addr28_31;
+
+  localparam IDLE = 2'b00;
+  localparam P1 = 2'b01;
+  localparam P2 = 2'b10;
+
+  reg [2-1:0] state;
+  reg [2-1:0] counter;
+
+  always@(posedge clk) begin
+    if (reset) begin
+      state <= IDLE;
+      counter <= 2'b00;
+      start_next_stage <= 1'b0;
+      addr0_3 <= 1'b0;
+      addr4_7 <= 1'b0;
+      addr8_11 <= 1'b0;
+      addr12_15 <= 1'b0;
+      addr16_19 <= 1'b0;
+      addr20_23 <= 1'b0;
+      addr24_27 <= 1'b0;
+      addr28_31 <= 1'b0;
+    end else if (clk_en & start) begin
+      case(state)
+        IDLE: begin
+          state <= P1;
+          counter <= counter + 2'b01;
+          addr0_3 <= addr0_3 + 1'b1;
+          addr4_7 <= addr4_7 + 1'b1;
+          addr8_11 <= addr8_11 + 1'b1;
+          addr12_15 <= addr12_15 + 1'b1;
+          addr16_19 <= addr16_19 + 1'b1;
+          addr20_23 <= addr20_23 + 1'b1;
+          addr24_27 <= addr24_27 + 1'b1;
+          addr28_31 <= addr28_31 + 1'b1;
+        end
+        P1: begin
+          counter <= counter + 2'b01;
+          if (counter == 2'b01) begin
+            state <= P2;
+            start_next_stage <= 1'b1;
+            addr0_3 <= 1'b0;
+            addr4_7 <= 1'b1;
+            addr8_11 <= 1'b0;
+            addr12_15 <= 1'b1;
+            addr16_19 <= 1'b0;
+            addr20_23 <= 1'b1;
+            addr24_27 <= 1'b0;
+            addr28_31 <= 1'b1;
+          end else begin
+            state <= P1;
+            addr0_3 <= addr0_3 + 1'b1;
+            addr4_7 <= addr4_7 + 1'b1;
+            addr8_11 <= addr8_11 + 1'b1;
+            addr12_15 <= addr12_15 + 1'b1;
+            addr16_19 <= addr16_19 + 1'b1;
+            addr20_23 <= addr20_23 + 1'b1;
+            addr24_27 <= addr24_27 + 1'b1;
+            addr28_31 <= addr28_31 + 1'b1;
+          end
+        end
+        P2: begin
+          counter <= counter + 2'b01;
+          if (counter == 2'b01) begin
+            state <= P1;
+            addr0_3 <= 1'b0;
+            addr4_7 <= 1'b0;
+            addr8_11 <= 1'b0;
+            addr12_15 <= 1'b0;
+            addr16_19 <= 1'b0;
+            addr20_23 <= 1'b0;
+            addr24_27 <= 1'b0;
+            addr28_31 <= 1'b0;
+          end else begin
+            state <= P2;
+            addr0_3 <= addr0_3 - 1'b1;
+            addr4_7 <= addr4_7 - 1'b1;
+            addr8_11 <= addr8_11 - 1'b1;
+            addr12_15 <= addr12_15 - 1'b1;
+            addr16_19 <= addr16_19 - 1'b1;
+            addr20_23 <= addr20_23 - 1'b1;
+            addr24_27 <= addr24_27 - 1'b1;
+            addr28_31 <= addr28_31 - 1'b1;
+          end
+        end
+        default: begin end
+      endcase
+    end
+  end
+
   single_port_ram # (
     .DATA_WIDTH(DATA_WIDTH),
     .ADDR_WIDTH(1)

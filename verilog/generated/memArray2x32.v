@@ -99,30 +99,26 @@ module memArray2x32 # (
       start_next_stage <= 0;
       addr0_3 <= 0;
       ...
-    end else if (clk_en) begin
+    end else if (clk_en & we) begin
       case(state)
         IDLE: begin
-          if (we) begin
-            state <= P1;
-            counter <= counter + 1;
-            addr0_3 <= addr0_3 + 1;
-            ...
-          end
+          state <= P1;
+          counter <= counter + 1;
+          addr0_3 <= addr0_3 + 1;
+          ...
         end
         P1: begin
-          if (we) begin
-            counter <= counter + 1;
-            if (counter == -1) begin
-              state <= P2;
-              addr0_3 <= 0;
-              addr4_7 <= 1;
-              ...
-              start_next_stage <= 1'b1;
-            end else begin
-              state <= P1;
-              addr0_3 <= addr0_3 + 1;
-              ...
-            end
+          counter <= counter + 1;
+          if (counter == -1) begin
+            state <= P2;
+            addr0_3 <= 0;
+            addr4_7 <= 1;
+            ...
+            start_next_stage <= 1'b1;
+          end else begin
+            state <= P1;
+            addr0_3 <= addr0_3 + 1;
+            ...
           end
         end
         P2: begin
