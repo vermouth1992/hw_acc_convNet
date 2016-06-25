@@ -38,8 +38,8 @@ module afu_user_tb; /* this is automatically generated */
 
   // reset
   initial begin
-    input_file = $fopen("src/input_trace.txt", "r")
-    output_file = $fopen("out/trace.txt", "w");
+    input_file = $fopen("out/input_trace.txt", "r")
+    output_file = $fopen("out/output_trace.txt", "w");
     clk = 0;
     reset = 1;
     input_fifo_we = 0;
@@ -51,7 +51,8 @@ module afu_user_tb; /* this is automatically generated */
 
   always@(posedge clk) begin
     if (!$feof(input_file)) begin
-      $fscanf(input_file, "%h %h", input_fifo_din, input_fifo_we);
+      input_fifo_we <= 1'b1;
+      $fscanf(input_file, "%h", input_fifo_din);
     end
   end
 
@@ -67,6 +68,8 @@ module afu_user_tb; /* this is automatically generated */
   always@(posedge clk) begin
     if (~reset && ctx_length != 0 && ctx_length == ctx_length_count) begin
       $stop;
+      $fclose(input_file);
+      $fclose(output_file);
     end
   end 
 
