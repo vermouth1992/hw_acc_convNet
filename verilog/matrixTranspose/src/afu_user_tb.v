@@ -12,16 +12,17 @@ module afu_user_tb; /* this is automatically generated */
   wire  [511:0] output_fifo_dout;
   wire          output_fifo_re;
   wire          output_fifo_empty;
-  wire  [31:0]  ctx_length;
+  reg  [31:0]   ctx_length;
 
   integer input_file;
   integer output_file;
+  integer status;
 
   always #(CLOCK_PERIOD/2) clk = ~clk;
 
   afu_user #(
     .DATA_WIDTH(DATA_WIDTH)
-  ) inst_afu_user (
+  ) afu_user_uut (
     .clk                      (clk),
     .reset                    (reset),
     .input_fifo_din           (input_fifo_din),
@@ -38,13 +39,13 @@ module afu_user_tb; /* this is automatically generated */
 
   // reset
   initial begin
-    input_file = $fopen("out/input_trace.txt", "r")
+    input_file = $fopen("out/input_trace.txt", "r");
     output_file = $fopen("out/output_trace.txt", "w");
     clk = 0;
     reset = 1;
     input_fifo_we = 0;
     input_fifo_din = 0;
-    $fscanf(input_file, "%h", ctx_length);
+    status = $fscanf(input_file, "%h", ctx_length);
     @(posedge clk);
     reset = 0;
   end
@@ -52,7 +53,7 @@ module afu_user_tb; /* this is automatically generated */
   always@(posedge clk) begin
     if (!$feof(input_file)) begin
       input_fifo_we <= 1'b1;
-      $fscanf(input_file, "%h", input_fifo_din);
+      status = $fscanf(input_file, "%h", input_fifo_din);
     end
   end
 

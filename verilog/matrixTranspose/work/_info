@@ -9,13 +9,13 @@ z2
 cModel Technology
 d//vmware-host/Shared Folders/verilog/single_port_ram
 vafu_user
-Z0 !s110 1466876781
+Z0 !s110 1466896325
 !i10b 1
-!s100 4L[HTPLo5fANJL@WkdJ7C1
-Im;E[hd2W65;aWBEn4@lR`1
+!s100 G;>SmQ?N4bmn]K3RY]0[_2
+IQ>h];>NCkPX`CEEkmI:b?3
 Z1 VDg1SIo80bB@j0V0VzS_@n1
 Z2 d//vmware-host/Shared Folders/verilog/matrixTranspose
-w1466876375
+w1466896302
 8src/afu_user.v
 Fsrc/afu_user.v
 L0 1
@@ -23,7 +23,7 @@ Z3 OP;L;10.4a;61
 r1
 !s85 0
 31
-Z4 !s108 1466876780.000000
+Z4 !s108 1466896325.000000
 Z5 !s107 src/syn_read_fifo.v|src/streamMatrixTransposeTop32x32.v|src/single_port_ram.v|src/memArray2x32.v|src/crossbarShiftUp32x32.v|src/crossbarShiftDown32x32.v|src/crossbar32x32.v|src/afu_user_tb.v|src/afu_user.v|
 Z6 !s90 -reportprogress|300|+acc|src/afu_user.v|src/afu_user_tb.v|src/crossbar32x32.v|src/crossbarShiftDown32x32.v|src/crossbarShiftUp32x32.v|src/memArray2x32.v|src/single_port_ram.v|src/streamMatrixTransposeTop32x32.v|src/syn_read_fifo.v|
 !s101 -O0
@@ -32,11 +32,11 @@ Z7 o+acc -L mtiAvm -L mtiRnm -L mtiOvm -L mtiUvm -L mtiUPF -L infact -O0
 vafu_user_tb
 R0
 !i10b 1
-!s100 ]=>RKT=ZnbUo86Lf^KzYQ2
-IK8F0WY5AgJ]@<MVMJ2ik<0
+!s100 gA3<NXnDFl_]_FeNCTCNL2
+I1[GZnOA8n6oAzz83Y=l>Q0
 R1
 R2
-w1466876773
+w1466896205
 8src/afu_user_tb.v
 Fsrc/afu_user_tb.v
 L0 3
@@ -57,7 +57,7 @@ R0
 Ig0e`RYODzBzG1ozBbe3^<2
 R1
 R2
-Z8 w1466828523
+Z8 w1466896137
 8src/crossbar32x32.v
 Fsrc/crossbar32x32.v
 L0 5
@@ -72,7 +72,7 @@ R6
 !i113 1
 R7
 vcrossbarShiftDown32x32
-R0
+Z9 !s110 1466896326
 !i10b 1
 !s100 7Bb3V:JO^`m9i;OE789lj3
 IK[?J0E6n95?ckiE=i8h]f3
@@ -94,7 +94,7 @@ R6
 R7
 ncrossbar@shift@down32x32
 vcrossbarShiftUp32x32
-R0
+R9
 !i10b 1
 !s100 Am^@;GcaF@lC5XL;zc0oa1
 I6Lca9bgGz@PObkzWEV_`A2
@@ -116,13 +116,13 @@ R6
 R7
 ncrossbar@shift@up32x32
 vmemArray2x32
-R0
+R9
 !i10b 1
-!s100 `gNG<zc6TmnJ5c;jVM<243
-Ig<F1i;>=W2I_]4oI`Q1d_0
+!s100 2;;K4gh`^Iz6TzlEL1oY20
+Ig22zDY5Fch[0ZGmPo1K3g1
 R1
 R2
-w1466874451
+R8
 8src/memArray2x32.v
 Fsrc/memArray2x32.v
 L0 5
@@ -138,7 +138,7 @@ R6
 R7
 nmem@array2x32
 vsingle_port_ram
-R0
+R9
 !i10b 1
 !s100 k_H2T:4jkK4aM0@H;`=XN3
 I`3l71gDdn:eD:[I0d7>ok3
@@ -159,7 +159,7 @@ R6
 !i113 1
 R7
 vstreamMatrixTransposeTop32x32
-R0
+R9
 !i10b 1
 !s100 6a]m]G;@LT<3YbJUVEg=D0
 IMD2cKQTOgAMIJNlKJYOkl1
@@ -181,7 +181,7 @@ R6
 R7
 nstream@matrix@transpose@top32x32
 vsyn_read_fifo
-R0
+R9
 !i10b 1
 !s100 hL9>]6c13J12ai@Iiji=<1
 IjedMPNJCeK7AMk^9EY:d^3

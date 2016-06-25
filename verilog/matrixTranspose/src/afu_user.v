@@ -8,7 +8,7 @@ module afu_user # (
   input input_fifo_we,
   output input_fifo_full,
   output input_fifo_almost_full,
-  output input_fifo_count,
+  output [2:0] input_fifo_count,
   // output fifo
   output [511:0] output_fifo_dout,
   input output_fifo_re,

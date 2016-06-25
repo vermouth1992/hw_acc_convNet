@@ -492,7 +492,7 @@ def generateAfuUserVerilog(k, M, topModuleName, fileName):
   input input_fifo_we,
   output input_fifo_full,
   output input_fifo_almost_full,
-  output input_fifo_count,
+  output [2:0] input_fifo_count,
   // output fifo
   output [511:0] output_fifo_dout,
   input output_fifo_re,
@@ -635,7 +635,7 @@ def generateInputVector(k, M, inputFileName, expectedFileName, testStall=False):
     inputFile = open(inputFileName, "w")
     # write test number
     testNum = random.randint(10, 20)
-    inputFile.write(str(numToHex(testNum, 32)) + "\n")
+    inputFile.write(str(numToHex(testNum * M / k, 32)) + "\n")
     # generate matrix
     wordLength = 512 / k / M
     maxNum = 2 ** wordLength - 1
