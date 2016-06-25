@@ -12,10 +12,17 @@ module afu_user # (
   input output_fifo_re,
   output output_fifo_empty
 );
+  // input fifo
   wire [511:0] input_fifo_dout;
   wire input_fifo_re;
   wire input_fifo_empty;
-  
+  // output fifo
+  wire [511:0] output_fifo_din;
+  // uut
+  reg start;
+  wire clk_en;
+  wire start_next_stage;
+
   syn_read_fifo #(.FIFO_WIDTH(512),
                   .FIFO_DEPTH_BITS(3),       // transfer size 1 -> 32 entries
                   .FIFO_ALMOSTFULL_THRESHOLD(2**(3)-4),
@@ -133,15 +140,12 @@ module afu_user # (
   assign in30 = input_fifo_dout[495:480];
   assign in31 = input_fifo_dout[511:496];
 
-  wire [511:0] output_fifo_din;
-
   assign output_fifo_din = {out31, out30, out29, out28, out27, out26, out25, out24, 
                             out23, out22, out21, out20, out19, out18, out17, out16, 
                             out15, out14, out13, out12, out11, out10, out9, out8, 
                             out7, out6, out5, out4, out3, out2, out1, out0}; 
 
-  reg start;
-  wire clk_en;
+  
 
   assign input_fifo_re = (reset == 1'b1) ? 1'b0 : ~input_fifo_empty;
 
@@ -156,8 +160,6 @@ module afu_user # (
   end
 
   assign clk_en = start;
-
-  wire start_next_stage;
 
   streamMatrixTransposeTop32x32 # (
     .DATA_WIDTH(DATA_WIDTH)

@@ -41,7 +41,7 @@ module afu_user_tb; /* this is automatically generated */
     reset = 0;
   end
 
-  assign output_fifo_re = (reset) 1'b0 : ~output_fifo_empty;
+  assign output_fifo_re = (reset) ? 1'b0 : ~output_fifo_empty;
 
   initial begin
     // input logic
@@ -61,8 +61,11 @@ module afu_user_tb; /* this is automatically generated */
       $time, input_fifo_din, input_fifo_we);
   end
 
+  // delay 1 cycle
+  reg output_fifo_re_reg;
   always@(posedge clk) begin
-    if (output_fifo_re) begin
+    output_fifo_re_reg <= output_fifo_re;
+    if (output_fifo_re_reg) begin
       $fdisplay(output_file, "time = %0d, output = %h, output_fifo_re = %h", 
         $time, output_fifo_dout, output_fifo_re);
     end

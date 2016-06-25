@@ -470,6 +470,13 @@ def generateSeparateInput(inputName, outputName, k, M):
 
     return result
 
+def generateAfuUser(k, M, topModuleName):
+    result = ""
+    separateInput = generateSeparateInput("input_fifo_dout", "output_fifo_din", k, M)
+    uutInstance = generateTopInstance(k, M, topModuleName)
+
+
+
 if __name__ == "__main__":
     k, M = 4, 8
     crossbarSize = k * M

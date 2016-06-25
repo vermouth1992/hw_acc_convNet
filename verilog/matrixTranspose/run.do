@@ -4,7 +4,7 @@
 vlib work
 vlog +acc "src/*.v"
 vsim -t 1ns -lib work afu_user_tb
-# view objects
+view objects
 view wave
 do {stage3_wave.do}
 # do {afu_user_wave.do}

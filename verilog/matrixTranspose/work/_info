@@ -9,195 +9,195 @@ z2
 cModel Technology
 d//vmware-host/Shared Folders/verilog/single_port_ram
 vafu_user
-Z0 !s110 1466876013
+Z0 !s110 1466876781
 !i10b 1
-!s100 [V:6cQoF@;R0?Rf@]lQ4Y3
-II3fUl0DZF3D^LXQe;B3613
+!s100 4L[HTPLo5fANJL@WkdJ7C1
+Im;E[hd2W65;aWBEn4@lR`1
 Z1 VDg1SIo80bB@j0V0VzS_@n1
 Z2 d//vmware-host/Shared Folders/verilog/matrixTranspose
-w1466871503
-8//vmware-host/Shared Folders/verilog/matrixTranspose/src/afu_user.v
-F//vmware-host/Shared Folders/verilog/matrixTranspose/src/afu_user.v
+w1466876375
+8src/afu_user.v
+Fsrc/afu_user.v
 L0 1
 Z3 OP;L;10.4a;61
 r1
 !s85 0
 31
-Z4 !s108 1466876013.000000
-!s107 //vmware-host/Shared Folders/verilog/matrixTranspose/src/afu_user.v|
-!s90 -reportprogress|300|-work|work|-stats=none|//vmware-host/Shared Folders/verilog/matrixTranspose/src/afu_user.v|
+Z4 !s108 1466876780.000000
+Z5 !s107 src/syn_read_fifo.v|src/streamMatrixTransposeTop32x32.v|src/single_port_ram.v|src/memArray2x32.v|src/crossbarShiftUp32x32.v|src/crossbarShiftDown32x32.v|src/crossbar32x32.v|src/afu_user_tb.v|src/afu_user.v|
+Z6 !s90 -reportprogress|300|+acc|src/afu_user.v|src/afu_user_tb.v|src/crossbar32x32.v|src/crossbarShiftDown32x32.v|src/crossbarShiftUp32x32.v|src/memArray2x32.v|src/single_port_ram.v|src/streamMatrixTransposeTop32x32.v|src/syn_read_fifo.v|
 !s101 -O0
 !i113 1
-Z5 o-work work -L mtiAvm -L mtiRnm -L mtiOvm -L mtiUvm -L mtiUPF -L infact -O0
+Z7 o+acc -L mtiAvm -L mtiRnm -L mtiOvm -L mtiUvm -L mtiUPF -L infact -O0
 vafu_user_tb
 R0
 !i10b 1
-!s100 G:OBimR]_PnL>?kT<;AK@0
-I5Ng0e32Ri64IIncaO6AfS0
+!s100 ]=>RKT=ZnbUo86Lf^KzYQ2
+IK8F0WY5AgJ]@<MVMJ2ik<0
 R1
 R2
-w1466874722
-8//vmware-host/Shared Folders/verilog/matrixTranspose/src/afu_user_tb.v
-F//vmware-host/Shared Folders/verilog/matrixTranspose/src/afu_user_tb.v
+w1466876773
+8src/afu_user_tb.v
+Fsrc/afu_user_tb.v
 L0 3
 R3
 r1
 !s85 0
 31
 R4
-!s107 //vmware-host/Shared Folders/verilog/matrixTranspose/src/afu_user_tb.v|
-!s90 -reportprogress|300|-work|work|-stats=none|//vmware-host/Shared Folders/verilog/matrixTranspose/src/afu_user_tb.v|
+R5
+R6
 !s101 -O0
 !i113 1
-R5
+R7
 vcrossbar32x32
-Z6 !s110 1466876014
+R0
 !i10b 1
-!s100 JI5j]OI7Yc>F70LcSBD4W2
-IjAnDR8_;lAIUH3LU:EeC41
+!s100 AKe@J6LUWWi<o6ZgI@_7Z0
+Ig0e`RYODzBzG1ozBbe3^<2
 R1
 R2
-Z7 w1466828523
-8//vmware-host/Shared Folders/verilog/matrixTranspose/src/crossbar32x32.v
-F//vmware-host/Shared Folders/verilog/matrixTranspose/src/crossbar32x32.v
+Z8 w1466828523
+8src/crossbar32x32.v
+Fsrc/crossbar32x32.v
 L0 5
 R3
 r1
 !s85 0
 31
 R4
-!s107 //vmware-host/Shared Folders/verilog/matrixTranspose/src/crossbar32x32.v|
-!s90 -reportprogress|300|-work|work|-stats=none|//vmware-host/Shared Folders/verilog/matrixTranspose/src/crossbar32x32.v|
+R5
+R6
 !s101 -O0
 !i113 1
-R5
+R7
 vcrossbarShiftDown32x32
-R6
+R0
 !i10b 1
-!s100 h8W6bM8oWLgcNJ8_e4azL1
-IFMMk`h^6WZ9Pjza=]8[m^2
+!s100 7Bb3V:JO^`m9i;OE789lj3
+IK[?J0E6n95?ckiE=i8h]f3
 R1
 R2
-R7
-8//vmware-host/Shared Folders/verilog/matrixTranspose/src/crossbarShiftDown32x32.v
-F//vmware-host/Shared Folders/verilog/matrixTranspose/src/crossbarShiftDown32x32.v
+R8
+8src/crossbarShiftDown32x32.v
+Fsrc/crossbarShiftDown32x32.v
 L0 5
 R3
 r1
 !s85 0
 31
-Z8 !s108 1466876014.000000
-!s107 //vmware-host/Shared Folders/verilog/matrixTranspose/src/crossbarShiftDown32x32.v|
-!s90 -reportprogress|300|-work|work|-stats=none|//vmware-host/Shared Folders/verilog/matrixTranspose/src/crossbarShiftDown32x32.v|
+R4
+R5
+R6
 !s101 -O0
 !i113 1
-R5
+R7
 ncrossbar@shift@down32x32
 vcrossbarShiftUp32x32
-R6
+R0
 !i10b 1
-!s100 <8chAFkFF]G6V?JCAHSVl2
-IC`_bg8IHH`C16abT2HjTP2
+!s100 Am^@;GcaF@lC5XL;zc0oa1
+I6Lca9bgGz@PObkzWEV_`A2
 R1
 R2
-R7
-8//vmware-host/Shared Folders/verilog/matrixTranspose/src/crossbarShiftUp32x32.v
-F//vmware-host/Shared Folders/verilog/matrixTranspose/src/crossbarShiftUp32x32.v
+R8
+8src/crossbarShiftUp32x32.v
+Fsrc/crossbarShiftUp32x32.v
 L0 5
 R3
 r1
 !s85 0
 31
-R8
-!s107 //vmware-host/Shared Folders/verilog/matrixTranspose/src/crossbarShiftUp32x32.v|
-!s90 -reportprogress|300|-work|work|-stats=none|//vmware-host/Shared Folders/verilog/matrixTranspose/src/crossbarShiftUp32x32.v|
+R4
+R5
+R6
 !s101 -O0
 !i113 1
-R5
+R7
 ncrossbar@shift@up32x32
 vmemArray2x32
-R6
+R0
 !i10b 1
-!s100 >g0F<8JZQM_?KF9d?dJEz1
-IIUc;2I[mD?48TRa64z;;A1
+!s100 `gNG<zc6TmnJ5c;jVM<243
+Ig<F1i;>=W2I_]4oI`Q1d_0
 R1
 R2
 w1466874451
-8//vmware-host/Shared Folders/verilog/matrixTranspose/src/memArray2x32.v
-F//vmware-host/Shared Folders/verilog/matrixTranspose/src/memArray2x32.v
+8src/memArray2x32.v
+Fsrc/memArray2x32.v
 L0 5
 R3
 r1
 !s85 0
 31
-R8
-!s107 //vmware-host/Shared Folders/verilog/matrixTranspose/src/memArray2x32.v|
-!s90 -reportprogress|300|-work|work|-stats=none|//vmware-host/Shared Folders/verilog/matrixTranspose/src/memArray2x32.v|
+R4
+R5
+R6
 !s101 -O0
 !i113 1
-R5
+R7
 nmem@array2x32
 vsingle_port_ram
-Z9 !s110 1466876015
+R0
 !i10b 1
-!s100 0;YbTdBQ8;k<Pl6RNaFBe3
-IPIeNY2MT?:e]Cm<o>6gLF2
+!s100 k_H2T:4jkK4aM0@H;`=XN3
+I`3l71gDdn:eD:[I0d7>ok3
 R1
 R2
 w1466823033
-8//vmware-host/Shared Folders/verilog/matrixTranspose/src/single_port_ram.v
-F//vmware-host/Shared Folders/verilog/matrixTranspose/src/single_port_ram.v
+8src/single_port_ram.v
+Fsrc/single_port_ram.v
 L0 1
 R3
 r1
 !s85 0
 31
-Z10 !s108 1466876015.000000
-!s107 //vmware-host/Shared Folders/verilog/matrixTranspose/src/single_port_ram.v|
-!s90 -reportprogress|300|-work|work|-stats=none|//vmware-host/Shared Folders/verilog/matrixTranspose/src/single_port_ram.v|
+R4
+R5
+R6
 !s101 -O0
 !i113 1
-R5
+R7
 vstreamMatrixTransposeTop32x32
-R9
+R0
 !i10b 1
-!s100 e6Xfn:27HWXo=D;0c2@<N1
-IlCGNF^L>`97HTnn3VNzgL1
+!s100 6a]m]G;@LT<3YbJUVEg=D0
+IMD2cKQTOgAMIJNlKJYOkl1
 R1
 R2
-R7
-8//vmware-host/Shared Folders/verilog/matrixTranspose/src/streamMatrixTransposeTop32x32.v
-F//vmware-host/Shared Folders/verilog/matrixTranspose/src/streamMatrixTransposeTop32x32.v
+R8
+8src/streamMatrixTransposeTop32x32.v
+Fsrc/streamMatrixTransposeTop32x32.v
 L0 5
 R3
 r1
 !s85 0
 31
-R10
-!s107 //vmware-host/Shared Folders/verilog/matrixTranspose/src/streamMatrixTransposeTop32x32.v|
-!s90 -reportprogress|300|-work|work|-stats=none|//vmware-host/Shared Folders/verilog/matrixTranspose/src/streamMatrixTransposeTop32x32.v|
+R4
+R5
+R6
 !s101 -O0
 !i113 1
-R5
+R7
 nstream@matrix@transpose@top32x32
 vsyn_read_fifo
 R0
 !i10b 1
-!s100 EdG6k7z5j;ZnZQ2CE4lYZ1
-IhRS4dW9LNd^G3XH0QH6NG1
+!s100 hL9>]6c13J12ai@Iiji=<1
+IjedMPNJCeK7AMk^9EY:d^3
 R1
 R2
 w1466829027
-8//vmware-host/Shared Folders/verilog/matrixTranspose/src/syn_read_fifo.v
-F//vmware-host/Shared Folders/verilog/matrixTranspose/src/syn_read_fifo.v
+8src/syn_read_fifo.v
+Fsrc/syn_read_fifo.v
 L0 28
 R3
 r1
 !s85 0
 31
-!s108 1466876012.000000
-!s107 //vmware-host/Shared Folders/verilog/matrixTranspose/src/syn_read_fifo.v|
-!s90 -reportprogress|300|-work|work|-stats=none|//vmware-host/Shared Folders/verilog/matrixTranspose/src/syn_read_fifo.v|
+R4
+R5
+R6
 !s101 -O0
 !i113 1
-R5
+R7

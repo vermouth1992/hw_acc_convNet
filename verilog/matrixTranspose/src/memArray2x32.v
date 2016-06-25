@@ -123,6 +123,7 @@ module memArray2x32 # (
           counter <= counter + 1'b1;
           if (counter == 1'b1) begin
             state <= P2;
+            start_next_stage <= 1'b1;
             addr0_3 <= 1'b0;
             addr4_7 <= 1'b1;
             addr8_11 <= 1'b0;
@@ -144,7 +145,6 @@ module memArray2x32 # (
           end
         end
         P2: begin
-          start_next_stage <= 1'b1;
           counter <= counter + 1'b1;
           if (counter == 1'b1) begin
             state <= P1;
