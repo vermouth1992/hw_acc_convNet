@@ -27,7 +27,7 @@
 			"file": "matrixTranspose/src/afu_user_tb.v",
 			"settings":
 			{
-				"buffer_size": 1666,
+				"buffer_size": 1757,
 				"line_ending": "Windows"
 			}
 		},
@@ -35,7 +35,7 @@
 			"file": "matrixTranspose/src/afu_user.v",
 			"settings":
 			{
-				"buffer_size": 7362,
+				"buffer_size": 7403,
 				"line_ending": "Unix"
 			}
 		},
@@ -43,7 +43,7 @@
 			"file": "matrixTranspose/src/memArray2x32.v",
 			"settings":
 			{
-				"buffer_size": 10894,
+				"buffer_size": 10896,
 				"line_ending": "Unix"
 			}
 		},
@@ -172,15 +172,15 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 1666,
+						"buffer_size": 1757,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								1297,
-								1297
+								1290,
+								1290
 							]
 						],
 						"settings":
@@ -202,15 +202,15 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 7362,
+						"buffer_size": 7403,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								5068,
-								5068
+								0,
+								0
 							]
 						],
 						"settings":
@@ -232,15 +232,15 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 10894,
+						"buffer_size": 10896,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								4233,
-								4233
+								0,
+								0
 							]
 						],
 						"settings":

@@ -7,10 +7,15 @@ module afu_user # (
   input [511:0] input_fifo_din,
   input input_fifo_we,
   output input_fifo_full,
+  output input_fifo_almost_full,
+  output input_fifo_count,
   // output fifo
   output [511:0] output_fifo_dout,
   input output_fifo_re,
-  output output_fifo_empty
+  output output_fifo_empty,
+  output output_fifo_almost_empty,
+  // other information
+  input [31:0] ctx_length
 );
   // input fifo
   wire [511:0] input_fifo_dout;
@@ -37,8 +42,8 @@ module afu_user # (
                 .empty              (input_fifo_empty),
                 .almostempty        (),
                 .full               (input_fifo_full),
-                .count              (),
-                .almostfull         ()
+                .count              (input_fifo_count),
+                .almostfull         (input_fifo_almost_full)
             );
 
   wire [DATA_WIDTH-1:0] in0;
@@ -143,9 +148,8 @@ module afu_user # (
   assign output_fifo_din = {out31, out30, out29, out28, out27, out26, out25, out24, 
                             out23, out22, out21, out20, out19, out18, out17, out16, 
                             out15, out14, out13, out12, out11, out10, out9, out8, 
-                            out7, out6, out5, out4, out3, out2, out1, out0}; 
-
-  
+                            out7, out6, out5, out4, out3, out2, out1, out0
+                            };
 
   assign input_fifo_re = (reset == 1'b1) ? 1'b0 : ~input_fifo_empty;
 
@@ -159,7 +163,17 @@ module afu_user # (
     end
   end
 
-  assign clk_en = start;
+  reg [31:0] ctx_input_count;
+
+  always@(posedge clk) begin
+    if (reset) begin
+      ctx_input_count <= 0;
+    end else if (input_fifo_re) begin
+      ctx_input_count <= ctx_input_count + 1'b1;
+    end
+  end
+
+  assign clk_en = (ctx_input_count == ctx_length) ? 1'b1 : start;
 
   streamMatrixTransposeTop32x32 # (
     .DATA_WIDTH(DATA_WIDTH)
@@ -251,7 +265,7 @@ module afu_user # (
                 .re                 (output_fifo_re),
                 .dout               (output_fifo_dout),
                 .empty              (output_fifo_empty),
-                .almostempty        (),
+                .almostempty        (output_fifo_almost_empty),
                 .full               (),
                 .count              (),
                 .almostfull         ()

@@ -463,18 +463,124 @@ def generateSeparateInput(inputName, outputName, k, M):
 
     concatenateOut = "{"
     for i in range(k * M):
-        concatenateOut += "out" + str(k * M - i - 1) + ", "
+        concatenateOut += "out" + str(k * M - i - 1)
+        if i != k * M - 1:
+            concatenateOut += ", "
+        if (k * M - i - 1) % M == 0:
+            concatenateOut += "\n" + 28 * " "
     concatenateOut += "}"
 
     result += generateVerilogNewLine(2, generateAssignment(ModuleWire(512, outputName), concatenateOut, "blocking"))
 
     return result
 
-def generateAfuUser(k, M, topModuleName):
-    result = ""
+
+def generateAfuUserVerilog(k, M, topModuleName, fileName):
+    f = open(fileName, "w")
+    before = """module afu_user # (
+  parameter DATA_WIDTH = 16
+) (
+  input clk,    // Clock
+  input reset,  // Asynchronous reset active low
+  // input fifo
+  input [511:0] input_fifo_din,
+  input input_fifo_we,
+  output input_fifo_full,
+  output input_fifo_almost_full,
+  output input_fifo_count,
+  // output fifo
+  output [511:0] output_fifo_dout,
+  input output_fifo_re,
+  output output_fifo_empty,
+  output output_fifo_almost_empty,
+  // other information
+  input [31:0] ctx_length
+);
+  // input fifo
+  wire [511:0] input_fifo_dout;
+  wire input_fifo_re;
+  wire input_fifo_empty;
+  // output fifo
+  wire [511:0] output_fifo_din;
+  // uut
+  reg start;
+  wire clk_en;
+  wire start_next_stage;
+
+  syn_read_fifo #(.FIFO_WIDTH(512),
+                  .FIFO_DEPTH_BITS(3),       // transfer size 1 -> 32 entries
+                  .FIFO_ALMOSTFULL_THRESHOLD(2**(3)-4),
+                  .FIFO_ALMOSTEMPTY_THRESHOLD(2)
+                 ) input_fifo (
+                .clk                (clk),
+                .reset              (reset),
+                .din                (input_fifo_din),
+                .we                 (input_fifo_we),
+                .re                 (input_fifo_re),
+                .dout               (input_fifo_dout),
+                .empty              (input_fifo_empty),
+                .almostempty        (),
+                .full               (input_fifo_full),
+                .count              (input_fifo_count),
+                .almostfull         (input_fifo_almost_full)
+            );
+
+"""
+    middle = """
+  assign input_fifo_re = (reset == 1'b1) ? 1'b0 : ~input_fifo_empty;
+
+  always @(posedge clk) begin
+    if (reset) begin
+      start <= 1'b0;
+    end else if (input_fifo_re == 1'b1) begin
+      start <= 1'b1;
+    end else begin
+      start <= 1'b0;
+    end
+  end
+
+  reg [31:0] ctx_input_count;
+
+  always@(posedge clk) begin
+    if (reset) begin
+      ctx_input_count <= 0;
+    end else if (input_fifo_re) begin
+      ctx_input_count <= ctx_input_count + 1'b1;
+    end
+  end
+
+  assign clk_en = (ctx_input_count == ctx_length) ? 1'b1 : start;
+
+"""
+    after = """
+  wire output_fifo_we;
+
+  assign output_fifo_we = start_next_stage & clk_en;
+
+  syn_read_fifo #(.FIFO_WIDTH(512),
+                  .FIFO_DEPTH_BITS(3),       // transfer size 1 -> 32 entries
+                  .FIFO_ALMOSTFULL_THRESHOLD(2**(3)-4),
+                  .FIFO_ALMOSTEMPTY_THRESHOLD(2)
+                 ) output_fifo (
+                .clk                (clk),
+                .reset              (reset),
+                .din                (output_fifo_din),
+                .we                 (output_fifo_we),
+                .re                 (output_fifo_re),
+                .dout               (output_fifo_dout),
+                .empty              (output_fifo_empty),
+                .almostempty        (output_fifo_almost_empty),
+                .full               (),
+                .count              (),
+                .almostfull         ()
+            );
+
+endmodule
+"""
     separateInput = generateSeparateInput("input_fifo_dout", "output_fifo_din", k, M)
     uutInstance = generateTopInstance(k, M, topModuleName)
-
+    f.write(before + separateInput + middle + uutInstance + after)
+    f.close()
 
 
 if __name__ == "__main__":
@@ -484,7 +590,8 @@ if __name__ == "__main__":
     generateCrossbarShiftDown = True
     generateCrossbarShiftUp = True
     generateMemArray = True
-    generateTop = True
+    generateStreamMatrixTop = True
+    generateAfuUser = True
 
     crossbarName = "crossbar" + str(crossbarSize) + "x" + str(crossbarSize)
     crossbarShiftDownName = "crossbarShiftDown" + str(crossbarSize) + "x" + str(crossbarSize)
@@ -510,9 +617,11 @@ if __name__ == "__main__":
         fileName = generatedMatrixTranspose + memArrayName + ".v"
         genMemArrayVerilog(k, M, defaultInputWidth=32, fileName=fileName)
 
-    if generateTop:
+    if generateStreamMatrixTop:
         fileName = generatedMatrixTranspose + streamTransposeTopName + ".v"
         generateStreamTransposeTop(k, M, 32, crossbarShiftDownName, crossbarName,
                                    memArrayName, crossbarShiftUpName, fileName)
 
-    print generateSeparateInput("input_fifo_dout", "output_fifo_din", k, M)
+    if generateAfuUser:
+        fileName = generatedMatrixTranspose + "afu_user" + ".v"
+        generateAfuUserVerilog(k, M, streamTransposeTopName, fileName)
