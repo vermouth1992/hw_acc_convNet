@@ -13,7 +13,7 @@ lectureCode-sp16-master/
 */problems/
 *.mti
 *.mpf
-*/work/
+verilog/matrixTranspose/work/*
 *.wlf
 */out/
 *.txt

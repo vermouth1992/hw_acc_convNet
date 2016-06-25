@@ -13,7 +13,7 @@ module afu_user # (
   output output_fifo_empty
 );
   wire [511:0] input_fifo_dout;
-  reg input_fifo_re;
+  wire input_fifo_re;
   wire input_fifo_empty;
   
   syn_read_fifo #(.FIFO_WIDTH(512),
@@ -143,16 +143,7 @@ module afu_user # (
   reg start;
   wire clk_en;
 
-  // input fifo logic
-  always @(posedge clk) begin
-    if (reset) begin
-      input_fifo_re <= 1'b0;
-    end else if (~input_fifo_empty) begin
-      input_fifo_re <= 1'b1;
-    end else begin
-      input_fifo_re <= 1'b0;
-    end
-  end
+  assign input_fifo_re = (reset == 1'b1) ? 1'b0 : ~input_fifo_empty;
 
   always @(posedge clk) begin
     if (reset) begin
