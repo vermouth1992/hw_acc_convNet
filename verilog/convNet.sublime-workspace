@@ -8,27 +8,35 @@
 	"buffers":
 	[
 		{
-			"file": "single_port_ram/src/single_port_ram.v",
+			"file": "generated/crossbar32x32.v",
 			"settings":
 			{
-				"buffer_size": 399,
-				"line_ending": "Windows"
-			}
-		},
-		{
-			"file": "single_port_ram/src/single_port_ram_tb.v",
-			"settings":
-			{
-				"buffer_size": 1125,
+				"buffer_size": 3364,
 				"line_ending": "Unix"
 			}
 		},
 		{
-			"file": "single_port_ram/run.do",
+			"file": "generated/crossbarShiftDown32x32.v",
 			"settings":
 			{
-				"buffer_size": 152,
-				"line_ending": "Windows"
+				"buffer_size": 4476,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "generated/crossbarShiftUp32x32.v",
+			"settings":
+			{
+				"buffer_size": 4472,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "generated/memArray2x32.v",
+			"settings":
+			{
+				"buffer_size": 10886,
+				"line_ending": "Unix"
 			}
 		}
 	],
@@ -81,11 +89,18 @@
 	},
 	"expanded_folders":
 	[
-		"/Z/verilog",
-		"/Z/verilog/generated"
+		"/Users/chizhang/Developer/hw_acc_convNet/verilog",
+		"/Users/chizhang/Developer/hw_acc_convNet/verilog/generated"
 	],
 	"file_history":
 	[
+		"/Users/chizhang/Library/Application Support/Sublime Text 3/Packages/User/Preferences.sublime-settings",
+		"/Users/chizhang/Library/Application Support/Sublime Text 3/Packages/User/SystemVerilog.sublime-settings",
+		"/Users/chizhang/Developer/hw_acc_convNet/verilog/generated/crossbar16x16.v",
+		"/Users/chizhang/Developer/hw_acc_convNet/verilog/single_port_ram/src/single_port_ram_tb.v",
+		"/Users/chizhang/Developer/hw_acc_convNet/verilog/single_port_ram/src/single_port_ram.v",
+		"/Users/chizhang/Developer/hw_acc_convNet/verilog/single_port_ram/run.do",
+		"/C/Users/Chi Zhang/AppData/Roaming/Sublime Text 3/Packages/User/Preferences.sublime-settings",
 		"/Z/verilog/generated/streamMatrixTransposeFSM_handwritten.v",
 		"/Z/verilog/generated/memArray2x32.v",
 		"/Z/verilog/generated/crossbar32x32.v",
@@ -96,7 +111,6 @@
 		"/Z/verilog/single_port_ram/single_port_ram_tb.vcd",
 		"/Z/verilog/single_port_ram/single_port_ram_tb.v",
 		"//vmware-host/Shared Folders/verilog/single_port_ram/single_port_ram_wave.do",
-		"/C/Users/Chi Zhang/AppData/Roaming/Sublime Text 3/Packages/User/Preferences.sublime-settings",
 		"/C/Users/Chi Zhang/AppData/Roaming/Sublime Text 3/Packages/Default/Preferences.sublime-settings"
 	],
 	"find":
@@ -132,53 +146,24 @@
 	"groups":
 	[
 		{
-			"selected": 1,
+			"selected": 3,
 			"sheets":
 			[
 				{
 					"buffer": 0,
-					"file": "single_port_ram/src/single_port_ram.v",
+					"file": "generated/crossbar32x32.v",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 399,
+						"buffer_size": 3364,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								190,
-								190
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/SystemVerilog/SystemVerilog.sublime-syntax",
-							"translate_tabs_to_spaces": false
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 1,
-					"type": "text"
-				},
-				{
-					"buffer": 1,
-					"file": "single_port_ram/src/single_port_ram_tb.v",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 1125,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								447,
-								447
+								0,
+								0
 							]
 						],
 						"settings":
@@ -191,35 +176,97 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 0,
+					"stack_index": 3,
 					"type": "text"
 				},
 				{
-					"buffer": 2,
-					"file": "single_port_ram/run.do",
+					"buffer": 1,
+					"file": "generated/crossbarShiftDown32x32.v",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 152,
+						"buffer_size": 4476,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								9,
-								9
+								0,
+								0
 							]
 						],
 						"settings":
 						{
-							"syntax": "Packages/Text/Plain text.tmLanguage"
+							"syntax": "Packages/SystemVerilog/SystemVerilog.sublime-syntax",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 2,
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "generated/crossbarShiftUp32x32.v",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 4472,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/SystemVerilog/SystemVerilog.sublime-syntax",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 1,
+					"type": "text"
+				},
+				{
+					"buffer": 3,
+					"file": "generated/memArray2x32.v",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 10886,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								2601,
+								2601
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/SystemVerilog/SystemVerilog.sublime-syntax",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 1120.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 0,
 					"type": "text"
 				}
 			]
@@ -302,7 +349,7 @@
 	"show_open_files": false,
 	"show_tabs": true,
 	"side_bar_visible": true,
-	"side_bar_width": 366.0,
+	"side_bar_width": 221.0,
 	"status_bar_visible": true,
 	"template_settings":
 	{

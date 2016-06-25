@@ -315,15 +315,119 @@ def generateStreamTransposeTop(k, M, defaultInputWidth, crossbarShiftDownName, c
     f.write(memArray.__str__())
     f.write("\n")
 
+    # stage 0
     # instantiate crossbarShiftDown
+    shiftDownOutList = []
+    for i in range(k * M):
+        shiftDownOutList.append(ModuleWire("DATA_WIDTH", "shiftDownOut" + str(i)))
+
+    for shiftDownOutWire in shiftDownOutList:
+        f.write(generateVerilogNewLine(2, shiftDownOutWire.__str__()))
+
+    startNextStageWireShiftDown = ModuleWire(1, "start_next_stage_shiftDown")
+    f.write(generateVerilogNewLine(2, startNextStageWireShiftDown.__str__()))
+    f.write("\n")
+
+    # construct the instance
+    crossbarShiftDownInstance = InstantiateModule(crossbarShiftDownName, "stage0", 2)
+    crossbarShiftDownInstance.addParam(ModuleParam("DATA_WIDTH", "DATA_WIDTH"))
+    crossbarShiftDownInstance.addIO(ModuleIO(1, "clk", "input", "clk"))
+    crossbarShiftDownInstance.addIO(ModuleIO(1, "clk_en", "input", "clk_en"))
+    crossbarShiftDownInstance.addIO(ModuleIO(1, "start", "input", "start"))
+    crossbarShiftDownInstance.addIO(ModuleIO(1, "reset", "input", "reset"))
+    for i in range(M * k):
+        crossbarShiftDownInstance.addIO(ModuleIO("DATA_WIDTH", "in" + str(i), "input", "in" + str(i)))
+    crossbarShiftDownInstance.addIO(ModuleIO(1, "start_next_stage", "output", startNextStageWireShiftDown.getName()))
+    for i in range(M * k):
+        crossbarShiftDownInstance.addIO(ModuleIO("DATA_WIDTH", "out" + str(i), "output", shiftDownOutList[i].getName()))
+
+    f.write(crossbarShiftDownInstance.__str__())
+    f.write("\n")
+
+    # stage 1
+    crossbarOutList = []
+    for i in range(k * M):
+        crossbarOutList.append(ModuleWire("DATA_WIDTH", "crossbarOut" + str(i)))
+
+    for wire in crossbarOutList:
+        f.write(generateVerilogNewLine(2, wire.__str__()))
+
+    startNextStageWireCrossbar = ModuleWire(1, "start_next_stage_crossbar")
+    f.write(generateVerilogNewLine(2, startNextStageWireCrossbar.__str__()))
+    f.write("\n")
+
+    # construct the instance
+    crossbarInstance = InstantiateModule(crossbarName, "stage1", 2)
+    crossbarInstance.addParam(ModuleParam("DATA_WIDTH", "DATA_WIDTH"))
+    crossbarInstance.addIO(ModuleIO(1, "clk", "input", "clk"))
+    crossbarInstance.addIO(ModuleIO(1, "clk_en", "input", "clk_en"))
+    crossbarInstance.addIO(ModuleIO(1, "reset", "input", "reset"))
+    crossbarInstance.addIO(ModuleIO(1, "start", "input", startNextStageWireShiftDown.getName()))
+    for i in range(M * k):
+        crossbarInstance.addIO(ModuleIO("DATA_WIDTH", "in" + str(i), "input", shiftDownOutList[i].getName()))
+    crossbarInstance.addIO(ModuleIO(1, "start_next_stage", "output", startNextStageWireCrossbar.getName()))
+    for i in range(M * k):
+        crossbarInstance.addIO(ModuleIO("DATA_WIDTH", "out" + str(i), "output", crossbarOutList[i].getName()))
+
+    f.write(crossbarInstance.__str__())
+    f.write("\n")
+
+    # stage 2
+    memArrayOutList = []
+    for i in range(k * M):
+        memArrayOutList.append(ModuleWire("DATA_WIDTH", "memArrayOut" + str(i)))
+
+    for wire in memArrayOutList:
+        f.write(generateVerilogNewLine(2, wire.__str__()))
+
+    startNextStageWireMemArray = ModuleWire(1, "start_next_stage_memArray")
+    f.write(generateVerilogNewLine(2, startNextStageWireMemArray.__str__()))
+    f.write("\n")
+
+    # construct the instance
+    memArrayInstance = InstantiateModule(memArrayName, "stage2", 2)
+    memArrayInstance.addParam(ModuleParam("DATA_WIDTH", "DATA_WIDTH"))
+    memArrayInstance.addIO(ModuleIO(1, "clk", "input", "clk"))
+    memArrayInstance.addIO(ModuleIO(1, "clk_en", "input", "clk_en"))
+    memArrayInstance.addIO(ModuleIO(1, "reset", "input", "reset"))
+    memArrayInstance.addIO(ModuleIO(1, "start", "input", startNextStageWireCrossbar.getName()))
+    for i in range(M * k):
+        memArrayInstance.addIO(ModuleIO("DATA_WIDTH", "in" + str(i), "input", crossbarOutList[i].getName()))
+    memArrayInstance.addIO(ModuleIO(1, "start_next_stage", "output", startNextStageWireMemArray.getName()))
+    for i in range(M * k):
+        memArrayInstance.addIO(ModuleIO("DATA_WIDTH", "out" + str(i), "output", memArrayOutList[i].getName()))
+
+    f.write(memArrayInstance.__str__())
+    f.write("\n")
+
+    # stage 3
+    # construct the instance
+    memArrayInstance = InstantiateModule(crossbarShiftUpName, "stage3", 2)
+    memArrayInstance.addParam(ModuleParam("DATA_WIDTH", "DATA_WIDTH"))
+    memArrayInstance.addIO(ModuleIO(1, "clk", "input", "clk"))
+    memArrayInstance.addIO(ModuleIO(1, "clk_en", "input", "clk_en"))
+    memArrayInstance.addIO(ModuleIO(1, "reset", "input", "reset"))
+    memArrayInstance.addIO(ModuleIO(1, "start", "input", startNextStageWireMemArray.getName()))
+    for i in range(M * k):
+        memArrayInstance.addIO(ModuleIO("DATA_WIDTH", "in" + str(i), "input", memArrayOutList[i].getName()))
+    memArrayInstance.addIO(ModuleIO(1, "start_next_stage", "output", "start_next_stage"))
+    for i in range(M * k):
+        memArrayInstance.addIO(ModuleIO("DATA_WIDTH", "out" + str(i), "output", "out" + str(i)))
+
+    f.write(memArrayInstance.__str__())
+    f.write("\n")
+    f.write(generateVerilogNewLine(0, "endmodule"))
+    f.close()
 
 if __name__ == "__main__":
     k, M = 4, 8
     crossbarSize = k * M
-    generateCrossbar = True
-    generateCrossbarShiftDown = True
-    generateCrossbarShiftUp = True
-    generateMemArray = True
+    generateCrossbar = False
+    generateCrossbarShiftDown = False
+    generateCrossbarShiftUp = False
+    generateMemArray = False
+    generateTop = True
+
     crossbarName = "crossbar" + str(crossbarSize) + "x" + str(crossbarSize)
     crossbarShiftDownName = "crossbarShiftDown" + str(crossbarSize) + "x" + str(crossbarSize)
     crossbarShiftUpName = "crossbarShiftUp" + str(crossbarSize) + "x" + str(crossbarSize)
@@ -345,4 +449,9 @@ if __name__ == "__main__":
     if generateMemArray:
         fileName = generatedVerilogFolder + memArrayName + ".v"
         genMemArrayVerilog(k, M, defaultInputWidth=32, fileName=fileName)
+
+    if generateTop:
+        fileName = generatedVerilogFolder + streamTransposeTopName + ".v"
+        generateStreamTransposeTop(k, M, 32, crossbarShiftDownName, crossbarName,
+                                   memArrayName, crossbarShiftUpName, fileName)
 
