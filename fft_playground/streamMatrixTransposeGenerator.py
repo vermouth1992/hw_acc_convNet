@@ -6,7 +6,6 @@ M is the matrix size, k is p/M, # of lines processed in one cycle
 from generateVerilogUtil import *
 import math
 
-
 def getInputIndexMatrixTranspose(outputIndex, k, M):
     assert M % k == 0, "k must be a divisor of M."
     groupIndex = outputIndex // M  # from [0, k)
@@ -310,7 +309,7 @@ def generateStreamTransposeTop(k, M, defaultInputWidth, crossbarShiftDownName, c
     for i in range(k * M):
         memArray.addIO(ModuleIO(inputWidth, "out" + str(i), "output"))
 
-    startNextStageReg = ModuleIO(1, "start_next_stage", "output reg")
+    startNextStageReg = ModuleIO(1, "start_next_stage", "output")
     memArray.addIO(startNextStageReg)
     f.write(memArray.__str__())
     f.write("\n")
@@ -419,13 +418,65 @@ def generateStreamTransposeTop(k, M, defaultInputWidth, crossbarShiftDownName, c
     f.write(generateVerilogNewLine(0, "endmodule"))
     f.close()
 
+
+def generateTopInstance(k, M, topName):
+    """
+    just return a string, not write into file
+    """
+    # construct the instance
+    topInstance = InstantiateModule(topName, "uut", 2)
+    topInstance.addParam(ModuleParam("DATA_WIDTH", "DATA_WIDTH"))
+    topInstance.addIO(ModuleIO(1, "clk", "input", "clk"))
+    topInstance.addIO(ModuleIO(1, "clk_en", "input", "clk_en"))
+    topInstance.addIO(ModuleIO(1, "start", "input", "start"))
+    topInstance.addIO(ModuleIO(1, "reset", "input", "reset"))
+    for i in range(M * k):
+        topInstance.addIO(ModuleIO("DATA_WIDTH", "in" + str(i), "input", "in" + str(i)))
+    topInstance.addIO(ModuleIO(1, "start_next_stage", "output", "start_next_stage"))
+    for i in range(M * k):
+        topInstance.addIO(ModuleIO("DATA_WIDTH", "out" + str(i), "output", "out" + str(i)))
+
+    return topInstance.__str__()
+
+def generateSeparateInput(inputName, outputName, k, M):
+    result = ""
+    inputWireList = []
+    outputWireList = []
+    for i in range(k * M):
+        inputWireList.append(ModuleWire("DATA_WIDTH", "in" + str(i)))
+        outputWireList.append(ModuleWire("DATA_WIDTH", "out" + str(i)))
+
+    for wire in inputWireList:
+        result += generateVerilogNewLine(2, wire.__str__())
+    result += "\n"
+    for wire in outputWireList:
+        result += generateVerilogNewLine(2, wire.__str__())
+    result += "\n"
+
+    for i, wire in enumerate(inputWireList):
+        defaultLength = 512 / k / M
+        start = i * defaultLength
+        end = start + defaultLength - 1
+        r = "[" + str(end) + ":" + str(start) + "]"
+        result += generateVerilogNewLine(2, generateAssignment(wire, inputName + r, "blocking"))
+    result += "\n"
+
+    concatenateOut = "{"
+    for i in range(k * M):
+        concatenateOut += "out" + str(k * M - i - 1) + ", "
+    concatenateOut += "}"
+
+    result += generateVerilogNewLine(2, generateAssignment(ModuleWire(512, outputName), concatenateOut, "blocking"))
+
+    return result
+
 if __name__ == "__main__":
     k, M = 4, 8
     crossbarSize = k * M
-    generateCrossbar = False
-    generateCrossbarShiftDown = False
-    generateCrossbarShiftUp = False
-    generateMemArray = False
+    generateCrossbar = True
+    generateCrossbarShiftDown = True
+    generateCrossbarShiftUp = True
+    generateMemArray = True
     generateTop = True
 
     crossbarName = "crossbar" + str(crossbarSize) + "x" + str(crossbarSize)
@@ -434,24 +485,27 @@ if __name__ == "__main__":
     memArrayName = "memArray" + str(M / k) + "x" + str(M * k)
     streamTransposeTopName = "streamMatrixTransposeTop" + str(crossbarSize) + "x" + str(crossbarSize)
 
+    generatedMatrixTranspose = "../verilog/matrixTranspose/src/"
+
     if generateCrossbar:
-        fileName = generatedVerilogFolder + crossbarName + ".v"
+        fileName = generatedMatrixTranspose + crossbarName + ".v"
         generateCrossbarVerilog(k, M, inputWidth=32, fileName=fileName)
 
     if generateCrossbarShiftDown:
-        fileName = generatedVerilogFolder + crossbarShiftDownName + ".v"
+        fileName = generatedMatrixTranspose + crossbarShiftDownName + ".v"
         generateShiftCrossbarVerilog(k, M, defaultInputWidth=32, fileName=fileName, direction="Down")
 
     if generateCrossbarShiftUp:
-        fileName = generatedVerilogFolder + crossbarShiftUpName + ".v"
+        fileName = generatedMatrixTranspose + crossbarShiftUpName + ".v"
         generateShiftCrossbarVerilog(k, M, defaultInputWidth=32, fileName=fileName, direction="Up")
 
     if generateMemArray:
-        fileName = generatedVerilogFolder + memArrayName + ".v"
+        fileName = generatedMatrixTranspose + memArrayName + ".v"
         genMemArrayVerilog(k, M, defaultInputWidth=32, fileName=fileName)
 
     if generateTop:
-        fileName = generatedVerilogFolder + streamTransposeTopName + ".v"
+        fileName = generatedMatrixTranspose + streamTransposeTopName + ".v"
         generateStreamTransposeTop(k, M, 32, crossbarShiftDownName, crossbarName,
                                    memArrayName, crossbarShiftUpName, fileName)
 
+    print generateSeparateInput("input_fifo_dout", "output_fifo_din", k, M)

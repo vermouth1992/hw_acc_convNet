@@ -77,10 +77,12 @@ def generateAssignment(m, value, assignType="non-blocking"):
     else:
         assign = " <= "
     if type(value) == int:
-        return m.getName() + assign + numToVerilogBit(value, int(m.getLength())) + ";"
+        result = m.getName() + assign + numToVerilogBit(value, int(m.getLength())) + ";"
     else:
-        return m.getName() + assign + value + ";"
-
+        result = m.getName() + assign + value + ";"
+    if assign == " = ":
+        result = "assign " + result
+    return result
 
 def generateVerilogLine(numSpace, text, isNewLine, comment=""):
     result = " " * numSpace + text
@@ -208,32 +210,5 @@ class InstantiateModule(VerilogModule):
         return result
 
 
-class GenVerilogTest(unittest.TestCase):
-
-    # the test name must start with test
-    @unittest.skip("")
-    def testModuleGen(self):
-        singleRam = VerilogModule("single_port_ram")
-        singleRam.addParam(ModuleParam("DATA_WIDTH", 6))
-        singleRam.addParam(ModuleParam("ADDR_WIDTH", 8))
-        singleRam.addIO(ModuleIO("DATA_WIDTH", "data", "input"))
-        singleRam.addIO(ModuleIO("ADDR_WIDTH", "addr", "input"))
-        singleRam.addIO(ModuleIO(1, "we", "input"))
-        singleRam.addIO(ModuleIO(1, "clk", "input"))
-        singleRam.addIO(ModuleIO("DATA_WIDTH", "q", "output reg"))
-        print singleRam
-
-    def testInstanceGen(self):
-        singleRam = InstantiateModule("single_port_ram", "mem0", 2)
-        singleRam.addParam(ModuleParam("DATA_WIDTH", "DATA_WIDTH"))
-        singleRam.addParam(ModuleParam("ADDR_WIDTH", "1"))
-        singleRam.addIO(ModuleIO("DATA_WIDTH", "data", "input", numToVerilogBit(0, 32)))
-        singleRam.addIO(ModuleIO("ADDR_WIDTH", "addr", "input", "addr0_3"))
-        singleRam.addIO(ModuleIO(1, "we", "input", defaultValue="we"))
-        singleRam.addIO(ModuleIO(1, "clk", "input", defaultValue="clk"))
-        singleRam.addIO(ModuleIO("DATA_WIDTH", "q", "output reg", defaultValue="out0"))
-        print singleRam
-
-
 if __name__ == "__main__":
-    unittest.main()
+    pass
