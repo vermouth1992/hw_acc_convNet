@@ -9,7 +9,7 @@ module afu_user # (
   output input_fifo_full,
   // output fifo
   output [511:0] output_fifo_dout,
-  output output_fifo_re,
+  input output_fifo_re,
   output output_fifo_empty
 );
   wire [511:0] input_fifo_dout;
@@ -20,7 +20,7 @@ module afu_user # (
                   .FIFO_DEPTH_BITS(3),       // transfer size 1 -> 32 entries
                   .FIFO_ALMOSTFULL_THRESHOLD(2**(3)-4),
                   .FIFO_ALMOSTEMPTY_THRESHOLD(2)
-                 ) wire_fifo (
+                 ) input_fifo (
                 .clk                (clk),
                 .reset              (reset),
                 .din                (input_fifo_din),

@@ -3,39 +3,83 @@
 	{
 		"selected_items":
 		[
+			[
+				"ou",
+				"output_file"
+			],
+			[
+				"in",
+				"input_fifo_din"
+			],
+			[
+				"out",
+				"output_file"
+			],
+			[
+				"inpu",
+				"input_fifo_we"
+			],
+			[
+				"clk",
+				"clk_en"
+			],
+			[
+				"sta",
+				"start_next_stage"
+			],
+			[
+				"oup",
+				"output_fifo_we"
+			],
+			[
+				"re",
+				"reset"
+			],
+			[
+				"alwa",
+				"alwaysc	always *"
+			],
+			[
+				"output_",
+				"output_fifo_re"
+			],
+			[
+				"pa",
+				"parameter"
+			]
 		]
 	},
 	"buffers":
 	[
 		{
-			"file": "generated/crossbar32x32.v",
+			"file": "matrixTranspose/src/afu_user_tb.v",
 			"settings":
 			{
-				"buffer_size": 3364,
+				"buffer_size": 1786,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "matrixTranspose/src/afu_user.v",
+			"settings":
+			{
+				"buffer_size": 7527,
 				"line_ending": "Unix"
 			}
 		},
 		{
-			"file": "generated/crossbarShiftDown32x32.v",
+			"file": "matrixTranspose/run.do",
 			"settings":
 			{
-				"buffer_size": 4476,
-				"line_ending": "Unix"
+				"buffer_size": 138,
+				"line_ending": "Windows"
 			}
 		},
 		{
-			"file": "generated/crossbarShiftUp32x32.v",
+			"file": "single_port_ram/src/single_port_ram_tb.v",
 			"settings":
 			{
-				"buffer_size": 4472,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "generated/memArray2x32.v",
-			"settings":
-			{
-				"buffer_size": 10886,
+				"buffer_size": 1125,
 				"line_ending": "Unix"
 			}
 		}
@@ -90,16 +134,34 @@
 	"expanded_folders":
 	[
 		"/Users/chizhang/Developer/hw_acc_convNet/verilog",
-		"/Users/chizhang/Developer/hw_acc_convNet/verilog/generated"
+		"/Users/chizhang/Developer/hw_acc_convNet/verilog/generated",
+		"/Users/chizhang/Developer/hw_acc_convNet/verilog/matrixTranspose",
+		"/Users/chizhang/Developer/hw_acc_convNet/verilog/matrixTranspose/out",
+		"/Users/chizhang/Developer/hw_acc_convNet/verilog/matrixTranspose/src",
+		"/Users/chizhang/Developer/hw_acc_convNet/verilog/single_port_ram",
+		"/Users/chizhang/Developer/hw_acc_convNet/verilog/single_port_ram/src"
 	],
 	"file_history":
 	[
+		"/Users/chizhang/Developer/hw_acc_convNet/verilog/matrixTranspose/out/trace.txt",
+		"/Users/chizhang/Developer/hw_acc_convNet/verilog/single_port_ram/run.do",
+		"/Users/chizhang/Developer/hw_acc_convNet/verilog/matrixTranspose/src/streamMatrixTransposeTop32x32.v",
+		"/Users/chizhang/Developer/hw_acc_convNet/verilog/matrixTranspose/src/syn_read_fifo.v",
+		"/Users/chizhang/Developer/hw_acc_convNet/verilog/matrixTranspose/src/afu_user.v",
+		"/Users/chizhang/Developer/hw_acc_convNet/verilog/matrixTranspose/src/streamMatrixTransposeTop32x32_tb.v",
+		"/Users/chizhang/Developer/hw_acc_convNet/fft_playground/temp.txt",
+		"/Users/chizhang/Developer/hw_acc_convNet/verilog/single_port_ram/src/single_port_ram_tb.v",
+		"/Users/chizhang/Developer/hw_acc_convNet/verilog/generated/streamMatrixTransposeTop32x32_tb.v",
+		"/Users/chizhang/Developer/hw_acc_convNet/verilog/generated/streamMatrixTransposeTop32x32.v",
+		"/Users/chizhang/Developer/hw_acc_convNet/verilog/generated/crossbarShiftDown32x32.v",
+		"/Users/chizhang/Developer/hw_acc_convNet/verilog/generated/memArray2x32.v",
+		"/Users/chizhang/Developer/hw_acc_convNet/verilog/generated/crossbar32x32.v",
+		"/Users/chizhang/Developer/hw_acc_convNet/verilog/generated/crossbarShiftUp32x32.v",
+		"/Users/chizhang/Developer/hw_acc_convNet/verilog/generated/streamMatrixTransposeTop.v",
 		"/Users/chizhang/Library/Application Support/Sublime Text 3/Packages/User/Preferences.sublime-settings",
 		"/Users/chizhang/Library/Application Support/Sublime Text 3/Packages/User/SystemVerilog.sublime-settings",
 		"/Users/chizhang/Developer/hw_acc_convNet/verilog/generated/crossbar16x16.v",
-		"/Users/chizhang/Developer/hw_acc_convNet/verilog/single_port_ram/src/single_port_ram_tb.v",
 		"/Users/chizhang/Developer/hw_acc_convNet/verilog/single_port_ram/src/single_port_ram.v",
-		"/Users/chizhang/Developer/hw_acc_convNet/verilog/single_port_ram/run.do",
 		"/C/Users/Chi Zhang/AppData/Roaming/Sublime Text 3/Packages/User/Preferences.sublime-settings",
 		"/Z/verilog/generated/streamMatrixTransposeFSM_handwritten.v",
 		"/Z/verilog/generated/memArray2x32.v",
@@ -115,7 +177,7 @@
 	],
 	"find":
 	{
-		"height": 0.0
+		"height": 23.0
 	},
 	"find_in_files":
 	{
@@ -129,6 +191,8 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"output",
+			"input"
 		],
 		"highlight": true,
 		"in_selection": false,
@@ -136,6 +200,7 @@
 		"regex": false,
 		"replace_history":
 		[
+			"wire"
 		],
 		"reverse": false,
 		"show_context": true,
@@ -146,24 +211,52 @@
 	"groups":
 	[
 		{
-			"selected": 3,
+			"selected": 1,
 			"sheets":
 			[
 				{
 					"buffer": 0,
-					"file": "generated/crossbar32x32.v",
+					"file": "matrixTranspose/src/afu_user_tb.v",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 3364,
+						"buffer_size": 1786,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								0,
-								0
+								1136,
+								1136
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/SystemVerilog/SystemVerilog.sublime-syntax"
+						},
+						"translation.x": 0.0,
+						"translation.y": 442.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 1,
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "matrixTranspose/src/afu_user.v",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 7527,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								381,
+								381
 							]
 						],
 						"settings":
@@ -176,31 +269,29 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 3,
+					"stack_index": 0,
 					"type": "text"
 				},
 				{
-					"buffer": 1,
-					"file": "generated/crossbarShiftDown32x32.v",
+					"buffer": 2,
+					"file": "matrixTranspose/run.do",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 4476,
+						"buffer_size": 138,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								0,
-								0
+								98,
+								98
 							]
 						],
 						"settings":
 						{
-							"syntax": "Packages/SystemVerilog/SystemVerilog.sublime-syntax",
-							"tab_size": 2,
-							"translate_tabs_to_spaces": true
+							"syntax": "Packages/Text/Plain text.tmLanguage"
 						},
 						"translation.x": 0.0,
 						"translation.y": 0.0,
@@ -210,50 +301,20 @@
 					"type": "text"
 				},
 				{
-					"buffer": 2,
-					"file": "generated/crossbarShiftUp32x32.v",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 4472,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								0,
-								0
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/SystemVerilog/SystemVerilog.sublime-syntax",
-							"tab_size": 2,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 1,
-					"type": "text"
-				},
-				{
 					"buffer": 3,
-					"file": "generated/memArray2x32.v",
+					"file": "single_port_ram/src/single_port_ram_tb.v",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 10886,
+						"buffer_size": 1125,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								2601,
-								2601
+								358,
+								358
 							]
 						],
 						"settings":
@@ -263,10 +324,10 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 1120.0,
+						"translation.y": 135.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 0,
+					"stack_index": 3,
 					"type": "text"
 				}
 			]
@@ -274,11 +335,11 @@
 	],
 	"incremental_find":
 	{
-		"height": 0.0
+		"height": 23.0
 	},
 	"input":
 	{
-		"height": 0.0
+		"height": 31.0
 	},
 	"layout":
 	{
@@ -311,7 +372,7 @@
 	"project": "convNet.sublime-project",
 	"replace":
 	{
-		"height": 0.0
+		"height": 64.0
 	},
 	"save_all_on_build": true,
 	"select_file":
@@ -349,7 +410,7 @@
 	"show_open_files": false,
 	"show_tabs": true,
 	"side_bar_visible": true,
-	"side_bar_width": 221.0,
+	"side_bar_width": 310.0,
 	"status_bar_visible": true,
 	"template_settings":
 	{

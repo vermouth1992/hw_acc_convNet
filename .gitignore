@@ -11,6 +11,12 @@ lectureCode-sp16-master/
 *.fail
 *.h
 */problems/
+*.mti
+*.mpf
+*/work/
+*.wlf
+*/out/
+*.txt
 
 # Created by https://www.gitignore.io/api/java,python,osx,windows,intellij,eclipse,bluej,netbeans,vim,emacs,microsoftoffice
 
