@@ -107,8 +107,7 @@ using namespace AAL;
 ///
 /// We implement a Service client within, to handle AAL Service allocation/free.
 /// We also implement a Semaphore for synchronization with the AAL runtime.
-class RuntimeClient : public CAASBase,
-    public IRuntimeClient
+class RuntimeClient : public CAASBase, public IRuntimeClient
 {
 public:
     RuntimeClient();
@@ -257,6 +256,7 @@ public:
     void _DumpCL(void *pCL,
                  ostringstream &oss);
 
+
     // <ISPLClient>
     virtual void OnTransactionStarted(TransactionID const &TranID,
                                       btVirtAddr AFUDSM,
@@ -334,9 +334,9 @@ HelloSPLLBApp::~HelloSPLLBApp()
 
 btInt HelloSPLLBApp::run()
 {
-    cout << "=======================" << endl;
-    cout << "= Hello SPL LB Sample =" << endl;
-    cout << "=======================" << endl;
+    cout << "===========================================" << endl;
+    cout << "= Hello Streaming Matrix Transpose Sample =" << endl;
+    cout << "===========================================" << endl;
 
     // Request our AFU.
 
