@@ -1,5 +1,5 @@
 module afu_user # (
-  parameter DATA_WIDTH = 16,
+  parameter DATA_WIDTH = 32,
   parameter BUFF_DEPTH_BITS = 3
 ) (
   input clk,    // Clock

@@ -187,8 +187,7 @@ module afu_core (
 `endif
 
 
-    afu_user #(.DATA_WIDTH(16),  
-               .BUFF_DEPTH_BITS(5+`MAX_TRANSFER_SIZE)
+    afu_user #(.BUFF_DEPTH_BITS(5+`MAX_TRANSFER_SIZE)
                ) afu_user (
         .clk(clk),
         .reset(~reset_n | spl_reset),

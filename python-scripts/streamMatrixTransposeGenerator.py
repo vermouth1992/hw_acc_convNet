@@ -479,9 +479,11 @@ def generateSeparateInput(inputName, outputName, k, M):
 
 def generateAfuUserVerilog(k, M, topModuleName, fileName):
     f = open(fileName, "w")
+    wordLength = str(512 / k / M)
     before = \
 """module afu_user # (
-  parameter DATA_WIDTH = 16,
+  parameter DATA_WIDTH = """ + wordLength + \
+""",
   parameter BUFF_DEPTH_BITS = 3
 ) (
   input clk,    // Clock
