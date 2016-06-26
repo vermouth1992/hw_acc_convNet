@@ -600,7 +600,20 @@ endmodule
 
 
 if __name__ == "__main__":
-    k, M = 4, 8
+    # get k and M
+    f = open("../system.config", "r")
+    parameters = {}
+    line  = f.readline().split()
+    while len(line) != 0:
+        name = line[0]
+        num = line[2]
+        parameters[name] = int(num)
+        line  = f.readline().split()
+
+    k, M = 512 / parameters["wordLength"] / parameters["matrixWidth"], parameters["matrixWidth"]
+    print "k =", k
+    print "M =", M
+    assert k > 1, "Unsupported k <= 1"
     crossbarSize = k * M
     generateCrossbar = True
     generateCrossbarShiftDown = True
