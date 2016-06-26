@@ -62,15 +62,15 @@ LDFLAGS  += -L$(DESTDIR)$(prefix)/lib -Wl,-rpath-link -Wl,$(prefix)/lib -Wl,-rpa
             -L$(DESTDIR)$(prefix)/lib64 -Wl,-rpath-link -Wl,$(prefix)/lib64 -Wl,-rpath -Wl,$(DESTDIR)$(prefix)/lib64
 endif
 
-all: MatrixTranspose
+all: matrixTranspose
 
-MatrixTranspose: MatrixTranspose.o
-	$(CXX) -g -O2 -o MatrixTranspose MatrixTranspose.o $(LDFLAGS) -lOSAL -lAAS -lxlrt
+matrixTranspose: MatrixTranspose.o
+	$(CXX) -g -O2 -o matrixTranspose MatrixTranspose.o $(LDFLAGS) -lOSAL -lAAS -lxlrt
 
 MatrixTranspose.o: MatrixTranspose.cpp  Makefile
 	$(CXX) $(CPPFLAGS) -D__AAL_USER__=1  -g -O2 -c -o MatrixTranspose.o MatrixTranspose.cpp
 
 clean:
-	$(RM) MatrixTranspose MatrixTranspose.o
+	$(RM) matrixTranspose MatrixTranspose.o
 
 .PHONY:all clean
