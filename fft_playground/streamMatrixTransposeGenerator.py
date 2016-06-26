@@ -5,8 +5,6 @@ M is the matrix size, k is p/M, # of lines processed in one cycle
 
 from generateVerilogUtil import *
 import math
-import random
-import numpy as np
 
 
 def getInputIndexMatrixTranspose(outputIndex, k, M):
