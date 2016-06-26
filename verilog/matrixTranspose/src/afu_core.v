@@ -186,42 +186,22 @@ module afu_core (
     (* ramstyle = "logic" *) reg  [63:0]                     dsr_data[0:3]; 
 `endif
 
-/*    
-    sim_fifo #(.FIFO_WIDTH(512),
-               .FIFO_DEPTH_BITS(4+`MAX_TRANSFER_SIZE),       // transfer size 1 -> 32 entries
-               .FIFO_ALMOSTFULL_THRESHOLD(2**(4+`MAX_TRANSFER_SIZE)-4),
-               .FIFO_ALMOSTEMPTY_THRESHOLD(2)
-              ) rxq(
-        .clk                (clk),
-        .reset_n            (reset_n & (~spl_reset)),
-        .din                (rxq_din),
-        .we                 (rxq_we),
-        .re                 (rxq_re),
-        .dout               (rxq_dout),
-        .empty              (rxq_empty),
-        .almostempty        (rxq_almostempty),
-        .full               (rxq_full),
-        .count              (rxq_count),
-        .almostfull         (rxq_almostfull)
-    );
-*/
-    afu_user #(.CORE_NUM_BITS(3),  // 16 mergesort core
-               .BLOCK_SIZE_BITS(11),  //  128 cachelines per block
-               .INPUT_FIFO_DEPTH_BITS(5+`MAX_TRANSFER_SIZE),
-               .OUTPUT_FIFO_DEPTH_BITS(5+`MAX_TRANSFER_SIZE)
-               ) afu_user_mergesort (
+
+    afu_user #(.DATA_WIDTH(16),  
+               .BUFF_DEPTH_BITS(5+`MAX_TRANSFER_SIZE)
+               ) afu_user (
         .clk(clk),
-        .reset_n(reset_n & (~spl_reset)),
-        .ctx_length(ctx_length),
-        .rxq_din(rxq_din),
-        .rxq_we(rxq_we),
-        .rxq_re(rxq_re),
-        .rxq_dout(rxq_dout),
-        .rxq_output_empty(rxq_empty),
-        .rxq_output_almost_empty(rxq_almostempty),
-        .rxq_input_full(rxq_full),
-        .rxq_input_count(rxq_count),
-        .rxq_input_almostfull(rxq_almostfull)
+        .reset(~reset_n | spl_reset),
+        .input_fifo_din(rxq_din),
+        .input_fifo_we(rxq_we),
+        .input_fifo_full(rxq_full),
+        .input_fifo_almost_full(rxq_almostfull),
+        .input_fifo_count(rxq_count),
+        .output_fifo_dout(rxq_dout),
+        .output_fifo_re(rxq_re),
+        .output_fifo_empty(rxq_empty),
+        .output_fifo_almost_empty(rxq_almostempty),
+        .ctx_length(ctx_length)
     );
         
     //-----------------------------------------------------------
