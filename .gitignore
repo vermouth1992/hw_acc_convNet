@@ -5,7 +5,6 @@ node_modules/
 lectureCode-sp16-master/
 *.swp
 *.vcd
-*.cpp
 *.o
 *.out
 *.fail
