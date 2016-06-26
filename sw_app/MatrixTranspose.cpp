@@ -60,6 +60,7 @@
 
 #include <string.h>
 #include <ctime>
+
 #include <time.h>
 #include <sys/time.h>
 #include <stdlib.h>
@@ -69,7 +70,7 @@
 //    DEFAULT is to use Software Simulation.
 //****************************************************************************
 // #define  HWAFU
-// #define  ASEAFU
+#define  ASEAFU
 
 using namespace AAL;
 
@@ -107,7 +108,7 @@ using namespace AAL;
 // if not define 32 bit world length, then the word length is 16 bits
 #define bt32BitsWordLength
 #define M 8
-#define numMatrixWorkSpace 100
+#define numMatrixWorkSpace 20
 
 #ifdef bt32BitsWordLength
 #define workspaceSize M * M * numMatrixWorkSpace * 4
