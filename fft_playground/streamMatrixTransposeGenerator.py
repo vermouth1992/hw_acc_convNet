@@ -614,6 +614,7 @@ if __name__ == "__main__":
     print "k =", k
     print "M =", M
     assert k > 1, "Unsupported k <= 1"
+
     crossbarSize = k * M
     generateCrossbar = True
     generateCrossbarShiftDown = True

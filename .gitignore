@@ -16,6 +16,7 @@ verilog/matrixTranspose/work/*
 *.wlf
 */out/
 *.txt
+matrixTranspose
 
 # Created by https://www.gitignore.io/api/java,python,osx,windows,intellij,eclipse,bluej,netbeans,vim,emacs,microsoftoffice
 

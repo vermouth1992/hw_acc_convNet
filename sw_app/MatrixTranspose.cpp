@@ -106,15 +106,18 @@ using namespace AAL;
 /// @addtogroup HelloSPLLB
 
 // if not define 32 bit world length, then the word length is 16 bits
-#define bt32BitsWordLength
-#define M 8
+// #define bt32BitsWordLength
+
+#define M 16
 #define numMatrixWorkSpace 20
 
 #ifdef bt32BitsWordLength
-#define workspaceSize M * M * numMatrixWorkSpace * 4
+#define oneMatrixSizeBytes M * M * 4
 #else
-#define workspaceSize M * M * numMatrixWorkSpace * 2
+#define oneMatrixSizeBytes M * M * 2
 #endif
+
+#define workspaceSizeBytes oneMatrixSizeBytes * numMatrixWorkSpace
 
 // define the matrix struct
 struct Matrix {
@@ -474,9 +477,10 @@ btInt HelloSPLLBApp::run()
          */
         // we must make sure that the number of matrix is integer
         Matrix* pSourceMatrix = reinterpret_cast<Matrix *>(pSource);
-        if (a_num_bytes % sizeof(pSourceMatrix) == 0) {
+        int oneMatrixSize = oneMatrixSizeBytes;
+        if (a_num_bytes % oneMatrixSize == 0) {
 
-            int numMatrix = a_num_bytes / sizeof(pSourceMatrix);
+            int numMatrix = a_num_bytes / oneMatrixSize;
             MSG("The number of matrix in source buffer is " << numMatrix);
 
             // Init the src/dest buffers, based on the desired sequence (either fixed or random).
@@ -598,7 +602,7 @@ void HelloSPLLBApp::serviceAllocated(IBase *pServiceBase,
     // Allocate Workspaces needed. ASE runs more slowly and we want to watch the transfers,
     //   so have fewer of them.
 #if defined ( ASEAFU )
-#define LB_BUFFER_SIZE workspaceSize
+#define LB_BUFFER_SIZE workspaceSizeBytes
 #else
 #define LB_BUFFER_SIZE MB(4)
 #endif
