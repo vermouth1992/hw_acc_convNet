@@ -1,53 +1,53 @@
 module afu_user # (
-  parameter DATA_WIDTH = 16,
-  parameter BUFF_DEPTH_BITS = 3
-) (
-  input clk,    // Clock
-  input reset,  // Asynchronous reset active low
-  // input fifo
-  input [511:0] input_fifo_din,
-  input input_fifo_we,
-  output input_fifo_full,
-  output input_fifo_almost_full,
-  output [BUFF_DEPTH_BITS-1:0] input_fifo_count,
-  // output fifo
-  output [511:0] output_fifo_dout,
-  input output_fifo_re,
-  output output_fifo_empty,
-  output output_fifo_almost_empty,
-  // other information
-  input [31:0] ctx_length
-);
-  // input fifo
-  wire [511:0] input_fifo_dout;
-  wire input_fifo_re;
-  wire input_fifo_empty;
-  // output fifo
-  wire [511:0] output_fifo_din;
-  // uut
-  reg start;
-  wire clk_en;
-  wire start_next_stage;
+          parameter DATA_WIDTH = 16,
+          parameter BUFF_DEPTH_BITS = 3
+        ) (
+          input clk,    // Clock
+          input reset,  // Asynchronous reset active low
+          // input fifo
+          input [511:0] input_fifo_din,
+          input input_fifo_we,
+          output input_fifo_full,
+          output input_fifo_almost_full,
+          output [BUFF_DEPTH_BITS-1:0] input_fifo_count,
+          // output fifo
+          output [511:0] output_fifo_dout,
+          input output_fifo_re,
+          output output_fifo_empty,
+          output output_fifo_almost_empty,
+          // other information
+          input [31:0] ctx_length
+        );
+          // input fifo
+          wire [511:0] input_fifo_dout;
+          wire input_fifo_re;
+          wire input_fifo_empty;
+          // output fifo
+          wire [511:0] output_fifo_din;
+          // uut
+          reg start;
+          wire clk_en;
+          wire start_next_stage;
 
-  syn_read_fifo #(.FIFO_WIDTH(512),
-                  .FIFO_DEPTH_BITS(BUFF_DEPTH_BITS),       // transfer size 1 -> 32 entries
-                  .FIFO_ALMOSTFULL_THRESHOLD(2**(BUFF_DEPTH_BITS)-4),
-                  .FIFO_ALMOSTEMPTY_THRESHOLD(2)
-                 ) input_fifo (
-                .clk                (clk),
-                .reset              (reset),
-                .din                (input_fifo_din),
-                .we                 (input_fifo_we),
-                .re                 (input_fifo_re),
-                .dout               (input_fifo_dout),
-                .empty              (input_fifo_empty),
-                .almostempty        (),
-                .full               (input_fifo_full),
-                .count              (input_fifo_count),
-                .almostfull         (input_fifo_almost_full)
-            );
+          syn_read_fifo #(.FIFO_WIDTH(512),
+                          .FIFO_DEPTH_BITS(BUFF_DEPTH_BITS),       // transfer size 1 -> 32 entries
+                          .FIFO_ALMOSTFULL_THRESHOLD(2**(BUFF_DEPTH_BITS)-4),
+                          .FIFO_ALMOSTEMPTY_THRESHOLD(2)
+                         ) input_fifo (
+                        .clk                (clk),
+                        .reset              (reset),
+                        .din                (input_fifo_din),
+                        .we                 (input_fifo_we),
+                        .re                 (input_fifo_re),
+                        .dout               (input_fifo_dout),
+                        .empty              (input_fifo_empty),
+                        .almostempty        (),
+                        .full               (input_fifo_full),
+                        .count              (input_fifo_count),
+                        .almostfull         (input_fifo_almost_full)
+                    );
 
-  wire [DATA_WIDTH-1:0] in0;
+          wire [DATA_WIDTH-1:0] in0;
   wire [DATA_WIDTH-1:0] in1;
   wire [DATA_WIDTH-1:0] in2;
   wire [DATA_WIDTH-1:0] in3;
@@ -152,31 +152,31 @@ module afu_user # (
                             out7, out6, out5, out4, out3, out2, out1, out0
                             };
 
-  assign input_fifo_re = (reset == 1'b1) ? 1'b0 : ~input_fifo_empty;
+          assign input_fifo_re = (reset == 1'b1) ? 1'b0 : ~input_fifo_empty;
 
-  always @(posedge clk) begin
-    if (reset) begin
-      start <= 1'b0;
-    end else if (input_fifo_re == 1'b1) begin
-      start <= 1'b1;
-    end else begin
-      start <= 1'b0;
-    end
-  end
+          always @(posedge clk) begin
+            if (reset) begin
+              start <= 1'b0;
+            end else if (input_fifo_re == 1'b1) begin
+              start <= 1'b1;
+            end else begin
+              start <= 1'b0;
+            end
+          end
 
-  reg [31:0] ctx_input_count;
+          reg [31:0] ctx_input_count;
 
-  always@(posedge clk) begin
-    if (reset) begin
-      ctx_input_count <= 0;
-    end else if (input_fifo_re) begin
-      ctx_input_count <= ctx_input_count + 1'b1;
-    end
-  end
+          always@(posedge clk) begin
+            if (reset) begin
+              ctx_input_count <= 0;
+            end else if (input_fifo_re) begin
+              ctx_input_count <= ctx_input_count + 1'b1;
+            end
+          end
 
-  assign clk_en = (ctx_input_count == ctx_length) ? 1'b1 : start;
+          assign clk_en = (ctx_input_count == ctx_length) ? 1'b1 : start;
 
-  streamMatrixTransposeTop32x32 # (
+          streamMatrixTransposeTop # (
     .DATA_WIDTH(DATA_WIDTH)
     ) uut (
     .clk(clk),
@@ -250,26 +250,27 @@ module afu_user # (
     .out31(out31)
   );
 
-  wire output_fifo_we;
+          wire output_fifo_we;
 
-  assign output_fifo_we = start_next_stage & clk_en;
+          assign output_fifo_we = start_next_stage & clk_en;
 
-  syn_read_fifo #(.FIFO_WIDTH(512),
-                  .FIFO_DEPTH_BITS(BUFF_DEPTH_BITS),       // transfer size 1 -> 32 entries
-                  .FIFO_ALMOSTFULL_THRESHOLD(2**(BUFF_DEPTH_BITS)-4),
-                  .FIFO_ALMOSTEMPTY_THRESHOLD(2)
-                 ) output_fifo (
-                .clk                (clk),
-                .reset              (reset),
-                .din                (output_fifo_din),
-                .we                 (output_fifo_we),
-                .re                 (output_fifo_re),
-                .dout               (output_fifo_dout),
-                .empty              (output_fifo_empty),
-                .almostempty        (output_fifo_almost_empty),
-                .full               (),
-                .count              (),
-                .almostfull         ()
-            );
+          syn_read_fifo #(.FIFO_WIDTH(512),
+                          .FIFO_DEPTH_BITS(BUFF_DEPTH_BITS),       // transfer size 1 -> 32 entries
+                          .FIFO_ALMOSTFULL_THRESHOLD(2**(BUFF_DEPTH_BITS)-4),
+                          .FIFO_ALMOSTEMPTY_THRESHOLD(2)
+                         ) output_fifo (
+                        .clk                (clk),
+                        .reset              (reset),
+                        .din                (output_fifo_din),
+                        .we                 (output_fifo_we),
+                        .re                 (output_fifo_re),
+                        .dout               (output_fifo_dout),
+                        .empty              (output_fifo_empty),
+                        .almostempty        (output_fifo_almost_empty),
+                        .full               (),
+                        .count              (),
+                        .almostfull         ()
+                    );
 
-endmodule
+        endmodule
+        

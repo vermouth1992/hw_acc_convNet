@@ -1,10 +1,8 @@
 """
 This file defines a set of class and function to help generate Verilog files
 """
-import unittest
 
 generatedVerilogFolder = "../verilog/generated/"
-
 
 def numToVerilogBit(num, length):
     """
