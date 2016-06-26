@@ -4,12 +4,48 @@
 		"selected_items":
 		[
 			[
+				"sta",
+				"start"
+			],
+			[
+				"in",
+				"input_fifo_we"
+			],
+			[
+				"pa",
+				"parameter"
+			],
+			[
 				"ou",
-				"output_fifo_empty"
+				"output_file"
+			],
+			[
+				"ct",
+				"ctx_length_count"
+			],
+			[
+				"c",
+				"ctx_length_count"
 			],
 			[
 				"inp",
-				"input_fifo_empty"
+				"input_fifo_din"
+			],
+			[
+				"inte",
+				"integer"
+			],
+			[
+				"ctx",
+				"ctx_input_count"
+			],
+			[
+				"beg",
+				"begin"
+			],
+			[
+				"output_",
+				"output_fifo_empty"
 			],
 			[
 				"re",
@@ -23,38 +59,6 @@
 	},
 	"buffers":
 	[
-		{
-			"file": "matrixTranspose/src/afu_user_tb.v",
-			"settings":
-			{
-				"buffer_size": 1757,
-				"line_ending": "Windows"
-			}
-		},
-		{
-			"file": "matrixTranspose/src/afu_user.v",
-			"settings":
-			{
-				"buffer_size": 7403,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "matrixTranspose/src/memArray2x32.v",
-			"settings":
-			{
-				"buffer_size": 10896,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "matrixTranspose/run.do",
-			"settings":
-			{
-				"buffer_size": 196,
-				"line_ending": "Windows"
-			}
-		}
 	],
 	"build_system": "",
 	"build_system_choices":
@@ -105,13 +109,27 @@
 	},
 	"expanded_folders":
 	[
-		"/Z/verilog",
-		"/Z/verilog/generated",
-		"/Z/verilog/matrixTranspose",
-		"/Z/verilog/matrixTranspose/src"
+		"/Users/chizhang/Developer/hw_acc_convNet/verilog",
+		"/Users/chizhang/Developer/hw_acc_convNet/verilog/matrixTranspose",
+		"/Users/chizhang/Developer/hw_acc_convNet/verilog/matrixTranspose/src"
 	],
 	"file_history":
 	[
+		"/Users/chizhang/Developer/hw_acc_convNet/verilog/matrixTranspose/src/afu_user.v",
+		"/Users/chizhang/Developer/hw_acc_convNet/verilog/matrixTranspose/src/afu_user_tb.v",
+		"/Users/chizhang/Developer/hw_acc_convNet/verilog/matrixTranspose/run.do",
+		"/Users/chizhang/Developer/hw_acc_convNet/verilog/matrixTranspose/src/single_port_ram.v",
+		"/Users/chizhang/Developer/hw_acc_convNet/verilog/matrixTranspose/src/crossbarShiftUp32x32.v",
+		"/Users/chizhang/Developer/hw_acc_convNet/verilog/matrixTranspose/src/memArray4x64.v",
+		"/Users/chizhang/Developer/hw_acc_convNet/verilog/matrixTranspose/src/crossbarShiftUp64x64.v",
+		"/Users/chizhang/Developer/hw_acc_convNet/verilog/matrixTranspose/stage0_wave.do",
+		"/Users/chizhang/Developer/hw_acc_convNet/verilog/matrixTranspose/stage1_wave.do",
+		"/Users/chizhang/Developer/hw_acc_convNet/verilog/matrixTranspose/afu_user_wave.do",
+		"/Users/chizhang/Developer/hw_acc_convNet/verilog/matrixTranspose/src/memArray8x32.v",
+		"/Users/chizhang/Developer/hw_acc_convNet/verilog/matrixTranspose/src/streamMatrixTransposeTop32x32.v",
+		"/Users/chizhang/Developer/hw_acc_convNet/verilog/matrixTranspose/src/memArray2x32.v",
+		"/Users/chizhang/Developer/hw_acc_convNet/verilog/matrixTranspose/src/output_trace.txt",
+		"/Users/chizhang/Developer/hw_acc_convNet/verilog/matrixTranspose/src/input_trace.txt",
 		"/Z/verilog/matrixTranspose/stage0_wave.do",
 		"/Z/verilog/matrixTranspose/src/afu_user_tb.v.bak",
 		"/Z/verilog/single_port_ram/run.do",
@@ -163,127 +181,8 @@
 	"groups":
 	[
 		{
-			"selected": 0,
 			"sheets":
 			[
-				{
-					"buffer": 0,
-					"file": "matrixTranspose/src/afu_user_tb.v",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 1757,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								1290,
-								1290
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/SystemVerilog/SystemVerilog.sublime-syntax",
-							"tab_size": 2,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 1428.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 0,
-					"type": "text"
-				},
-				{
-					"buffer": 1,
-					"file": "matrixTranspose/src/afu_user.v",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 7403,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								0,
-								0
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/SystemVerilog/SystemVerilog.sublime-syntax",
-							"tab_size": 2,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 4284.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 1,
-					"type": "text"
-				},
-				{
-					"buffer": 2,
-					"file": "matrixTranspose/src/memArray2x32.v",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 10896,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								0,
-								0
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/SystemVerilog/SystemVerilog.sublime-syntax",
-							"tab_size": 2,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 4488.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 3,
-					"type": "text"
-				},
-				{
-					"buffer": 3,
-					"file": "matrixTranspose/run.do",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 196,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								152,
-								152
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/Text/Plain text.tmLanguage"
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 2,
-					"type": "text"
-				}
 			]
 		}
 	],
@@ -293,7 +192,7 @@
 	},
 	"input":
 	{
-		"height": 0.0
+		"height": 31.0
 	},
 	"layout":
 	{
@@ -364,7 +263,7 @@
 	"show_open_files": false,
 	"show_tabs": true,
 	"side_bar_visible": true,
-	"side_bar_width": 366.0,
+	"side_bar_width": 281.0,
 	"status_bar_visible": true,
 	"template_settings":
 	{
