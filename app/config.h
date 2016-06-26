@@ -13,7 +13,7 @@
 #define  ASEAFU
 
 #define bt32BitsWordLength
-#define M 16
+#define M 8
 
 #define numMatrixWorkSpace 20
 

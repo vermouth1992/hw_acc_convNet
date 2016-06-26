@@ -601,14 +601,18 @@ endmodule
 
 if __name__ == "__main__":
     # get k and M
-    f = open("../system.config", "r")
+    f = open("../app/config.h", "r")
     parameters = {}
-    line  = f.readline().split()
-    while len(line) != 0:
-        name = line[0]
-        num = line[2]
-        parameters[name] = int(num)
-        line  = f.readline().split()
+    text  = f.read().split()
+
+    if "bt32BitsWordLength" in text:
+        parameters["wordLength"] = 32
+    elif "bt16BitsWordLength" in text:
+        parameters["wordLength"] = 16
+    else:
+        raise LookupError("Must define word length")
+
+    parameters["matrixWidth"] = int(text[text.index("M") + 1])
 
     k, M = 512 / parameters["wordLength"] / parameters["matrixWidth"], parameters["matrixWidth"]
     print "k =", k
