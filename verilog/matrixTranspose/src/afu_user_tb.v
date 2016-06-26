@@ -3,7 +3,7 @@
 module afu_user_tb; /* this is automatically generated */
   
   parameter CLOCK_PERIOD = 10;
-  parameter DATA_WIDTH = 16;
+  parameter DATA_WIDTH = 32;
   parameter BUFF_DEPTH_BITS = 3;
   
   reg           clk;
