@@ -3,7 +3,8 @@
 module afu_user_tb; /* this is automatically generated */
   
   parameter CLOCK_PERIOD = 10;
-  parameter DATA_WIDTH = 16;
+  parameter DATA_WIDTH = 8;
+  parameter BUFF_DEPTH_BITS = 3;
   
   reg           clk;
   reg           reset;
@@ -21,7 +22,8 @@ module afu_user_tb; /* this is automatically generated */
   always #(CLOCK_PERIOD/2) clk = ~clk;
 
   afu_user #(
-    .DATA_WIDTH(DATA_WIDTH)
+    .DATA_WIDTH(DATA_WIDTH),
+    .BUFF_DEPTH_BITS(BUFF_DEPTH_BITS)
   ) afu_user_uut (
     .clk                      (clk),
     .reset                    (reset),

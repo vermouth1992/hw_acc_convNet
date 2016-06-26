@@ -9,136 +9,332 @@ z2
 cModel Technology
 d//vmware-host/Shared Folders/verilog/single_port_ram
 vafu_user
-Z0 !s110 1466899144
+Z0 !s110 1466900787
 !i10b 1
-!s100 G;>SmQ?N4bmn]K3RY]0[_2
-IQ>h];>NCkPX`CEEkmI:b?3
+!s100 WfG@`8L;<Blb8ASCSh?O70
+IP]<OMP@eUeBgP1cz:P1E[2
 Z1 VDg1SIo80bB@j0V0VzS_@n1
 Z2 d//vmware-host/Shared Folders/verilog/matrixTranspose
-Z3 w1466897023
+w1466900742
 8src/afu_user.v
 Fsrc/afu_user.v
 L0 1
-Z4 OP;L;10.4a;61
+Z3 OP;L;10.4a;61
 r1
 !s85 0
 31
-Z5 !s108 1466899144.000000
-Z6 !s107 src/syn_read_fifo.v|src/streamMatrixTransposeTop32x32.v|src/single_port_ram.v|src/memArray2x32.v|src/crossbarShiftUp32x32.v|src/crossbarShiftDown32x32.v|src/crossbar32x32.v|src/afu_user_tb.v|src/afu_user.v|
-Z7 !s90 -reportprogress|300|+acc|src/afu_user.v|src/afu_user_tb.v|src/crossbar32x32.v|src/crossbarShiftDown32x32.v|src/crossbarShiftUp32x32.v|src/memArray2x32.v|src/single_port_ram.v|src/streamMatrixTransposeTop32x32.v|src/syn_read_fifo.v|
+Z4 !s108 1466900786.000000
+Z5 !s107 src/syn_read_fifo.v|src/streamMatrixTransposeTop64x64.v|src/streamMatrixTransposeTop32x32.v|src/streamMatrixTransposeTop16x16.v|src/single_port_ram.v|src/memArray8x32.v|src/memArray4x64.v|src/memArray4x16.v|src/memArray2x32.v|src/crossbarShiftUp64x64.v|src/crossbarShiftUp32x32.v|src/crossbarShiftUp16x16.v|src/crossbarShiftDown64x64.v|src/crossbarShiftDown32x32.v|src/crossbarShiftDown16x16.v|src/crossbar64x64.v|src/crossbar32x32.v|src/crossbar16x16.v|src/afu_user_tb.v|src/afu_user.v|
+Z6 !s90 -reportprogress|300|+acc|src/afu_user.v|src/afu_user_tb.v|src/crossbar16x16.v|src/crossbar32x32.v|src/crossbar64x64.v|src/crossbarShiftDown16x16.v|src/crossbarShiftDown32x32.v|src/crossbarShiftDown64x64.v|src/crossbarShiftUp16x16.v|src/crossbarShiftUp32x32.v|src/crossbarShiftUp64x64.v|src/memArray2x32.v|src/memArray4x16.v|src/memArray4x64.v|src/memArray8x32.v|src/single_port_ram.v|src/streamMatrixTransposeTop16x16.v|src/streamMatrixTransposeTop32x32.v|src/streamMatrixTransposeTop64x64.v|src/syn_read_fifo.v|
 !s101 -O0
 !i113 1
-Z8 o+acc -L mtiAvm -L mtiRnm -L mtiOvm -L mtiUvm -L mtiUPF -L infact -O0
+Z7 o+acc -L mtiAvm -L mtiRnm -L mtiOvm -L mtiUvm -L mtiUPF -L infact -O0
 vafu_user_tb
 R0
 !i10b 1
-!s100 =IAkhPJ]fQd@DhgU<81RS1
-I?::i?A]lzBCmPJFE`E`Em1
+!s100 _08J=?l^2oCPDHa<TnL6>1
+I:SP>M0@f4N`Emg?c@E_gc3
 R1
 R2
-w1466899130
+w1466900782
 8src/afu_user_tb.v
 Fsrc/afu_user_tb.v
 L0 3
-R4
+R3
 r1
 !s85 0
 31
+R4
 R5
 R6
-R7
 !s101 -O0
 !i113 1
-R8
+R7
+vcrossbar16x16
+R0
+!i10b 1
+!s100 gZGf<ld=8ZBjW;<fA>[>k3
+I6S1n@B^_?jenImJD_A_910
+R1
+R2
+Z8 w1466899374
+8src/crossbar16x16.v
+Fsrc/crossbar16x16.v
+L0 5
+R3
+r1
+!s85 0
+31
+R4
+R5
+R6
+!s101 -O0
+!i113 1
+R7
 vcrossbar32x32
 R0
 !i10b 1
-!s100 AKe@J6LUWWi<o6ZgI@_7Z0
-Ig0e`RYODzBzG1ozBbe3^<2
+!s100 Y;@E`P0BL:_`n9UaQ8UIK2
+IdG_GojW1Oka37IS4Yn17z1
 R1
 R2
-R3
+Z9 w1466900415
 8src/crossbar32x32.v
 Fsrc/crossbar32x32.v
 L0 5
-R4
+R3
 r1
 !s85 0
 31
+R4
 R5
 R6
-R7
 !s101 -O0
 !i113 1
+R7
+vcrossbar64x64
+R0
+!i10b 1
+!s100 >JO_J@Cl2@E6G_Wj=8nZe0
+IGzlXZ_P4E1KSBIPSi4W?>3
+R1
+R2
+Z10 w1466900721
+8src/crossbar64x64.v
+Fsrc/crossbar64x64.v
+L0 5
+R3
+r1
+!s85 0
+31
+R4
+R5
+R6
+!s101 -O0
+!i113 1
+R7
+vcrossbarShiftDown16x16
+R0
+!i10b 1
+!s100 c29EG:Il[3c1<dKVhK_j=3
+Iekb9D_>2`de=kmHdA9aBK2
+R1
+R2
 R8
+8src/crossbarShiftDown16x16.v
+Fsrc/crossbarShiftDown16x16.v
+L0 5
+R3
+r1
+!s85 0
+31
+R4
+R5
+R6
+!s101 -O0
+!i113 1
+R7
+ncrossbar@shift@down16x16
 vcrossbarShiftDown32x32
 R0
 !i10b 1
-!s100 7Bb3V:JO^`m9i;OE789lj3
-IK[?J0E6n95?ckiE=i8h]f3
+!s100 N4Q`Bn=iFOYhb=cX@`MW02
+IdzVNLd57h:nf`_eHY`3d]0
 R1
 R2
-R3
+R9
 8src/crossbarShiftDown32x32.v
 Fsrc/crossbarShiftDown32x32.v
 L0 5
-R4
+R3
 r1
 !s85 0
 31
+R4
 R5
 R6
-R7
 !s101 -O0
 !i113 1
-R8
+R7
 ncrossbar@shift@down32x32
+vcrossbarShiftDown64x64
+R0
+!i10b 1
+!s100 4kG9HR:RzTV>K>^_dXzg01
+IVkDlocE:D]L868BanUleS2
+R1
+R2
+R10
+8src/crossbarShiftDown64x64.v
+Fsrc/crossbarShiftDown64x64.v
+L0 5
+R3
+r1
+!s85 0
+31
+R4
+R5
+R6
+!s101 -O0
+!i113 1
+R7
+ncrossbar@shift@down64x64
+vcrossbarShiftUp16x16
+R0
+!i10b 1
+!s100 4iZ]704<kf:@^1BQS>Go31
+I9Y>Z0zh6CiTz`_ePhQW>h0
+R1
+R2
+R8
+8src/crossbarShiftUp16x16.v
+Fsrc/crossbarShiftUp16x16.v
+L0 5
+R3
+r1
+!s85 0
+31
+R4
+R5
+R6
+!s101 -O0
+!i113 1
+R7
+ncrossbar@shift@up16x16
 vcrossbarShiftUp32x32
 R0
 !i10b 1
-!s100 Am^@;GcaF@lC5XL;zc0oa1
-I6Lca9bgGz@PObkzWEV_`A2
+!s100 JL^PfaWP_m_;NogCXX3Dg3
+I]zk7:NgS7Mojl[>bR[eT@2
 R1
 R2
-R3
+R9
 8src/crossbarShiftUp32x32.v
 Fsrc/crossbarShiftUp32x32.v
 L0 5
-R4
+R3
 r1
 !s85 0
 31
+R4
 R5
 R6
-R7
 !s101 -O0
 !i113 1
-R8
+R7
 ncrossbar@shift@up32x32
+vcrossbarShiftUp64x64
+Z11 !s110 1466900788
+!i10b 1
+!s100 lWfK72QXmzOWlVXiL4MdT0
+IN2FAka^g]`bYz@<dViCiQ2
+R1
+R2
+R10
+8src/crossbarShiftUp64x64.v
+Fsrc/crossbarShiftUp64x64.v
+L0 5
+R3
+r1
+!s85 0
+31
+R4
+R5
+R6
+!s101 -O0
+!i113 1
+R7
+ncrossbar@shift@up64x64
 vmemArray2x32
-Z9 !s110 1466899145
+R11
 !i10b 1
 !s100 0>H`LPm7JA8@?F5zoQ:bS3
 I3:X`cEIN5zFBfgKffQP?61
 R1
 R2
-R3
+w1466897023
 8src/memArray2x32.v
 Fsrc/memArray2x32.v
 L0 5
-R4
+R3
 r1
 !s85 0
 31
+R4
 R5
 R6
-R7
 !s101 -O0
 !i113 1
-R8
+R7
 nmem@array2x32
-vsingle_port_ram
+vmemArray4x16
+R11
+!i10b 1
+!s100 RPQ9iiNU[T<e=iFDoVoAG0
+Ia:]Y]`fjKIn1Y][fF:kSD0
+R1
+R2
+R8
+8src/memArray4x16.v
+Fsrc/memArray4x16.v
+L0 5
+R3
+r1
+!s85 0
+31
+R4
+R5
+R6
+!s101 -O0
+!i113 1
+R7
+nmem@array4x16
+vmemArray4x64
+R11
+!i10b 1
+!s100 OF6Z`bldAl^EDH2X0alz<1
+IWleZMkV?[6@H048DZn]>`3
+R1
+R2
+R10
+8src/memArray4x64.v
+Fsrc/memArray4x64.v
+L0 5
+R3
+r1
+!s85 0
+31
+R4
+R5
+R6
+!s101 -O0
+!i113 1
+R7
+nmem@array4x64
+vmemArray8x32
+R11
+!i10b 1
+!s100 SA>7IAFU^KWfBogbcaCd33
+IlhR;I>^1>n211kCD;g54a3
+R1
+R2
 R9
+8src/memArray8x32.v
+Fsrc/memArray8x32.v
+L0 5
+R3
+r1
+!s85 0
+31
+R4
+R5
+R6
+!s101 -O0
+!i113 1
+R7
+nmem@array8x32
+vsingle_port_ram
+R11
 !i10b 1
 !s100 k_H2T:4jkK4aM0@H;`=XN3
 I`3l71gDdn:eD:[I0d7>ok3
@@ -148,40 +344,84 @@ w1466823033
 8src/single_port_ram.v
 Fsrc/single_port_ram.v
 L0 1
-R4
+R3
 r1
 !s85 0
 31
+R4
 R5
 R6
-R7
 !s101 -O0
 !i113 1
-R8
-vstreamMatrixTransposeTop32x32
-R9
+R7
+vstreamMatrixTransposeTop16x16
+R11
 !i10b 1
-!s100 SB9W3DG`OiY36@zjU@06?2
-I<d04UBg96XZOSocRHJbzX3
+!s100 h5RFP@mf`0Gf5A9<<8mB50
+IaWKA0MGhQgiL^fn0iXTMN0
 R1
 R2
-w1466899083
+R8
+8src/streamMatrixTransposeTop16x16.v
+Fsrc/streamMatrixTransposeTop16x16.v
+L0 5
+R3
+r1
+!s85 0
+31
+R4
+R5
+R6
+!s101 -O0
+!i113 1
+R7
+nstream@matrix@transpose@top16x16
+vstreamMatrixTransposeTop32x32
+R11
+!i10b 1
+!s100 >;;eo^0<?[P<6K>>=65ke2
+IRN`c2K?8@YoRnWLISaQ4:1
+R1
+R2
+R9
 8src/streamMatrixTransposeTop32x32.v
 Fsrc/streamMatrixTransposeTop32x32.v
 L0 5
-R4
+R3
 r1
 !s85 0
 31
+R4
 R5
 R6
-R7
 !s101 -O0
 !i113 1
-R8
+R7
 nstream@matrix@transpose@top32x32
+vstreamMatrixTransposeTop64x64
+R11
+!i10b 1
+!s100 RHILYb:IlkgS]aZ`W9FXa3
+I;OS[[bA9jkLN:IMQe54`32
+R1
+R2
+R10
+8src/streamMatrixTransposeTop64x64.v
+Fsrc/streamMatrixTransposeTop64x64.v
+L0 5
+R3
+r1
+!s85 0
+31
+R4
+R5
+R6
+!s101 -O0
+!i113 1
+R7
+nstream@matrix@transpose@top64x64
 vsyn_read_fifo
-R9
+R11
 !i10b 1
 !s100 hL9>]6c13J12ai@Iiji=<1
 IjedMPNJCeK7AMk^9EY:d^3
@@ -191,13 +431,13 @@ w1466829027
 8src/syn_read_fifo.v
 Fsrc/syn_read_fifo.v
 L0 28
-R4
+R3
 r1
 !s85 0
 31
+R4
 R5
 R6
-R7
 !s101 -O0
 !i113 1
-R8
+R7

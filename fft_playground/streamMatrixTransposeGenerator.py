@@ -482,8 +482,10 @@ def generateSeparateInput(inputName, outputName, k, M):
 
 def generateAfuUserVerilog(k, M, topModuleName, fileName):
     f = open(fileName, "w")
-    before = """module afu_user # (
-  parameter DATA_WIDTH = 16
+    before = \
+"""module afu_user # (
+  parameter DATA_WIDTH = 16,
+  parameter BUFF_DEPTH_BITS = 3
 ) (
   input clk,    // Clock
   input reset,  // Asynchronous reset active low
@@ -492,7 +494,7 @@ def generateAfuUserVerilog(k, M, topModuleName, fileName):
   input input_fifo_we,
   output input_fifo_full,
   output input_fifo_almost_full,
-  output [2:0] input_fifo_count,
+  output [BUFF_DEPTH_BITS-1:0] input_fifo_count,
   // output fifo
   output [511:0] output_fifo_dout,
   input output_fifo_re,
@@ -513,8 +515,8 @@ def generateAfuUserVerilog(k, M, topModuleName, fileName):
   wire start_next_stage;
 
   syn_read_fifo #(.FIFO_WIDTH(512),
-                  .FIFO_DEPTH_BITS(3),       // transfer size 1 -> 32 entries
-                  .FIFO_ALMOSTFULL_THRESHOLD(2**(3)-4),
+                  .FIFO_DEPTH_BITS(BUFF_DEPTH_BITS),       // transfer size 1 -> 32 entries
+                  .FIFO_ALMOSTFULL_THRESHOLD(2**(BUFF_DEPTH_BITS)-4),
                   .FIFO_ALMOSTEMPTY_THRESHOLD(2)
                  ) input_fifo (
                 .clk                (clk),
@@ -531,7 +533,8 @@ def generateAfuUserVerilog(k, M, topModuleName, fileName):
             );
 
 """
-    middle = """
+    middle = \
+"""
   assign input_fifo_re = (reset == 1'b1) ? 1'b0 : ~input_fifo_empty;
 
   always @(posedge clk) begin
@@ -557,14 +560,15 @@ def generateAfuUserVerilog(k, M, topModuleName, fileName):
   assign clk_en = (ctx_input_count == ctx_length) ? 1'b1 : start;
 
 """
-    after = """
+    after = \
+"""
   wire output_fifo_we;
 
   assign output_fifo_we = start_next_stage & clk_en;
 
   syn_read_fifo #(.FIFO_WIDTH(512),
-                  .FIFO_DEPTH_BITS(3),       // transfer size 1 -> 32 entries
-                  .FIFO_ALMOSTFULL_THRESHOLD(2**(3)-4),
+                  .FIFO_DEPTH_BITS(BUFF_DEPTH_BITS),       // transfer size 1 -> 32 entries
+                  .FIFO_ALMOSTFULL_THRESHOLD(2**(BUFF_DEPTH_BITS)-4),
                   .FIFO_ALMOSTEMPTY_THRESHOLD(2)
                  ) output_fifo (
                 .clk                (clk),
@@ -653,7 +657,7 @@ def generateInputVector(k, M, inputFileName, expectedFileName, testStall=False):
 
 
 if __name__ == "__main__":
-    k, M = 4, 8
+    k, M = 4, 16
     crossbarSize = k * M
     generateCrossbar = True
     generateCrossbarShiftDown = True
@@ -661,7 +665,10 @@ if __name__ == "__main__":
     generateMemArray = True
     generateStreamMatrixTop = True
     generateAfuUser = True
+
+    # ultimate generate file
     generateTestVector = True
+    generateVerilogFile = True
 
     crossbarName = "crossbar" + str(crossbarSize) + "x" + str(crossbarSize)
     crossbarShiftDownName = "crossbarShiftDown" + str(crossbarSize) + "x" + str(crossbarSize)
@@ -671,30 +678,31 @@ if __name__ == "__main__":
 
     generatedMatrixTranspose = "../verilog/matrixTranspose/src/"
 
-    if generateCrossbar:
-        fileName = generatedMatrixTranspose + crossbarName + ".v"
-        generateCrossbarVerilog(k, M, inputWidth=32, fileName=fileName)
+    if generateVerilogFile:
+        if generateCrossbar:
+            fileName = generatedMatrixTranspose + crossbarName + ".v"
+            generateCrossbarVerilog(k, M, inputWidth=32, fileName=fileName)
 
-    if generateCrossbarShiftDown:
-        fileName = generatedMatrixTranspose + crossbarShiftDownName + ".v"
-        generateShiftCrossbarVerilog(k, M, defaultInputWidth=32, fileName=fileName, direction="Down")
+        if generateCrossbarShiftDown:
+            fileName = generatedMatrixTranspose + crossbarShiftDownName + ".v"
+            generateShiftCrossbarVerilog(k, M, defaultInputWidth=32, fileName=fileName, direction="Down")
 
-    if generateCrossbarShiftUp:
-        fileName = generatedMatrixTranspose + crossbarShiftUpName + ".v"
-        generateShiftCrossbarVerilog(k, M, defaultInputWidth=32, fileName=fileName, direction="Up")
+        if generateCrossbarShiftUp:
+            fileName = generatedMatrixTranspose + crossbarShiftUpName + ".v"
+            generateShiftCrossbarVerilog(k, M, defaultInputWidth=32, fileName=fileName, direction="Up")
 
-    if generateMemArray:
-        fileName = generatedMatrixTranspose + memArrayName + ".v"
-        genMemArrayVerilog(k, M, defaultInputWidth=32, fileName=fileName)
+        if generateMemArray:
+            fileName = generatedMatrixTranspose + memArrayName + ".v"
+            genMemArrayVerilog(k, M, defaultInputWidth=32, fileName=fileName)
 
-    if generateStreamMatrixTop:
-        fileName = generatedMatrixTranspose + streamTransposeTopName + ".v"
-        generateStreamTransposeTop(k, M, 32, crossbarShiftDownName, crossbarName,
-                                   memArrayName, crossbarShiftUpName, fileName)
+        if generateStreamMatrixTop:
+            fileName = generatedMatrixTranspose + streamTransposeTopName + ".v"
+            generateStreamTransposeTop(k, M, 32, crossbarShiftDownName, crossbarName,
+                                       memArrayName, crossbarShiftUpName, fileName)
 
-    if generateAfuUser:
-        fileName = generatedMatrixTranspose + "afu_user" + ".v"
-        generateAfuUserVerilog(k, M, streamTransposeTopName, fileName)
+        if generateAfuUser:
+            fileName = generatedMatrixTranspose + "afu_user" + ".v"
+            generateAfuUserVerilog(k, M, streamTransposeTopName, fileName)
 
     testVectorFolder = "../verilog/matrixTranspose/out/"
     if generateTestVector:
