@@ -571,7 +571,7 @@ def generateAfuUserVerilog(k, M, topModuleName, fileName):
     end
   end
 
-  assign output_fifo_we = (ctx_length == ctx_output_count) 1'b0 : start_next_stage & clk_en;
+  assign output_fifo_we = (ctx_length == ctx_output_count) ? 1'b0 : start_next_stage & clk_en;
 
   syn_read_fifo #(.FIFO_WIDTH(512),
                   .FIFO_DEPTH_BITS(BUFF_DEPTH_BITS),       // transfer size 1 -> 32 entries
