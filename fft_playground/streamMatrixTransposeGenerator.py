@@ -239,7 +239,6 @@ def genMemArrayVerilog(k, M, defaultInputWidth, fileName):
     f.write(generateVerilogNewLine(10, "if (counter == " + numToVerilogBit(M / k - 1, counterReg.getLength())
                                    + ") begin"))
     f.write(generateVerilogNewLine(12, generateAssignment(stateReg, "P2")))
-    f.write(generateVerilogNewLine(12, generateAssignment(startNextStageReg, 1, "non-blocking")))
     for i in range(len(addressRegList)):
         f.write(generateVerilogNewLine(12, generateAssignment(addressRegList[i], i % (M / k))))
     f.write(generateVerilogNewLine(10, "end else begin"))
@@ -253,6 +252,7 @@ def genMemArrayVerilog(k, M, defaultInputWidth, fileName):
     f.write(generateVerilogNewLine(8, "P2: begin"))
     f.write(generateVerilogNewLine(10, generateAssignment(counterReg, counterReg.getName() +
                                                           " + " + numToVerilogBit(1, counterReg.getLength()))))
+    f.write(generateVerilogNewLine(10, generateAssignment(startNextStageReg, 1, "non-blocking")))
     f.write(generateVerilogNewLine(10, "if (counter == " + numToVerilogBit(M / k - 1, counterReg.getLength())
                                    + ") begin"))
     f.write(generateVerilogNewLine(12, generateAssignment(stateReg, "P1")))
@@ -332,7 +332,7 @@ def generateStreamTransposeTop(k, M, defaultInputWidth, crossbarShiftDownName, c
     f.write("\n")
 
     # construct the instance
-    crossbarShiftDownInstance = InstantiateModule(crossbarShiftDownName, "stage0", 2)
+    crossbarShiftDownInstance = InstantiateModule(crossbarName, "stage0", 2)
     crossbarShiftDownInstance.addParam(ModuleParam("DATA_WIDTH", "DATA_WIDTH"))
     crossbarShiftDownInstance.addIO(ModuleIO(1, "clk", "input", "clk"))
     crossbarShiftDownInstance.addIO(ModuleIO(1, "clk_en", "input", "clk_en"))
@@ -360,7 +360,7 @@ def generateStreamTransposeTop(k, M, defaultInputWidth, crossbarShiftDownName, c
     f.write("\n")
 
     # construct the instance
-    crossbarInstance = InstantiateModule(crossbarName, "stage1", 2)
+    crossbarInstance = InstantiateModule(crossbarShiftDownName, "stage1", 2)
     crossbarInstance.addParam(ModuleParam("DATA_WIDTH", "DATA_WIDTH"))
     crossbarInstance.addIO(ModuleIO(1, "clk", "input", "clk"))
     crossbarInstance.addIO(ModuleIO(1, "clk_en", "input", "clk_en"))
@@ -625,7 +625,7 @@ def matrixToInputVector(k, M, matrix):
     while currentLine < M:
         tempResult = vectorToInputVector(matrix[currentLine, :], wordLength) + tempResult
         if (currentLine + 1) % k == 0:
-            result += tempResult + "\n"
+            result += tempResult + "\r\n"
             tempResult = ""
         currentLine += 1
     return result
@@ -635,7 +635,7 @@ def generateInputVector(k, M, inputFileName, expectedFileName, testStall=False):
     inputFile = open(inputFileName, "w")
     # write test number
     testNum = random.randint(10, 20)
-    inputFile.write(str(numToHex(testNum * M / k, 32)) + "\n")
+    inputFile.write(str(numToHex(testNum * M / k, 32)) + "\r\n")
     # generate matrix
     wordLength = 512 / k / M
     maxNum = 2 ** wordLength - 1

@@ -110,7 +110,7 @@ module streamMatrixTransposeTop32x32 # (
   wire [DATA_WIDTH-1:0] shiftDownOut31;
   wire [1-1:0] start_next_stage_shiftDown;
 
-  crossbarShiftDown32x32 # (
+  crossbar32x32 # (
     .DATA_WIDTH(DATA_WIDTH)
     ) stage0 (
     .clk(clk),
@@ -218,7 +218,7 @@ module streamMatrixTransposeTop32x32 # (
   wire [DATA_WIDTH-1:0] crossbarOut31;
   wire [1-1:0] start_next_stage_crossbar;
 
-  crossbar32x32 # (
+  crossbarShiftDown32x32 # (
     .DATA_WIDTH(DATA_WIDTH)
     ) stage1 (
     .clk(clk),

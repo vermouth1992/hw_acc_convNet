@@ -67,7 +67,7 @@ module afu_user_tb; /* this is automatically generated */
   end
 
   always@(posedge clk) begin
-    if (~reset && ctx_length != 0 && ctx_length == ctx_length_count) begin
+    if (~reset && ctx_length != 0 && ctx_length == ctx_length_count - 1) begin
       $stop;
       $fclose(input_file);
       $fclose(output_file);
