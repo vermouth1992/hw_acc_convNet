@@ -657,7 +657,7 @@ def generateInputVector(k, M, inputFileName, expectedFileName, testStall=False):
 
 
 if __name__ == "__main__":
-    k, M = 4, 16
+    k, M = 4, 8
     crossbarSize = k * M
     generateCrossbar = True
     generateCrossbarShiftDown = True

@@ -3,7 +3,7 @@
 module afu_user_tb; /* this is automatically generated */
   
   parameter CLOCK_PERIOD = 10;
-  parameter DATA_WIDTH = 8;
+  parameter DATA_WIDTH = 16;
   parameter BUFF_DEPTH_BITS = 3;
   
   reg           clk;
@@ -52,9 +52,15 @@ module afu_user_tb; /* this is automatically generated */
     reset = 0;
   end
 
+  reg input_fifo_we_advance;
+
   always@(posedge clk) begin
-    if (!$feof(input_file)) begin
-      input_fifo_we <= 1'b1;
+    input_fifo_we_advance <= $random;
+    input_fifo_we <= input_fifo_we_advance;
+  end
+
+  always@(posedge clk) begin
+    if (!$feof(input_file) && input_fifo_we_advance) begin
       status = $fscanf(input_file, "%h", input_fifo_din);
     end
   end

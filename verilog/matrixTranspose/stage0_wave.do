@@ -69,7 +69,6 @@ add wave -noupdate /afu_user_tb/afu_user_uut/uut/stage0/out28
 add wave -noupdate /afu_user_tb/afu_user_uut/uut/stage0/out29
 add wave -noupdate /afu_user_tb/afu_user_uut/uut/stage0/out30
 add wave -noupdate /afu_user_tb/afu_user_uut/uut/stage0/out31
-add wave -noupdate /afu_user_tb/afu_user_uut/uut/stage0/timestamp
 TreeUpdate [SetDefaultTree]
 WaveRestoreCursors {{Cursor 1} {42 ns} 0}
 quietly wave cursor active 1

@@ -14,13 +14,11 @@ module single_port_ram # (
 	
 	always @ (posedge clk)
 	begin
-	// Write
+	// Write and Read enable
 		if (we) begin
 			ram[addr] <= data;
+			q <= ram[addr];
 		end
-		
-		q <= ram[addr];
-		
 	end
 	
 endmodule

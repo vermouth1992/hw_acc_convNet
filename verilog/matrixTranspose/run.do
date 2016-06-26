@@ -4,11 +4,13 @@
 vlib work
 vlog +acc "src/*.v"
 vsim -t 1ns -lib work afu_user_tb
-view objects
+# view objects
 # view wave
+# do {afu_user_tb_wave.do}
 # do {stage0_wave.do}
+# do {stage1_wave.do}
 # do {stage3_wave.do}
 # do {afu_user_wave.do}
 # do {input_fifo_wave.do}
-log -r *
+# log -r *
 run -all
