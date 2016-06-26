@@ -60,17 +60,12 @@
 
 #include <string.h>
 #include <ctime>
-
 #include <time.h>
 #include <sys/time.h>
 #include <stdlib.h>
 
-//****************************************************************************
-// UN-COMMENT appropriate #define in order to enable either Hardware or ASE.
-//    DEFAULT is to use Software Simulation.
-//****************************************************************************
-// #define  HWAFU
-#define  ASEAFU
+#include "config.h"
+
 
 using namespace AAL;
 
@@ -106,16 +101,7 @@ using namespace AAL;
 /// @addtogroup HelloSPLLB
 
 // if not define 32 bit world length, then the word length is 16 bits
-// #define bt32BitsWordLength
 
-#define M 16
-#define numMatrixWorkSpace 20
-
-#ifdef bt32BitsWordLength
-#define oneMatrixSizeBytes M * M * 4
-#else
-#define oneMatrixSizeBytes M * M * 2
-#endif
 
 #define workspaceSizeBytes oneMatrixSizeBytes * numMatrixWorkSpace
 
@@ -604,7 +590,7 @@ void HelloSPLLBApp::serviceAllocated(IBase *pServiceBase,
 #if defined ( ASEAFU )
 #define LB_BUFFER_SIZE workspaceSizeBytes
 #else
-#define LB_BUFFER_SIZE MB(4)
+#define LB_BUFFER_SIZE workspaceSizeBytes
 #endif
 
     m_SPLService->WorkspaceAllocate(sizeof(VAFU2_CNTXT) + LB_BUFFER_SIZE + LB_BUFFER_SIZE,

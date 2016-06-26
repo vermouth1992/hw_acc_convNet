@@ -67,7 +67,7 @@ all: matrixTranspose
 matrixTranspose: MatrixTranspose.o
 	$(CXX) -g -O2 -o matrixTranspose MatrixTranspose.o $(LDFLAGS) -lOSAL -lAAS -lxlrt
 
-MatrixTranspose.o: MatrixTranspose.cpp  Makefile
+MatrixTranspose.o: config.h MatrixTranspose.cpp  Makefile
 	$(CXX) $(CPPFLAGS) -D__AAL_USER__=1  -g -O2 -c -o MatrixTranspose.o MatrixTranspose.cpp
 
 clean:

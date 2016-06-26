@@ -8,7 +8,6 @@ lectureCode-sp16-master/
 *.o
 *.out
 *.fail
-*.h
 */problems/
 *.mti
 *.mpf
