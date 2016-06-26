@@ -59,6 +59,10 @@
 #include <aalsdk/kernel/vafu2defs.h>      // AFU structure definitions (brings in spl2defs.h)
 
 #include <string.h>
+#include <ctime>
+#include <time.h>
+#include <sys/time.h>
+#include <stdlib.h>
 
 //****************************************************************************
 // UN-COMMENT appropriate #define in order to enable either Hardware or ASE.
@@ -87,7 +91,7 @@ using namespace AAL;
 #endif
 
 #ifndef CL
-# define CL(x)                     ((x) * 64)
+# define CL(x)                     ((x) * 64)  // 64 bytes = 512 bits
 #endif // CL
 #ifndef LOG2_CL
 # define LOG2_CL                   6
@@ -99,9 +103,34 @@ using namespace AAL;
 
 #define LPBK1_DSM_SIZE           MB(4);
 /// @addtogroup HelloSPLLB
-/// @{
 
+// if not define 32 bit world length, then the word length is 16 bits
+#define bt32BitsWordLength
 
+#define M 8
+
+// define the matrix struct
+struct Matrix {
+#ifdef bt32BitsWordLength
+    btUnsigned32bitInt dw[M * M];
+#else
+    btUnsigned16bitInt dw[M * M];
+#endif
+};
+
+int posToIndex(int x, int y) {
+    return M * x + y;
+}
+
+void matrixTranspose(Matrix* m) {
+    for (int y = 0; y < M - 1; y++) {   // the range of y is [0, M-2]
+        for (int x = y + 1; x < M; x++) {  // the range of x is [y+1, M-1]
+            int upperIndex = posToIndex(x, y);
+            int lowerIndex = posToIndex(y, x);
+            std::swap(m->dw[upperIndex], m->dw[lowerIndex]);  // swap two elements
+        }
+    }
+}
 
 /// @brief   Define our Runtime client class so that we can receive the runtime started/stopped notifications.
 ///
@@ -400,7 +429,7 @@ btInt HelloSPLLBApp::run()
         VAFU2_CNTXT       *pVAFU2_cntxt = reinterpret_cast<VAFU2_CNTXT *>(pWSUsrVirt);
 
         // The source buffer is right after the VAFU Context
-        btVirtAddr         pSource = pWSUsrVirt + sizeof(VAFU2_CNTXT);
+        btVirtAddr         pSource = pWSUsrVirt + sizeof(VAFU2_CNTXT);  // the same as char*
 
         // The destination buffer is right after the source buffer
         btVirtAddr         pDest   = pSource + a_num_bytes;
@@ -429,10 +458,25 @@ btInt HelloSPLLBApp::run()
             " (bytes="       << std::dec << pVAFU2_cntxt->num_cl * CL(1) <<
             " 0x"            << std::hex << pVAFU2_cntxt->num_cl * CL(1) << std::dec << ")");
 
-        // Init the src/dest buffers, based on the desired sequence (either fixed or random).
-        MSG("Initializing buffers with fixed data pattern. (src=0xafafafaf dest=0xbebebebe)");
 
-        ::memset( pSource, 0xAF, a_num_bytes );
+
+        /* TODO: 1. reinterpret the workspace as matrix given M (matrix width)
+         *       2. Calculate the expected results
+         *       3. start the transaction and compare the results
+         *       4. The wordLength is 512 / k / M
+         */
+
+
+        // Init the src/dest buffers, based on the desired sequence (either fixed or random).
+        MSG("Initializing source matrix. (random)");
+
+        std::srand((uint)std::time(0));
+        for (int i = 0; i < a_num_bytes; i++) {  // 1 byte a time
+            char random = (char) (std::rand() % 256);
+            ::memset( pSource + i, random, 1);
+        }
+
+        MSG("Initializing the destination buffer as 0xBE");
         ::memset( pDest,   0xBE, a_num_bytes );
 
         // Buffers have been initialized
@@ -476,6 +520,11 @@ btInt HelloSPLLBApp::run()
         m_SPLService->StopTransactionContext(TransactionID());
         m_Sem.Wait();
         MSG("SPL Transaction complete");
+
+        // transpose the source buffer
+        // case the pSource to matrix
+        Matrix* pSourceMatrix = reinterpret_cast<Matrix *>(pSource);
+        
 
         ////////////////////////////////////////////////////////////////////////////
         // Check the buffers to make sure they copied okay
