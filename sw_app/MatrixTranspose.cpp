@@ -106,8 +106,14 @@ using namespace AAL;
 
 // if not define 32 bit world length, then the word length is 16 bits
 #define bt32BitsWordLength
-
 #define M 8
+#define numMatrixWorkSpace 100
+
+#ifdef bt32BitsWordLength
+#define workspaceSize M * M * numMatrixWorkSpace * 4
+#else
+#define workspaceSize M * M * numMatrixWorkSpace * 2
+#endif
 
 // define the matrix struct
 struct Matrix {
@@ -465,105 +471,97 @@ btInt HelloSPLLBApp::run()
          *       3. start the transaction and compare the results
          *       4. The wordLength is 512 / k / M
          */
-
-
-        // Init the src/dest buffers, based on the desired sequence (either fixed or random).
-        MSG("Initializing source matrix. (random)");
-
-        std::srand((uint)std::time(0));
-        for (int i = 0; i < a_num_bytes; i++) {  // 1 byte a time
-            char random = (char) (std::rand() % 256);
-            ::memset( pSource + i, random, 1);
-        }
-
-        MSG("Initializing the destination buffer as 0xBE");
-        ::memset( pDest,   0xBE, a_num_bytes );
-
-        // Buffers have been initialized
-        ////////////////////////////////////////////////////////////////////////////
-
-        ////////////////////////////////////////////////////////////////////////////
-        // Get the AFU and start talking to it
-
-        // Acquire the AFU. Once acquired in a TransactionContext, can issue CSR Writes and access DSM.
-        // Provide a workspace and so also start the task.
-        // The VAFU2 Context is assumed to be at the start of the workspace.
-        MSG("Starting SPL Transaction with Workspace");
-        m_SPLService->StartTransactionContext(TransactionID(), pWSUsrVirt, 100);
-        m_Sem.Wait();
-
-        // The AFU is running
-        ////////////////////////////////////////////////////////////////////////////
-
-        ////////////////////////////////////////////////////////////////////////////
-        // Wait for the AFU to be done. This is AFU-specific, we have chosen to poll ...
-
-        // Set timeout increment based on hardware, software, or simulation
-        bt32bitInt count(500);  // 5 seconds with 10 millisecond sleep
-        bt32bitInt delay(10);   // 10 milliseconds is the default
-
-        // Wait for SPL VAFU to finish code
-        volatile bt32bitInt done = pVAFU2_cntxt->Status & VAFU2_CNTXT_STATUS_DONE;
-        while (!done && --count) {
-            SleepMilli( delay );
-            done = pVAFU2_cntxt->Status & VAFU2_CNTXT_STATUS_DONE;
-        }
-        if ( !done ) {
-            // must have dropped out of loop due to count -- never saw update
-            ERR("AFU never signaled it was done. Timing out anyway. Results may be strange.\n");
-        }
-        ////////////////////////////////////////////////////////////////////////////
-        // Stop the AFU
-
-        // Issue Stop Transaction and wait for OnTransactionStopped
-        MSG("Stopping SPL Transaction");
-        m_SPLService->StopTransactionContext(TransactionID());
-        m_Sem.Wait();
-        MSG("SPL Transaction complete");
-
-        // transpose the source buffer
-        // case the pSource to matrix
+        // we must make sure that the number of matrix is integer
         Matrix* pSourceMatrix = reinterpret_cast<Matrix *>(pSource);
-        
+        if (a_num_bytes % sizeof(pSourceMatrix) == 0) {
 
-        ////////////////////////////////////////////////////////////////////////////
-        // Check the buffers to make sure they copied okay
+            int numMatrix = a_num_bytes / sizeof(pSourceMatrix);
+            MSG("The number of matrix in source buffer is " << numMatrix);
 
-        btUnsignedInt        cl;               // Loop counter. Cache-Line number.
-        int                  tres;              // If many errors in buffer, only dump a limited number
-        btInt                res = 0;
-        ostringstream        oss("");          // Place to stash fancy strings
-        btUnsigned32bitInt   tCacheLine[16];   // Temporary cacheline for various purposes
-        CASSERT( sizeof(tCacheLine) == CL(1) );
+            // Init the src/dest buffers, based on the desired sequence (either fixed or random).
+            MSG("Initializing source matrix. (random)");
 
-        MSG("Verifying buffers in workspace");
-
-        // Verify 1) that the source buffer was not corrupted and
-        //        2) that the dest buffer contains the source buffer contents.
-
-        ::memset( tCacheLine, 0xAF, sizeof(tCacheLine) );  // expected for both source and dest buffers
-
-        tres = 0;                                          // dump only 4 CL's at a time
-        for ( cl = 0 ; cl < a_num_cl && tres < 4; ++cl ) { // check for error in source buffer
-            if ( ::memcmp( tCacheLine, &pSourceCL[cl], CL(1) ) ) {
-                Show2CLs( tCacheLine, &pSourceCL[cl], oss);
-                ERR("Source cache line " << cl << " @" << (void*)&pSourceCL[cl] <<
-                    " has been corrupted.\n" << oss.str() );
-                oss.str(std::string(""));
-                ++res;
-                ++tres;
+            std::srand((uint) std::time(0));
+            for (int i = 0; i < a_num_bytes; i++) {  // 1 byte a time
+                char random = (char) (std::rand() % 256);
+                ::memset(pSource + i, random, 1);
             }
-        }
-        tres = 0;                                          // dump only 4 CL's at a time
-        for ( cl = 0 ; cl < a_num_cl && tres < 4; ++cl ) { // check for error in destination buffer
-            if ( ::memcmp( tCacheLine, &pDestCL[cl], CL(1) ) ) {
-                Show2CLs( tCacheLine, &pDestCL[cl], oss);
-                ERR("Destination cache line " << cl << " @" << (void*)&pDestCL[cl] <<
-                    " is not what was expected.\n" << oss.str() );
-                oss.str(std::string(""));
-                ++res;
-                ++tres;
+
+            MSG("Initializing the destination buffer as 0xBE");
+            ::memset(pDest, 0xBE, a_num_bytes);
+
+            // Buffers have been initialized
+            ////////////////////////////////////////////////////////////////////////////
+
+            ////////////////////////////////////////////////////////////////////////////
+            // Get the AFU and start talking to it
+
+            // Acquire the AFU. Once acquired in a TransactionContext, can issue CSR Writes and access DSM.
+            // Provide a workspace and so also start the task.
+            // The VAFU2 Context is assumed to be at the start of the workspace.
+            MSG("Starting SPL Transaction with Workspace");
+            m_SPLService->StartTransactionContext(TransactionID(), pWSUsrVirt, 100);
+            m_Sem.Wait();
+
+            // The AFU is running
+            ////////////////////////////////////////////////////////////////////////////
+
+            ////////////////////////////////////////////////////////////////////////////
+            // Wait for the AFU to be done. This is AFU-specific, we have chosen to poll ...
+
+            // Set timeout increment based on hardware, software, or simulation
+            bt32bitInt count(500);  // 5 seconds with 10 millisecond sleep
+            bt32bitInt delay(10);   // 10 milliseconds is the default
+
+            // Wait for SPL VAFU to finish code
+            volatile bt32bitInt done = pVAFU2_cntxt->Status & VAFU2_CNTXT_STATUS_DONE;
+            while (!done && --count) {
+                SleepMilli(delay);
+                done = pVAFU2_cntxt->Status & VAFU2_CNTXT_STATUS_DONE;
             }
+            if (!done) {
+                // must have dropped out of loop due to count -- never saw update
+                ERR("AFU never signaled it was done. Timing out anyway. Results may be strange.\n");
+            }
+            ////////////////////////////////////////////////////////////////////////////
+            // Stop the AFU
+
+            // Issue Stop Transaction and wait for OnTransactionStopped
+            MSG("Stopping SPL Transaction");
+            m_SPLService->StopTransactionContext(TransactionID());
+            m_Sem.Wait();
+            MSG("SPL Transaction complete");
+
+            // transpose the source buffer
+            for (int i = 0; i < numMatrix; i++) {
+                matrixTranspose(pSourceMatrix + i);
+            }
+
+            ////////////////////////////////////////////////////////////////////////////
+            // Check the buffers to make sure they copied okay
+
+            btUnsignedInt cl;               // Loop counter. Cache-Line number.
+            int tres;              // If many errors in buffer, only dump a limited number
+            ostringstream oss("");          // Place to stash fancy strings
+
+            MSG("Verifying buffers in workspace");
+
+            // verifying whether the source buffer is the same as destination buffer
+
+            tres = 0;                                          // dump only 4 CL's at a time
+            for (cl = 0; cl < a_num_cl && tres < 4; ++cl) { // check for error in destination buffer
+                if (::memcmp(&pSourceCL[cl], &pDestCL[cl], CL(1))) {
+                    Show2CLs(&pSourceCL[cl], &pDestCL[cl], oss);
+                    ERR("Destination cache line " << cl << " @" << (void *) &pDestCL[cl] <<
+                        " is not what was expected.\n" << oss.str());
+                    oss.str(std::string(""));
+                    ++tres;
+                }
+            }
+
+            if (tres == 0) MSG("The source and destination buffer is exactly the same!");
+        } else {
+            ERR("The number of matrix in source buffer is not an integer, abort.");
         }
     }
 
@@ -599,7 +597,7 @@ void HelloSPLLBApp::serviceAllocated(IBase *pServiceBase,
     // Allocate Workspaces needed. ASE runs more slowly and we want to watch the transfers,
     //   so have fewer of them.
 #if defined ( ASEAFU )
-#define LB_BUFFER_SIZE CL(16)
+#define LB_BUFFER_SIZE workspaceSize
 #else
 #define LB_BUFFER_SIZE MB(4)
 #endif
