@@ -600,7 +600,7 @@ endmodule
 
 
 if __name__ == "__main__":
-    k, M = 4, 8
+    k, M = 2, 16
     crossbarSize = k * M
     generateCrossbar = True
     generateCrossbarShiftDown = True

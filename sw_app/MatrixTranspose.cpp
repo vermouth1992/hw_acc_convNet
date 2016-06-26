@@ -106,9 +106,9 @@ using namespace AAL;
 /// @addtogroup HelloSPLLB
 
 // if not define 32 bit world length, then the word length is 16 bits
-#define bt32BitsWordLength
+// #define bt32BitsWordLength
 
-#define M 8
+#define M 16
 #define numMatrixWorkSpace 20
 
 #ifdef bt32BitsWordLength

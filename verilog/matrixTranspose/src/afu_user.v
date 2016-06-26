@@ -146,10 +146,8 @@ module afu_user # (
   assign in30 = input_fifo_dout[495:480];
   assign in31 = input_fifo_dout[511:496];
 
-  assign output_fifo_din = {out31, out30, out29, out28, out27, out26, out25, out24, 
-                            out23, out22, out21, out20, out19, out18, out17, out16, 
-                            out15, out14, out13, out12, out11, out10, out9, out8, 
-                            out7, out6, out5, out4, out3, out2, out1, out0
+  assign output_fifo_din = {out31, out30, out29, out28, out27, out26, out25, out24, out23, out22, out21, out20, out19, out18, out17, out16, 
+                            out15, out14, out13, out12, out11, out10, out9, out8, out7, out6, out5, out4, out3, out2, out1, out0
                             };
 
   assign input_fifo_re = (reset == 1'b1) ? 1'b0 : ~input_fifo_empty;
