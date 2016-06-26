@@ -252,7 +252,17 @@ module afu_user # (
 
   wire output_fifo_we;
 
-  assign output_fifo_we = start_next_stage & clk_en;
+  reg [31:0] ctx_output_count;
+
+  always@(posedge clk) begin
+    if (reset) begin
+      ctx_output_count <= 0;
+    end else if (output_fifo_we) begin
+      ctx_output_count <= ctx_output_count + 1'b1;
+    end
+  end
+
+  assign output_fifo_we = (ctx_length == ctx_output_count) 1'b0 : start_next_stage & clk_en;
 
   syn_read_fifo #(.FIFO_WIDTH(512),
                   .FIFO_DEPTH_BITS(BUFF_DEPTH_BITS),       // transfer size 1 -> 32 entries
