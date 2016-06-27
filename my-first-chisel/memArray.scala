@@ -9,8 +9,8 @@ class memArray(DATA_WIDTH: Int, k: Int, M: Int) extends Module {
     val clk_en = Bool(INPUT)
     val start = Bool(INPUT)
     val start_next_stage = Bool(OUTPUT)
-    val in = Vec.fill(k * M) {UInt(INPUT, width=DATA_WIDTH)}
-    val out = Vec.fill(k * M) {UInt(OUTPUT, width=DATA_WIDTH)}
+    val in = Vec.fill(M * k) { UInt(INPUT, DATA_WIDTH) }
+    val out = Vec.fill(M * k) { UInt(OUTPUT, DATA_WIDTH) }
   }
 
   // address
@@ -18,6 +18,7 @@ class memArray(DATA_WIDTH: Int, k: Int, M: Int) extends Module {
 
   // start next stage
   val start_next_stage_reg = Reg(init = Bool(false))
+  io.start_next_stage := start_next_stage_reg
 
   // counter
   val counter = Reg(init = UInt(0, width=log2Up(M / k)))
@@ -64,17 +65,15 @@ class memArray(DATA_WIDTH: Int, k: Int, M: Int) extends Module {
         }
       }
     }
+  }
 
-    val memBlock = Vec.fill(M * k) {new single_port_ram(DATA_WIDTH, M / k).io}
+  val memBlock = Vec.fill(M * k) { Module(new single_port_ram(DATA_WIDTH, M / k)).io }
 
-    for (i <- 0 until M * k) {
-      memBlock(i).data := io.in(i)
-      memBlock(i).addr := address(i / k)
-      memBlock(i).we := io.start & io.clk_en
-      io.out(i) := memBlock(i).q
-    }
-
-    io.start_next_stage := start_next_stage_reg
+  for (i <- 0 until M * k) {
+    memBlock(i).data := io.in(i)
+    memBlock(i).addr := address(i / k)
+    memBlock(i).we := io.start & io.clk_en
+    io.out(i) := memBlock(i).q
   }
 }
 

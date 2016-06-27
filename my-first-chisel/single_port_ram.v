@@ -1,4 +1,4 @@
-module single_port_ram(input clk,
+module single_port_ram(input clk, input reset,
     input [7:0] io_data,
     input [5:0] io_addr,
     input  io_we,
@@ -6,10 +6,13 @@ module single_port_ram(input clk,
 );
 
   reg [7:0] out;
+  wire[7:0] T5;
   wire[7:0] T0;
   wire[7:0] T1;
-  reg [7:0] myMem [63:0];
   wire[7:0] T2;
+  reg [7:0] myMem [63:0];
+  wire[7:0] T3;
+  wire T4;
 
 `ifndef SYNTHESIS
 // synthesis translate_off
@@ -24,12 +27,19 @@ module single_port_ram(input clk,
 `endif
 
   assign io_q = out;
-  assign T0 = io_we ? T1 : out;
-  assign T1 = myMem[io_addr];
+  assign T5 = reset ? 8'h0 : T0;
+  assign T0 = T4 ? out : T1;
+  assign T1 = io_we ? T2 : out;
+  assign T2 = myMem[io_addr];
+  assign T4 = io_we ^ 1'h1;
 
   always @(posedge clk) begin
-    if(io_we) begin
-      out <= T1;
+    if(reset) begin
+      out <= 8'h0;
+    end else if(T4) begin
+      out <= out;
+    end else if(io_we) begin
+      out <= T2;
     end
     if (io_we)
       myMem[io_addr] <= io_data;
