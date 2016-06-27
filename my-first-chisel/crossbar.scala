@@ -1,7 +1,7 @@
 
 import Chisel._
 
-class CrossBar(WIDTH: Int, numInput: Int) extends Module {
+class crossbar(WIDTH: Int, numInput: Int) extends Module {
   val io = new Bundle {
     val input = Vec.fill(numInput) {UInt(INPUT, width=WIDTH)}
     val output = Vec.fill(numInput) {UInt(OUTPUT, width=WIDTH)}
@@ -21,7 +21,7 @@ class CrossBar(WIDTH: Int, numInput: Int) extends Module {
   }
 }
 
-class CrossBarTest(c: CrossBar) extends Tester(c) {
+class CrossBarTest(c: crossbar) extends Tester(c) {
 
 }
 
@@ -29,6 +29,6 @@ object CrossBarObj {
   def main(args: Array[String]): Unit = {
     val margs = Array("--v")
     //val margs = Array("--backend", "c", "--genHarness", "--compile", "--test")
-    chiselMainTest(margs, () => Module(new CrossBar(8, 5))){c => new CrossBarTest(c)}
+    chiselMainTest(margs, () => Module(new crossbar(8, 5))){ c => new CrossBarTest(c)}
   }
 }
