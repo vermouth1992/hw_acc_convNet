@@ -64,19 +64,19 @@
 	"buffers":
 	[
 		{
-			"file": "matrixTranspose/src/afu_core.v",
-			"settings":
-			{
-				"buffer_size": 31474,
-				"line_ending": "Unix"
-			}
-		},
-		{
 			"file": "matrixTranspose/src/afu_user.v",
 			"settings":
 			{
 				"buffer_size": 5863,
 				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "matrixTranspose/src/single_port_ram.v",
+			"settings":
+			{
+				"buffer_size": 410,
+				"line_ending": "Windows"
 			}
 		}
 	],
@@ -135,8 +135,9 @@
 	],
 	"file_history":
 	[
-		"/Users/chizhang/Developer/hw_acc_convNet/verilog/matrixTranspose/src/crossbarShiftDown.v",
+		"/Users/chizhang/Developer/hw_acc_convNet/verilog/matrixTranspose/src/afu_core.v",
 		"/Users/chizhang/Developer/hw_acc_convNet/verilog/matrixTranspose/src/crossbarShiftUp.v",
+		"/Users/chizhang/Developer/hw_acc_convNet/verilog/matrixTranspose/src/crossbarShiftDown.v",
 		"/Users/chizhang/Developer/hw_acc_convNet/verilog/matrixTranspose/src/memArray.v",
 		"/Users/chizhang/Developer/hw_acc_convNet/verilog/matrixTranspose/src/streamMatrixTransposeTop.v",
 		"/Users/chizhang/Developer/hw_acc_convNet/verilog/matrixTranspose/src/afu_user.v",
@@ -208,41 +209,11 @@
 	"groups":
 	[
 		{
-			"selected": 1,
+			"selected": 0,
 			"sheets":
 			[
 				{
 					"buffer": 0,
-					"file": "matrixTranspose/src/afu_core.v",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 31474,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								30379,
-								30379
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/SystemVerilog/SystemVerilog.sublime-syntax",
-							"tab_size": 4,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 9771.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 1,
-					"type": "text"
-				},
-				{
-					"buffer": 1,
 					"file": "matrixTranspose/src/afu_user.v",
 					"semi_transient": false,
 					"settings":
@@ -254,8 +225,8 @@
 						"selection":
 						[
 							[
-								499,
-								499
+								1688,
+								1688
 							]
 						],
 						"settings":
@@ -265,10 +236,39 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 0.0,
+						"translation.y": 382.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 0,
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "matrixTranspose/src/single_port_ram.v",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 410,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								15,
+								15
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/SystemVerilog/SystemVerilog.sublime-syntax",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 1,
 					"type": "text"
 				}
 			]
