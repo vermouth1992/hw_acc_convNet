@@ -72,6 +72,14 @@
 			}
 		},
 		{
+			"file": "matrixTranspose/src/memArray.v",
+			"settings":
+			{
+				"buffer_size": 6938,
+				"line_ending": "Unix"
+			}
+		},
+		{
 			"file": "matrixTranspose/src/single_port_ram.v",
 			"settings":
 			{
@@ -209,7 +217,7 @@
 	"groups":
 	[
 		{
-			"selected": 0,
+			"selected": 1,
 			"sheets":
 			[
 				{
@@ -225,8 +233,8 @@
 						"selection":
 						[
 							[
-								1688,
-								1688
+								734,
+								734
 							]
 						],
 						"settings":
@@ -236,14 +244,44 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 382.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 1,
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "matrixTranspose/src/memArray.v",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 6938,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								4346,
+								4346
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/SystemVerilog/SystemVerilog.sublime-syntax",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 2043.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 0,
 					"type": "text"
 				},
 				{
-					"buffer": 1,
+					"buffer": 2,
 					"file": "matrixTranspose/src/single_port_ram.v",
 					"semi_transient": false,
 					"settings":
@@ -268,7 +306,7 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 1,
+					"stack_index": 2,
 					"type": "text"
 				}
 			]

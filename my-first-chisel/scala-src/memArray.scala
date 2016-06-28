@@ -83,7 +83,7 @@ class memArrayTest(c: memArray) extends Tester(c) {
 
 object memArrayObj {
   def main(args: Array[String]): Unit = {
-    val margs = Array("--v")
+    val margs = Array("--targetDir", "./verilog/", "--v")
     //val margs = Array("--backend", "c", "--genHarness", "--compile", "--test")
     chiselMainTest(margs, () => Module(new memArray(32, 2, 8))){ c => new memArrayTest(c)}
   }
