@@ -1,7 +1,7 @@
 
 import Chisel._
 
-class crossbar(WIDTH: Int, k: Int, M: Int) extends Module {
+class crossbar(DATA_WIDTH: Int, k: Int, M: Int) extends Module {
 
   def getInputIndexGivenOutputIndex(outputIndex: Int) = {
     val i = (outputIndex % M) % k + 1
@@ -13,11 +13,11 @@ class crossbar(WIDTH: Int, k: Int, M: Int) extends Module {
     val clk_en = Bool(INPUT)
     val start = Bool(INPUT)
     val start_next_stage = Bool(OUTPUT)
-    val in = Vec.fill(k * M) {UInt(INPUT, width=WIDTH)}
-    val out = Vec.fill(k * M) {UInt(OUTPUT, width=WIDTH)}
+    val in = Vec.fill(k * M) {UInt(INPUT, width=DATA_WIDTH)}
+    val out = Vec.fill(k * M) {UInt(OUTPUT, width=DATA_WIDTH)}
   }
 
-  val out_reg = Vec.fill(k * M) {Reg(UInt(width=WIDTH))}
+  val out_reg = Vec.fill(k * M) {Reg(UInt(width=DATA_WIDTH))}
 
   val start_next_stage_reg = Reg(init = Bool(false))
 
