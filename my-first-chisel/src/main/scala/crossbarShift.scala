@@ -13,6 +13,9 @@ class crossbarShift(DATA_WIDTH: Int, k: Int, M: Int, isShiftDown: Boolean) exten
     else (outputIndex + shiftNum) % (k * M)
   }
 
+  if (isShiftDown) moduleName = "crossbarShiftDown"
+  else moduleName = "crossbarShiftUp"
+
   val io = new Bundle {
     val clk_en = Bool(INPUT)
     val start = Bool(INPUT)
@@ -54,15 +57,10 @@ class crossbarShift(DATA_WIDTH: Int, k: Int, M: Int, isShiftDown: Boolean) exten
 }
 
 
-class crossbarShiftTest(c: crossbarShift) extends Tester(c) {
-
-}
-
-
 object crossbarShiftObj {
   def main(args: Array[String]): Unit = {
     val margs = Array("--targetDir", "./verilog/", "--v")
     //val margs = Array("--backend", "c", "--genHarness", "--compile", "--test")
-    chiselMainTest(margs, () => Module(new crossbarShift(32, 2, 8, true))){ c => new crossbarShiftTest(c)}
+    chiselMain(margs, () => Module(new crossbarShift(32, 2, 8, true)))
   }
 }
