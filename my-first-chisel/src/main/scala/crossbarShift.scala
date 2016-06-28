@@ -59,8 +59,8 @@ class crossbarShift(DATA_WIDTH: Int, k: Int, M: Int, isShiftDown: Boolean) exten
 
 object crossbarShiftObj {
   def main(args: Array[String]): Unit = {
-    val margs = Array("--targetDir", "./verilog/", "--v")
+    val margs = Array("--targetDir", "./verilog/", "--v", "-feature")
     //val margs = Array("--backend", "c", "--genHarness", "--compile", "--test")
-    chiselMain(margs, () => Module(new crossbarShift(32, 2, 8, true)))
+    chiselMain(margs, () => Module(new crossbarShift(32, 2, 8, false)))
   }
 }

@@ -17,6 +17,8 @@ class crossbar(DATA_WIDTH: Int, k: Int, M: Int) extends Module {
     val out = Vec.fill(k * M) {UInt(OUTPUT, width=DATA_WIDTH)}
   }
 
+  moduleName = "crossbar"
+
   val out_reg = Vec.fill(k * M) {Reg(UInt(width=DATA_WIDTH))}
 
   val start_next_stage_reg = Reg(init = Bool(false))
@@ -38,14 +40,11 @@ class crossbar(DATA_WIDTH: Int, k: Int, M: Int) extends Module {
   }
 }
 
-class CrossBarTest(c: crossbar) extends Tester(c) {
-
-}
 
 object CrossBarObj {
   def main(args: Array[String]): Unit = {
     val margs = Array("--targetDir", "./verilog/", "--v")
     //val margs = Array("--backend", "c", "--genHarness", "--compile", "--test")
-    chiselMainTest(margs, () => Module(new crossbar(32, 2, 8))){ c => new CrossBarTest(c)}
+    chiselMain(margs, () => Module(new crossbar(32, 2, 8)))
   }
 }

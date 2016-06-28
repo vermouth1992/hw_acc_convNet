@@ -13,6 +13,8 @@ class memArray(DATA_WIDTH: Int, k: Int, M: Int) extends Module {
     val out = Vec.fill(M * k) { UInt(OUTPUT, DATA_WIDTH) }
   }
 
+  moduleName = "memArray"
+
   // address
   val address = Vec.fill(M) {Reg(init = UInt(0, width=log2Up(M / k)))}
 
@@ -77,14 +79,11 @@ class memArray(DATA_WIDTH: Int, k: Int, M: Int) extends Module {
   }
 }
 
-class memArrayTest(c: memArray) extends Tester(c) {
-
-}
 
 object memArrayObj {
   def main(args: Array[String]): Unit = {
     val margs = Array("--targetDir", "./verilog/", "--v")
     //val margs = Array("--backend", "c", "--genHarness", "--compile", "--test")
-    chiselMainTest(margs, () => Module(new memArray(32, 2, 8))){ c => new memArrayTest(c)}
+    chiselMain(margs, () => Module(new memArray(32, 2, 8)))
   }
 }

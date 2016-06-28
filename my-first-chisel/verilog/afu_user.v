@@ -195,7 +195,7 @@ module crossbar(input clk, input reset,
   end
 endmodule
 
-module crossbarShift_0(input clk, input reset,
+module crossbarShiftDown(input clk, input reset,
     input  io_clk_en,
     input  io_start,
     output io_start_next_stage,
@@ -1214,7 +1214,7 @@ module memArray(input clk, input reset,
   end
 endmodule
 
-module crossbarShift_1(input clk, input reset,
+module crossbarShiftUp(input clk, input reset,
     input  io_clk_en,
     input  io_start,
     output io_start_next_stage,
@@ -1794,7 +1794,7 @@ module streamMatrixTransposeTop(input clk, input reset,
        .io_out_1( crossbar_io_out_1 ),
        .io_out_0( crossbar_io_out_0 )
   );
-  crossbarShift_0 crossbarShift(.clk(clk), .reset(reset),
+  crossbarShiftDown crossbarShift(.clk(clk), .reset(reset),
        .io_clk_en( io_clk_en ),
        .io_start( crossbar_io_start_next_stage ),
        .io_start_next_stage( crossbarShift_io_start_next_stage ),
@@ -1868,7 +1868,7 @@ module streamMatrixTransposeTop(input clk, input reset,
        .io_out_1( memArray_io_out_1 ),
        .io_out_0( memArray_io_out_0 )
   );
-  crossbarShift_1 crossbarShift_1(.clk(clk), .reset(reset),
+  crossbarShiftUp crossbarShift_1(.clk(clk), .reset(reset),
        .io_clk_en( io_clk_en ),
        .io_start( memArray_io_start_next_stage ),
        .io_start_next_stage( crossbarShift_1_io_start_next_stage ),
