@@ -41,14 +41,11 @@ class streamMatrixTransposeTop(DATA_WIDTH: Int, k: Int, M: Int) extends Module {
   io.out := crossbarShiftUpInst.out
 }
 
-class streamMatrixTransposeTopTest(c: streamMatrixTransposeTop) extends Tester(c) {
-
-}
 
 object streamMatrixTransposeTopObj {
   def main(args: Array[String]): Unit = {
     val margs = Array("--targetDir", "./verilog/", "--v")
     //val margs = Array("--backend", "c", "--genHarness", "--compile", "--test")
-    chiselMainTest(margs, () => Module(new streamMatrixTransposeTop(32, 2, 8))){ c => new streamMatrixTransposeTopTest(c)}
+    chiselMain(margs, () => Module(new streamMatrixTransposeTop(32, 2, 8)))
   }
 }
