@@ -1912,7 +1912,7 @@ module afu_user(input clk, input reset,
     input  input_fifo_we,
     output input_fifo_full,
     output input_fifo_almost_full,
-    output[2:0] input_fifo_count,
+    output[5:0] input_fifo_count,
     output[511:0] output_fifo_dout,
     input  output_fifo_re,
     output output_fifo_empty,
@@ -1972,7 +1972,7 @@ module afu_user(input clk, input reset,
   wire[31:0] T43;
   wire T44;
   wire T45;
-  wire[2:0] T49;
+  wire[5:0] T49;
   wire[511:0] syn_read_fifo_dout;
   wire syn_read_fifo_empty;
   wire syn_read_fifo_full;
@@ -2064,10 +2064,10 @@ module afu_user(input clk, input reset,
   assign output_fifo_empty = syn_read_fifo_1_empty;
   assign output_fifo_dout = syn_read_fifo_1_dout;
   assign input_fifo_count = T49;
-  assign T49 = {2'h0, syn_read_fifo_count};
+  assign T49 = {5'h0, syn_read_fifo_count};
   assign input_fifo_almost_full = syn_read_fifo_almostfull;
   assign input_fifo_full = syn_read_fifo_full;
-  syn_read_fifo #(.FIFO_WIDTH(512),.FIFO_DEPTH_BITS(3),.FIFO_ALMOSTFULL_THRESHOLD(4),.FIFO_ALMOSTEMPTY_THRESHOLD(2))
+  syn_read_fifo #(.FIFO_WIDTH(512),.FIFO_DEPTH_BITS(6),.FIFO_ALMOSTFULL_THRESHOLD(60),.FIFO_ALMOSTEMPTY_THRESHOLD(2))
   syn_read_fifo(.clk(clk), .reset(reset),
        .din( input_fifo_din ),
        .we( input_fifo_we ),
@@ -2116,7 +2116,7 @@ module afu_user(input clk, input reset,
        .io_out_1( streamMatrixTransposeTop_io_out_1 ),
        .io_out_0( streamMatrixTransposeTop_io_out_0 )
   );
-  syn_read_fifo #(.FIFO_WIDTH(512),.FIFO_DEPTH_BITS(3),.FIFO_ALMOSTFULL_THRESHOLD(4),.FIFO_ALMOSTEMPTY_THRESHOLD(2))
+  syn_read_fifo #(.FIFO_WIDTH(512),.FIFO_DEPTH_BITS(6),.FIFO_ALMOSTFULL_THRESHOLD(60),.FIFO_ALMOSTEMPTY_THRESHOLD(2))
   syn_read_fifo_1(.clk(clk), .reset(reset),
        .din( T5 ),
        .we( T0 ),
