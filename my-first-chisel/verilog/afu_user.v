@@ -240,10 +240,10 @@ module crossbarShiftDown(input clk, input reset,
   wire[31:0] T3;
   wire T4;
   wire T5;
-  reg [3:0] timestamp;
-  wire[3:0] T77;
-  wire[3:0] T6;
-  wire[3:0] T7;
+  reg [1:0] timestamp;
+  wire[1:0] T77;
+  wire[1:0] T6;
+  wire[1:0] T7;
   wire T8;
   wire T9;
   wire T10;
@@ -364,18 +364,18 @@ module crossbarShiftDown(input clk, input reset,
   assign T2 = T10 ? io_in_14 : T3;
   assign T3 = T4 ? io_in_0 : out_reg_0;
   assign T4 = T9 & T5;
-  assign T5 = timestamp == 4'h0;
-  assign T77 = reset ? 4'h0 : T6;
+  assign T5 = timestamp == 2'h0;
+  assign T77 = reset ? 2'h0 : T6;
   assign T6 = T8 ? T7 : timestamp;
-  assign T7 = timestamp + 4'h1;
+  assign T7 = timestamp + 2'h1;
   assign T8 = io_clk_en & io_start;
   assign T9 = io_start & io_clk_en;
   assign T10 = T9 & T11;
-  assign T11 = timestamp == 4'h1;
+  assign T11 = timestamp == 2'h1;
   assign T12 = T9 & T13;
-  assign T13 = timestamp == 4'h2;
+  assign T13 = timestamp == 2'h2;
   assign T14 = T9 & T15;
-  assign T15 = timestamp == 4'h3;
+  assign T15 = timestamp == 2'h3;
   assign io_out_1 = out_reg_1;
   assign T16 = T14 ? io_in_11 : T17;
   assign T17 = T12 ? io_in_13 : T18;
@@ -466,7 +466,7 @@ module crossbarShiftDown(input clk, input reset,
       out_reg_0 <= io_in_0;
     end
     if(reset) begin
-      timestamp <= 4'h0;
+      timestamp <= 2'h0;
     end else if(T8) begin
       timestamp <= T7;
     end
@@ -1259,10 +1259,10 @@ module crossbarShiftUp(input clk, input reset,
   wire[31:0] T3;
   wire T4;
   wire T5;
-  reg [3:0] timestamp;
-  wire[3:0] T77;
-  wire[3:0] T6;
-  wire[3:0] T7;
+  reg [1:0] timestamp;
+  wire[1:0] T77;
+  wire[1:0] T6;
+  wire[1:0] T7;
   wire T8;
   wire T9;
   wire T10;
@@ -1383,18 +1383,18 @@ module crossbarShiftUp(input clk, input reset,
   assign T2 = T10 ? io_in_2 : T3;
   assign T3 = T4 ? io_in_0 : out_reg_0;
   assign T4 = T9 & T5;
-  assign T5 = timestamp == 4'h0;
-  assign T77 = reset ? 4'h0 : T6;
+  assign T5 = timestamp == 2'h0;
+  assign T77 = reset ? 2'h0 : T6;
   assign T6 = T8 ? T7 : timestamp;
-  assign T7 = timestamp + 4'h1;
+  assign T7 = timestamp + 2'h1;
   assign T8 = io_clk_en & io_start;
   assign T9 = io_start & io_clk_en;
   assign T10 = T9 & T11;
-  assign T11 = timestamp == 4'h1;
+  assign T11 = timestamp == 2'h1;
   assign T12 = T9 & T13;
-  assign T13 = timestamp == 4'h2;
+  assign T13 = timestamp == 2'h2;
   assign T14 = T9 & T15;
-  assign T15 = timestamp == 4'h3;
+  assign T15 = timestamp == 2'h3;
   assign io_out_1 = out_reg_1;
   assign T16 = T14 ? io_in_7 : T17;
   assign T17 = T12 ? io_in_5 : T18;
@@ -1485,7 +1485,7 @@ module crossbarShiftUp(input clk, input reset,
       out_reg_0 <= io_in_0;
     end
     if(reset) begin
-      timestamp <= 4'h0;
+      timestamp <= 2'h0;
     end else if(T8) begin
       timestamp <= T7;
     end

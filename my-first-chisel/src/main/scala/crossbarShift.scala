@@ -29,7 +29,7 @@ class crossbarShift(DATA_WIDTH: Int, k: Int, M: Int, isShiftDown: Boolean) exten
 
   io.start_next_stage := start_next_stage_reg
 
-  val timestamp = Reg(init = UInt(0, width = M / k))
+  val timestamp = Reg(init = UInt(0, width = log2Up(M / k)))
 
   when (io.clk_en & io.start) {
     start_next_stage_reg := Bool(true)
