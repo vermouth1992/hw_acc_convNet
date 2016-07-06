@@ -3,7 +3,7 @@
   */
 import Chisel._
 
-class fft(DATA_WIDTH: Int, numPoints: Int, streamWidth: Int) extends BlackBox {
+class fft(DATA_WIDTH: Int, numPoints: Int, streamWidth: Int, forward: Boolean) extends BlackBox {
   val io = new Bundle {
     val next = Bool(INPUT)
     val next_out = Bool(OUTPUT)
@@ -18,7 +18,12 @@ class fft(DATA_WIDTH: Int, numPoints: Int, streamWidth: Int) extends BlackBox {
     io.output(i).setName("Y" + i)
   }
 
-  moduleName = "fft" + numPoints + "_" + streamWidth
+  if (forward) {
+    moduleName = "fft" + numPoints + "_" + streamWidth
+  } else {
+    moduleName = "ifft" + numPoints + "_" + streamWidth
+  }
+
 
   addClock(Driver.implicitClock)
   addResetPin(Driver.implicitReset)
