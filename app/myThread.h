@@ -7,12 +7,12 @@
 
 #include <pthread.h>
 
-struct OneCL {                      // Make a cache-line sized structure
-    unsigned int dw[16];       //    for array arithmetic
-};
+#include "common.h"
 
 void *modify_cacheline(void *arg) {
+    MSG("Start to modify the first cacheline.");
     ::memset(arg, 0x00, 64);
+    MSG("The first cacheline should be all zero now.");
     return 0;
 }
 
