@@ -110,6 +110,6 @@ object afu_userObj {
   def main(args: Array[String]): Unit = {
     val margs = Array("--targetDir", "./verilog/", "--v")
     //val margs = Array("--backend", "c", "--genHarness", "--compile", "--test")
-    chiselMain(margs, () => Module(new afu_user(32, 4, 4, 6)))
+    chiselMain(margs, () => Module(new afu_user(32, 2, 8, 6)))
   }
 }
