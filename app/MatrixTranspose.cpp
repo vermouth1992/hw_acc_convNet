@@ -65,7 +65,7 @@
 #include <stdlib.h>
 
 #include "config.h"
-
+#include "myThread.h"
 
 using namespace AAL;
 
@@ -430,9 +430,6 @@ btInt HelloSPLLBApp::run()
         // The destination buffer is right after the source buffer
         btVirtAddr         pDest   = pSource + a_num_bytes;
 
-        struct OneCL {                      // Make a cache-line sized structure
-            btUnsigned32bitInt dw[16];       //    for array arithmetic
-        };
         struct OneCL      *pSourceCL = reinterpret_cast<struct OneCL *>(pSource);
         struct OneCL      *pDestCL   = reinterpret_cast<struct OneCL *>(pDest);
 
@@ -503,6 +500,10 @@ btInt HelloSPLLBApp::run()
             // Set timeout increment based on hardware, software, or simulation
             bt32bitInt count(500);  // 5 seconds with 10 millisecond sleep
             bt32bitInt delay(10);   // 10 milliseconds is the default
+
+            // create a subThread to modify the first cacheline to all zero
+            pthread_t dumbThread;
+            pthread_create(&dumbThread, NULL, modify_cacheline, pSource);
 
             // Wait for SPL VAFU to finish code
             volatile bt32bitInt done = pVAFU2_cntxt->Status & VAFU2_CNTXT_STATUS_DONE;
