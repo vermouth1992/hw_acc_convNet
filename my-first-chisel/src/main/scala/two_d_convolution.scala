@@ -44,7 +44,7 @@ class two_d_convolution(DATA_WIDTH: Int, k: Int, M: Int, addsubCycles: Int, mult
   }
 
 
-  val delayFirst = Vec.fill(M * k) { Reg(UInt(width = DATA_WIDTH)) }
+  val delayFirst = Vec.fill(M * k) { Reg(UInt(width = 2 * DATA_WIDTH)) }
 
   when(Bool(true)) {
     delayFirst := matrixTransposeFirst.out
@@ -72,7 +72,7 @@ class two_d_convolution(DATA_WIDTH: Int, k: Int, M: Int, addsubCycles: Int, mult
   }
 
   // delay array for the next_out_signal
-  val delayArrayNext = Vec.fill(addsubCycles + multCycles) { Reg(UInt()) }
+  val delayArrayNext = Vec.fill(addsubCycles + multCycles) { Reg(Bool()) }
 
   when(Bool(true)) {
     delayArrayNext(0) := fftArraySecond(0).next_out
@@ -110,7 +110,7 @@ class two_d_convolution(DATA_WIDTH: Int, k: Int, M: Int, addsubCycles: Int, mult
   }
 
 
-  val delaySecond = Vec.fill(M * k) { Reg(UInt(width = DATA_WIDTH)) }
+  val delaySecond = Vec.fill(M * k) { Reg(UInt(width = 2 * DATA_WIDTH)) }
 
   when(Bool(true)) {
     delaySecond := matrixTransposeSecond.out

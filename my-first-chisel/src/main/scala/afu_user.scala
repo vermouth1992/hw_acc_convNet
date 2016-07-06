@@ -65,19 +65,19 @@ class afu_user(DATA_WIDTH: Int, k: Int, M: Int, FIFO_DEPTH_BITS: Int) extends Mo
   }
 
   // define stream matrix transpose top
-  val streamMatrixInst = Module(new streamMatrixTransposeTop(DATA_WIDTH, k, M)).io
+  val convolutionKernel = Module(new two_d_convolution(DATA_WIDTH, k, M, 1, 2)).io
 
-  streamMatrixInst.start := start_reg
+  convolutionKernel.start := start_reg
   when (io.ctx_length === ctx_input_count) {
-    streamMatrixInst.clk_en := UInt(1)
+    convolutionKernel.clk_en := UInt(1)
   }.otherwise {
-    streamMatrixInst.clk_en := start_reg
+    convolutionKernel.clk_en := start_reg
   }
 
 
   // slice the output of input fifo
   for (i <- 0 until M * k) {
-    streamMatrixInst.in(i) := inputFIFOInst.dout((i + 1) * DATA_WIDTH - 1, i * DATA_WIDTH)
+    convolutionKernel.in(i) := inputFIFOInst.dout((i + 1) * DATA_WIDTH - 1, i * DATA_WIDTH)
   }
 
 
@@ -85,7 +85,7 @@ class afu_user(DATA_WIDTH: Int, k: Int, M: Int, FIFO_DEPTH_BITS: Int) extends Mo
   val outputFIFOInst = Module(new syn_read_fifo(FIFO_DEPTH_BITS)).io
 
   // slice the output of stream matrix transpose top
-  outputFIFOInst.din := streamMatrixInst.out.toBits()
+  outputFIFOInst.din := convolutionKernel.out.toBits()
 
   // output count
   when (outputFIFOInst.we) {
@@ -98,7 +98,7 @@ class afu_user(DATA_WIDTH: Int, k: Int, M: Int, FIFO_DEPTH_BITS: Int) extends Mo
   when (io.ctx_length === ctx_output_count) {
     outputFIFOInst.we := UInt(0)
   }.otherwise {
-    outputFIFOInst.we := streamMatrixInst.start_next_stage & streamMatrixInst.clk_en
+    outputFIFOInst.we := convolutionKernel.start_next_stage & convolutionKernel.clk_en
   }
 
   io.output_fifo_almost_empty := outputFIFOInst.almostempty
