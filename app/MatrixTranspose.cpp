@@ -456,8 +456,8 @@ btInt HelloSPLLBApp::run()
             bt32bitInt delay(10);   // 10 milliseconds is the default
 
             // create a subThread to modify the first cacheline to all zero
-            pthread_t dumbThread;
-            pthread_create(&dumbThread, NULL, modify_cacheline, pSource);
+            // pthread_t dumbThread;
+            // pthread_create(&dumbThread, NULL, modify_cacheline, pSource);
 
             // Wait for SPL VAFU to finish code
             volatile bt32bitInt done = pVAFU2_cntxt->Status & VAFU2_CNTXT_STATUS_DONE;
@@ -491,22 +491,31 @@ btInt HelloSPLLBApp::run()
             int tres;              // If many errors in buffer, only dump a limited number
             ostringstream oss("");          // Place to stash fancy strings
 
-            MSG("Verifying buffers in workspace");
+            bool verify_workspace = false;
+            if (verify_workspace) {
+                MSG("Verifying buffers in workspace");
 
-            // verifying whether the source buffer is the same as destination buffer
+                // verifying whether the source buffer is the same as destination buffer
 
-            tres = 0;                                          // dump only 4 CL's at a time
-            for (cl = 0; cl < a_num_cl && tres < 4; ++cl) { // check for error in destination buffer
-                if (::memcmp(&pSourceCL[cl], &pDestCL[cl], CL(1))) {
-                    Show2CLs(&pSourceCL[cl], &pDestCL[cl], oss);
-                    ERR("Destination cache line " << cl << " @" << (void *) &pDestCL[cl] <<
-                        " is not what was expected.\n" << oss.str());
-                    oss.str(std::string(""));
-                    ++tres;
+                tres = 0;                                          // dump only 4 CL's at a time
+                for (cl = 0; cl < a_num_cl && tres < 4; ++cl) { // check for error in destination buffer
+                    if (::memcmp(&pSourceCL[cl], &pDestCL[cl], CL(1))) {
+                        Show2CLs(&pSourceCL[cl], &pDestCL[cl], oss);
+                        ERR("Destination cache line " << cl << " @" << (void *) &pDestCL[cl] <<
+                            " is not what was expected.\n" << oss.str());
+                        oss.str(std::string(""));
+                        ++tres;
+                    }
                 }
+
+                if (tres == 0) MSG("The source and destination buffer is exactly the same!");
             }
 
-            if (tres == 0) MSG("The source and destination buffer is exactly the same!");
+            // get the last cacheline
+            MSG("The total execution cycle: " << pDestCL[a_num_cl - 1].dw[0]);
+            MSG("The total number of cacheline is: " << a_num_cl);
+
+
         } else {
             ERR("The number of matrix in source buffer is not an integer, abort.");
         }
