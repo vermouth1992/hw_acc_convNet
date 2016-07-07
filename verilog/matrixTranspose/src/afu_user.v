@@ -218,7 +218,7 @@ module afu_user # (
                             out7, out6, out5, out4, out3, out2, out1, out0
                             };
 
-  assign output_fifo_din = (ctx_length - 1 == ctx_output_count) ? (448'b0, total_time_count, run_time_count) : uut_dout;
+  assign output_fifo_din = (ctx_length - 1 == ctx_output_count) ? {448'b0, total_time_count, run_time_count} : uut_dout;
 
   syn_read_fifo #(.FIFO_WIDTH(512),
                   .FIFO_DEPTH_BITS(BUFF_DEPTH_BITS),       // transfer size 1 -> 32 entries
