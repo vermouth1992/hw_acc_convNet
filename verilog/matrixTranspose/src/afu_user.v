@@ -98,10 +98,6 @@ module afu_user # (
   assign in14 = input_fifo_dout[479:448];
   assign in15 = input_fifo_dout[511:480];
 
-  assign output_fifo_din = {out15, out14, out13, out12, out11, out10, out9, out8, 
-                            out7, out6, out5, out4, out3, out2, out1, out0
-                            };
-
   assign input_fifo_re = (reset == 1'b1) ? 1'b0 : ~input_fifo_empty;
 
   always @(posedge clk) begin
@@ -181,6 +177,48 @@ module afu_user # (
   end
 
   assign output_fifo_we = (ctx_length == ctx_output_count) ? 1'b0 : start_next_stage & clk_en;
+
+  reg [31:0] run_time_count;
+  always @(posedge clk) begin : proc_run_time_count
+    if(reset) begin
+      run_time_count <= 0;
+    end else if(clk_en && ctx_length != ctx_output_count) begin
+      run_time_count <= run_time_count + 1'b1;
+    end
+  end
+
+  // total_time_count
+  reg [31:0] total_time_count;
+  reg total_time_count_state;
+  localparam IDLE = 1'b0;
+  localparam RUN = 1'b1;
+  always @(posedge clk) begin : proc_total_time_count
+    if(reset) begin
+      total_time_count <= 0;
+      total_time_count_state <= IDLE;
+    end else begin
+      case (total_time_count_state)
+        IDLE: begin
+          total_time_count <= total_time_count + 1'b1;
+          if (clk_en) begin
+            total_time_count_state <= RUN;
+          end
+        end
+
+        RUN: begin
+          if (ctx_length != ctx_output_count) begin
+            total_time_count <= total_time_count + 1'b1;
+          end
+        end
+      endcase // total_time_count_state
+    end
+  end
+
+  wire [511:0] uut_dout = {out15, out14, out13, out12, out11, out10, out9, out8, 
+                            out7, out6, out5, out4, out3, out2, out1, out0
+                            };
+
+  assign output_fifo_din = (ctx_length - 1 == ctx_output_count) ? (448'b0, total_time_count, run_time_count) : uut_dout;
 
   syn_read_fifo #(.FIFO_WIDTH(512),
                   .FIFO_DEPTH_BITS(BUFF_DEPTH_BITS),       // transfer size 1 -> 32 entries
