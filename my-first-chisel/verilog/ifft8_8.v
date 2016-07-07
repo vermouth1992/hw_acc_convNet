@@ -36,7 +36,7 @@
 //     4 multipliers (16 x 16 bit)
 //     52 adders (16 x 16 bit)
 
-// Generated on Wed Jun 29 01:03:27 EDT 2016
+// Generated on Wed Jul 06 18:43:37 EDT 2016
 
 // Latency: 11 clock cycles
 // Throughput: 1 transform every 1 cycles
@@ -72,10 +72,11 @@
 // Xilinx's DSP slice simulation module.
 
 
+
 // Latency: 11
 // Gap: 1
 // module_name_is:dft_top
-module fft8_8(clk, reset, next, next_out,
+module ifft8_8(clk, reset, next, next_out,
    X0, Y0,
    X1, Y1,
    X2, Y2,
@@ -268,7 +269,7 @@ module fft8_8(clk, reset, next, next_out,
    assign next_out = next_5;
 
 // latency=1, gap=1
-   codeBlock7764 stage0(.clk(clk), .reset(reset), .next_in(next_0), .next_out(next_1),
+   codeBlock17592 stage0(.clk(clk), .reset(reset), .next_in(next_0), .next_out(next_1),
        .X0_in(t0_0), .Y0(t1_0),
        .X1_in(t0_1), .Y1(t1_1),
        .X2_in(t0_2), .Y2(t1_2),
@@ -288,7 +289,7 @@ module fft8_8(clk, reset, next, next_out,
 
 
 // latency=2, gap=1
-   codeBlock7830 stage1(.clk(clk), .reset(reset), .next_in(next_1), .next_out(next_2),
+   codeBlock17658 stage1(.clk(clk), .reset(reset), .next_in(next_1), .next_out(next_2),
        .X0_in(t1_0), .Y0(t2_0),
        .X1_in(t1_1), .Y1(t2_1),
        .X2_in(t1_2), .Y2(t2_2),
@@ -308,7 +309,7 @@ module fft8_8(clk, reset, next, next_out,
 
 
 // latency=2, gap=1
-   codeBlock8137 stage2(.clk(clk), .reset(reset), .next_in(next_2), .next_out(next_3),
+   codeBlock17965 stage2(.clk(clk), .reset(reset), .next_in(next_2), .next_out(next_3),
        .X0_in(t2_0), .Y0(t3_0),
        .X1_in(t2_1), .Y1(t3_1),
        .X2_in(t2_2), .Y2(t3_2),
@@ -328,7 +329,7 @@ module fft8_8(clk, reset, next, next_out,
 
 
 // latency=5, gap=1
-   codeBlock8444 stage3(.clk(clk), .reset(reset), .next_in(next_3), .next_out(next_4),
+   codeBlock18272 stage3(.clk(clk), .reset(reset), .next_in(next_3), .next_out(next_4),
        .X0_in(t3_0), .Y0(t4_0),
        .X1_in(t3_1), .Y1(t4_1),
        .X2_in(t3_2), .Y2(t4_2),
@@ -348,7 +349,7 @@ module fft8_8(clk, reset, next, next_out,
 
 
 // latency=1, gap=1
-   codeBlock8791 stage4(.clk(clk), .reset(reset), .next_in(next_4), .next_out(next_5),
+   codeBlock18619 stage4(.clk(clk), .reset(reset), .next_in(next_4), .next_out(next_5),
        .X0_in(t4_0), .Y0(t5_0),
        .X1_in(t4_1), .Y1(t5_1),
        .X2_in(t4_2), .Y2(t5_2),
@@ -371,7 +372,7 @@ endmodule
 
 // Latency: 1
 // Gap: 1
-module codeBlock7764(clk, reset, next_in, next_out,
+module codeBlock17592(clk, reset, next_in, next_out,
    X0_in, Y0,
    X1_in, Y1,
    X2_in, Y2,
@@ -532,7 +533,7 @@ endmodule
 
 // Latency: 2
 // Gap: 1
-module codeBlock7830(clk, reset, next_in, next_out,
+module codeBlock17658(clk, reset, next_in, next_out,
    X0_in, Y0,
    X1_in, Y1,
    X2_in, Y2,
@@ -606,7 +607,7 @@ module codeBlock7830(clk, reset, next_in, next_out,
       Y14,
       Y15;
 
-   shiftRegFIFO #(1, 1) shiftFIFO_9054(.X(next), .Y(next_out), .clk(clk));
+   shiftRegFIFO #(1, 1) shiftFIFO_18882(.X(next), .Y(next_out), .clk(clk));
 
 
    wire signed [15:0] a169;
@@ -692,22 +693,22 @@ module codeBlock7830(clk, reset, next_in, next_out,
    assign Y14 = t351;
    assign Y15 = t352;
 
-    addfxp #(16, 1) add7842(.a(a169), .b(a170), .clk(clk), .q(t337));    // 0
-    addfxp #(16, 1) add7857(.a(a171), .b(a172), .clk(clk), .q(t338));    // 0
-    subfxp #(16, 1) sub7872(.a(a169), .b(a170), .clk(clk), .q(t339));    // 0
-    subfxp #(16, 1) sub7887(.a(a171), .b(a172), .clk(clk), .q(t340));    // 0
-    addfxp #(16, 1) add7918(.a(a177), .b(a178), .clk(clk), .q(t341));    // 0
-    addfxp #(16, 1) add7933(.a(a179), .b(a180), .clk(clk), .q(t342));    // 0
-    subfxp #(16, 1) sub7948(.a(a177), .b(a178), .clk(clk), .q(t343));    // 0
-    subfxp #(16, 1) sub7963(.a(a179), .b(a180), .clk(clk), .q(t344));    // 0
-    addfxp #(16, 1) add7994(.a(a185), .b(a186), .clk(clk), .q(t345));    // 0
-    addfxp #(16, 1) add8009(.a(a187), .b(a188), .clk(clk), .q(t346));    // 0
-    subfxp #(16, 1) sub8024(.a(a185), .b(a186), .clk(clk), .q(t347));    // 0
-    subfxp #(16, 1) sub8039(.a(a187), .b(a188), .clk(clk), .q(t348));    // 0
-    addfxp #(16, 1) add8070(.a(a193), .b(a194), .clk(clk), .q(t349));    // 0
-    addfxp #(16, 1) add8085(.a(a195), .b(a196), .clk(clk), .q(t350));    // 0
-    subfxp #(16, 1) sub8100(.a(a193), .b(a194), .clk(clk), .q(t351));    // 0
-    subfxp #(16, 1) sub8115(.a(a195), .b(a196), .clk(clk), .q(t352));    // 0
+    addfxp #(16, 1) add17670(.a(a169), .b(a170), .clk(clk), .q(t337));    // 0
+    addfxp #(16, 1) add17685(.a(a171), .b(a172), .clk(clk), .q(t338));    // 0
+    subfxp #(16, 1) sub17700(.a(a169), .b(a170), .clk(clk), .q(t339));    // 0
+    subfxp #(16, 1) sub17715(.a(a171), .b(a172), .clk(clk), .q(t340));    // 0
+    addfxp #(16, 1) add17746(.a(a177), .b(a178), .clk(clk), .q(t341));    // 0
+    addfxp #(16, 1) add17761(.a(a179), .b(a180), .clk(clk), .q(t342));    // 0
+    subfxp #(16, 1) sub17776(.a(a177), .b(a178), .clk(clk), .q(t343));    // 0
+    subfxp #(16, 1) sub17791(.a(a179), .b(a180), .clk(clk), .q(t344));    // 0
+    addfxp #(16, 1) add17822(.a(a185), .b(a186), .clk(clk), .q(t345));    // 0
+    addfxp #(16, 1) add17837(.a(a187), .b(a188), .clk(clk), .q(t346));    // 0
+    subfxp #(16, 1) sub17852(.a(a185), .b(a186), .clk(clk), .q(t347));    // 0
+    subfxp #(16, 1) sub17867(.a(a187), .b(a188), .clk(clk), .q(t348));    // 0
+    addfxp #(16, 1) add17898(.a(a193), .b(a194), .clk(clk), .q(t349));    // 0
+    addfxp #(16, 1) add17913(.a(a195), .b(a196), .clk(clk), .q(t350));    // 0
+    subfxp #(16, 1) sub17928(.a(a193), .b(a194), .clk(clk), .q(t351));    // 0
+    subfxp #(16, 1) sub17943(.a(a195), .b(a196), .clk(clk), .q(t352));    // 0
 
 
    always @(posedge clk) begin
@@ -737,7 +738,7 @@ endmodule
 
 // Latency: 2
 // Gap: 1
-module codeBlock8137(clk, reset, next_in, next_out,
+module codeBlock17965(clk, reset, next_in, next_out,
    X0_in, Y0,
    X1_in, Y1,
    X2_in, Y2,
@@ -811,7 +812,7 @@ module codeBlock8137(clk, reset, next_in, next_out,
       Y14,
       Y15;
 
-   shiftRegFIFO #(1, 1) shiftFIFO_9057(.X(next), .Y(next_out), .clk(clk));
+   shiftRegFIFO #(1, 1) shiftFIFO_18885(.X(next), .Y(next_out), .clk(clk));
 
 
    wire signed [15:0] a105;
@@ -897,22 +898,22 @@ module codeBlock8137(clk, reset, next_in, next_out,
    assign Y14 = t247;
    assign Y15 = t248;
 
-    addfxp #(16, 1) add8149(.a(a105), .b(a106), .clk(clk), .q(t233));    // 0
-    addfxp #(16, 1) add8164(.a(a107), .b(a108), .clk(clk), .q(t234));    // 0
-    subfxp #(16, 1) sub8179(.a(a105), .b(a106), .clk(clk), .q(t235));    // 0
-    subfxp #(16, 1) sub8194(.a(a107), .b(a108), .clk(clk), .q(t236));    // 0
-    addfxp #(16, 1) add8225(.a(a113), .b(a114), .clk(clk), .q(t237));    // 0
-    subfxp #(16, 1) sub8240(.a(a115), .b(a116), .clk(clk), .q(t238));    // 0
-    subfxp #(16, 1) sub8255(.a(a113), .b(a114), .clk(clk), .q(t239));    // 0
-    addfxp #(16, 1) add8270(.a(a115), .b(a116), .clk(clk), .q(t240));    // 0
-    addfxp #(16, 1) add8301(.a(a121), .b(a122), .clk(clk), .q(t241));    // 0
-    addfxp #(16, 1) add8316(.a(a123), .b(a124), .clk(clk), .q(t242));    // 0
-    subfxp #(16, 1) sub8331(.a(a121), .b(a122), .clk(clk), .q(t243));    // 0
-    subfxp #(16, 1) sub8346(.a(a123), .b(a124), .clk(clk), .q(t244));    // 0
-    addfxp #(16, 1) add8377(.a(a129), .b(a130), .clk(clk), .q(t245));    // 0
-    subfxp #(16, 1) sub8392(.a(a131), .b(a132), .clk(clk), .q(t246));    // 0
-    subfxp #(16, 1) sub8407(.a(a129), .b(a130), .clk(clk), .q(t247));    // 0
-    addfxp #(16, 1) add8422(.a(a131), .b(a132), .clk(clk), .q(t248));    // 0
+    addfxp #(16, 1) add17977(.a(a105), .b(a106), .clk(clk), .q(t233));    // 0
+    addfxp #(16, 1) add17992(.a(a107), .b(a108), .clk(clk), .q(t234));    // 0
+    subfxp #(16, 1) sub18007(.a(a105), .b(a106), .clk(clk), .q(t235));    // 0
+    subfxp #(16, 1) sub18022(.a(a107), .b(a108), .clk(clk), .q(t236));    // 0
+    subfxp #(16, 1) sub18053(.a(a113), .b(a114), .clk(clk), .q(t237));    // 0
+    addfxp #(16, 1) add18068(.a(a115), .b(a116), .clk(clk), .q(t238));    // 0
+    addfxp #(16, 1) add18083(.a(a113), .b(a114), .clk(clk), .q(t239));    // 0
+    subfxp #(16, 1) sub18098(.a(a115), .b(a116), .clk(clk), .q(t240));    // 0
+    addfxp #(16, 1) add18129(.a(a121), .b(a122), .clk(clk), .q(t241));    // 0
+    addfxp #(16, 1) add18144(.a(a123), .b(a124), .clk(clk), .q(t242));    // 0
+    subfxp #(16, 1) sub18159(.a(a121), .b(a122), .clk(clk), .q(t243));    // 0
+    subfxp #(16, 1) sub18174(.a(a123), .b(a124), .clk(clk), .q(t244));    // 0
+    subfxp #(16, 1) sub18205(.a(a129), .b(a130), .clk(clk), .q(t245));    // 0
+    addfxp #(16, 1) add18220(.a(a131), .b(a132), .clk(clk), .q(t246));    // 0
+    addfxp #(16, 1) add18235(.a(a129), .b(a130), .clk(clk), .q(t247));    // 0
+    subfxp #(16, 1) sub18250(.a(a131), .b(a132), .clk(clk), .q(t248));    // 0
 
 
    always @(posedge clk) begin
@@ -942,7 +943,7 @@ endmodule
 
 // Latency: 5
 // Gap: 1
-module codeBlock8444(clk, reset, next_in, next_out,
+module codeBlock18272(clk, reset, next_in, next_out,
    X0_in, Y0,
    X1_in, Y1,
    X2_in, Y2,
@@ -1016,7 +1017,7 @@ module codeBlock8444(clk, reset, next_in, next_out,
       Y14,
       Y15;
 
-   shiftRegFIFO #(4, 1) shiftFIFO_9060(.X(next), .Y(next_out), .clk(clk));
+   shiftRegFIFO #(4, 1) shiftFIFO_18888(.X(next), .Y(next_out), .clk(clk));
 
 
    wire signed [15:0] a45;
@@ -1127,8 +1128,8 @@ module codeBlock8444(clk, reset, next_in, next_out,
    assign a60 = X11;
    assign a61 = X3;
    assign a62 = X10;
-   assign a67 = X15;
-   assign a68 = X14;
+   assign a67 = X14;
+   assign a68 = X15;
    assign a69 = X6;
    assign a70 = X7;
    assign Y0 = tm30;
@@ -1148,30 +1149,30 @@ module codeBlock8444(clk, reset, next_in, next_out,
    assign Y14 = t127;
    assign Y15 = t128;
 
-    addfxp #(16, 1) add8456(.a(a45), .b(a46), .clk(clk), .q(t109));    // 0
-    addfxp #(16, 1) add8471(.a(a47), .b(a48), .clk(clk), .q(t110));    // 0
-    subfxp #(16, 1) sub8486(.a(a45), .b(a46), .clk(clk), .q(t111));    // 0
-    subfxp #(16, 1) sub8501(.a(a47), .b(a48), .clk(clk), .q(t112));    // 0
-    addfxp #(16, 1) add8628(.a(a59), .b(a60), .clk(clk), .q(t119));    // 0
-    subfxp #(16, 1) sub8643(.a(a61), .b(a62), .clk(clk), .q(t120));    // 0
-    subfxp #(16, 1) sub8658(.a(a59), .b(a60), .clk(clk), .q(t121));    // 0
-    addfxp #(16, 1) add8673(.a(a61), .b(a62), .clk(clk), .q(t122));    // 0
-    multfix #(16, 2) m8528(.a(tm0), .b(a53), .clk(clk), .q_sc(a41), .q_unsc(), .rst(reset));
-    multfix #(16, 2) m8539(.a(tm0), .b(a54), .clk(clk), .q_sc(a42), .q_unsc(), .rst(reset));
-    multfix #(16, 2) m8700(.a(tm0), .b(a67), .clk(clk), .q_sc(a43), .q_unsc(), .rst(reset));
-    multfix #(16, 2) m8711(.a(tm0), .b(a68), .clk(clk), .q_sc(a44), .q_unsc(), .rst(reset));
-    addfxp #(16, 1) add8546(.a(a41), .b(a42), .clk(clk), .q(t113));    // 2
-    subfxp #(16, 1) sub8553(.a(a42), .b(a41), .clk(clk), .q(t114));    // 2
-    subfxp #(16, 1) sub8718(.a(a43), .b(a44), .clk(clk), .q(t123));    // 2
-    addfxp #(16, 1) add8725(.a(a44), .b(a43), .clk(clk), .q(t124));    // 2
-    addfxp #(16, 1) add8564(.a(tm6), .b(t113), .clk(clk), .q(t115));    // 3
-    addfxp #(16, 1) add8575(.a(tm9), .b(t114), .clk(clk), .q(t116));    // 3
-    subfxp #(16, 1) sub8586(.a(tm6), .b(t113), .clk(clk), .q(t117));    // 3
-    subfxp #(16, 1) sub8597(.a(tm9), .b(t114), .clk(clk), .q(t118));    // 3
-    addfxp #(16, 1) add8736(.a(tm18), .b(t123), .clk(clk), .q(t125));    // 3
-    subfxp #(16, 1) sub8747(.a(tm21), .b(t124), .clk(clk), .q(t126));    // 3
-    subfxp #(16, 1) sub8758(.a(tm18), .b(t123), .clk(clk), .q(t127));    // 3
-    addfxp #(16, 1) add8769(.a(tm21), .b(t124), .clk(clk), .q(t128));    // 3
+    addfxp #(16, 1) add18284(.a(a45), .b(a46), .clk(clk), .q(t109));    // 0
+    addfxp #(16, 1) add18299(.a(a47), .b(a48), .clk(clk), .q(t110));    // 0
+    subfxp #(16, 1) sub18314(.a(a45), .b(a46), .clk(clk), .q(t111));    // 0
+    subfxp #(16, 1) sub18329(.a(a47), .b(a48), .clk(clk), .q(t112));    // 0
+    subfxp #(16, 1) sub18456(.a(a59), .b(a60), .clk(clk), .q(t119));    // 0
+    addfxp #(16, 1) add18471(.a(a61), .b(a62), .clk(clk), .q(t120));    // 0
+    addfxp #(16, 1) add18486(.a(a59), .b(a60), .clk(clk), .q(t121));    // 0
+    subfxp #(16, 1) sub18501(.a(a61), .b(a62), .clk(clk), .q(t122));    // 0
+    multfix #(16, 2) m18356(.a(tm0), .b(a53), .clk(clk), .q_sc(a41), .q_unsc(), .rst(reset));
+    multfix #(16, 2) m18367(.a(tm0), .b(a54), .clk(clk), .q_sc(a42), .q_unsc(), .rst(reset));
+    multfix #(16, 2) m18528(.a(tm0), .b(a67), .clk(clk), .q_sc(a43), .q_unsc(), .rst(reset));
+    multfix #(16, 2) m18539(.a(tm0), .b(a68), .clk(clk), .q_sc(a44), .q_unsc(), .rst(reset));
+    subfxp #(16, 1) sub18374(.a(a41), .b(a42), .clk(clk), .q(t113));    // 2
+    addfxp #(16, 1) add18381(.a(a41), .b(a42), .clk(clk), .q(t114));    // 2
+    addfxp #(16, 1) add18546(.a(a43), .b(a44), .clk(clk), .q(t123));    // 2
+    subfxp #(16, 1) sub18553(.a(a43), .b(a44), .clk(clk), .q(t124));    // 2
+    addfxp #(16, 1) add18392(.a(tm6), .b(t113), .clk(clk), .q(t115));    // 3
+    addfxp #(16, 1) add18403(.a(tm9), .b(t114), .clk(clk), .q(t116));    // 3
+    subfxp #(16, 1) sub18414(.a(tm6), .b(t113), .clk(clk), .q(t117));    // 3
+    subfxp #(16, 1) sub18425(.a(tm9), .b(t114), .clk(clk), .q(t118));    // 3
+    subfxp #(16, 1) sub18564(.a(tm18), .b(t123), .clk(clk), .q(t125));    // 3
+    addfxp #(16, 1) add18575(.a(tm21), .b(t124), .clk(clk), .q(t126));    // 3
+    addfxp #(16, 1) add18586(.a(tm18), .b(t123), .clk(clk), .q(t127));    // 3
+    subfxp #(16, 1) sub18597(.a(tm21), .b(t124), .clk(clk), .q(t128));    // 3
 
 
    always @(posedge clk) begin
@@ -1237,7 +1238,7 @@ endmodule
 
 // Latency: 1
 // Gap: 1
-module codeBlock8791(clk, reset, next_in, next_out,
+module codeBlock18619(clk, reset, next_in, next_out,
    X0_in, Y0,
    X1_in, Y1,
    X2_in, Y2,
@@ -1374,4 +1375,75 @@ module codeBlock8791(clk, reset, next_in, next_out,
          next <= next_in;
       end
    end
+endmodule
+
+
+						module multfix(clk, rst, a, b, q_sc, q_unsc);
+						   parameter WIDTH=35, CYCLES=6;
+
+						   input signed [WIDTH-1:0]    a,b;
+						   output [WIDTH-1:0]          q_sc;
+						   output [WIDTH-1:0]              q_unsc;
+
+						   input                       clk, rst;
+						   
+						   reg signed [2*WIDTH-1:0]    q[CYCLES-1:0];
+						   wire signed [2*WIDTH-1:0]   res;   
+						   integer                     i;
+
+						   assign                      res = q[CYCLES-1];   
+						   
+						   assign                      q_unsc = res[WIDTH-1:0];
+						   assign                      q_sc = {res[2*WIDTH-1], res[2*WIDTH-4:WIDTH-2]};
+						      
+						   always @(posedge clk) begin
+						      q[0] <= a * b;
+						      for (i = 1; i < CYCLES; i=i+1) begin
+						         q[i] <= q[i-1];
+						      end
+						   end
+						                  
+						endmodule 
+module addfxp(a, b, q, clk);
+
+   parameter width = 16, cycles=1;
+   
+   input signed [width-1:0]  a, b;
+   input                     clk;   
+   output signed [width-1:0] q;
+   reg signed [width-1:0]    res[cycles-1:0];
+
+   assign                    q = res[cycles-1];
+   
+   integer                   i;   
+   
+   always @(posedge clk) begin
+     res[0] <= a+b;
+      for (i=1; i < cycles; i = i+1)
+        res[i] <= res[i-1];
+      
+   end
+   
+endmodule
+
+module subfxp(a, b, q, clk);
+
+   parameter width = 16, cycles=1;
+   
+   input signed [width-1:0]  a, b;
+   input                     clk;   
+   output signed [width-1:0] q;
+   reg signed [width-1:0]    res[cycles-1:0];
+
+   assign                    q = res[cycles-1];
+   
+   integer                   i;   
+   
+   always @(posedge clk) begin
+     res[0] <= a-b;
+      for (i=1; i < cycles; i = i+1)
+        res[i] <= res[i-1];
+      
+   end
+  
 endmodule
