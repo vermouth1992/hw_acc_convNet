@@ -178,15 +178,6 @@ module afu_user # (
 
   assign output_fifo_we = (ctx_length == ctx_output_count) ? 1'b0 : start_next_stage & clk_en;
 
-  reg [31:0] run_time_count;
-  always @(posedge clk) begin : proc_run_time_count
-    if(reset) begin
-      run_time_count <= 0;
-    end else if(clk_en && ctx_length != ctx_output_count) begin
-      run_time_count <= run_time_count + 1'b1;
-    end
-  end
-
   // total_time_count
   reg [31:0] total_time_count;
   reg total_time_count_state;
@@ -199,12 +190,10 @@ module afu_user # (
     end else begin
       case (total_time_count_state)
         IDLE: begin
-          total_time_count <= total_time_count + 1'b1;
-          if (clk_en) begin
+          if (output_fifo_we) begin
             total_time_count_state <= RUN;
           end
         end
-
         RUN: begin
           if (ctx_length != ctx_output_count) begin
             total_time_count <= total_time_count + 1'b1;
@@ -218,7 +207,7 @@ module afu_user # (
                             out7, out6, out5, out4, out3, out2, out1, out0
                             };
 
-  assign output_fifo_din = (ctx_length - 1 == ctx_output_count) ? {448'b0, total_time_count, run_time_count} : uut_dout;
+  assign output_fifo_din = (ctx_length - 1 == ctx_output_count) ? {480'b0, total_time_count} : uut_dout;
 
   syn_read_fifo #(.FIFO_WIDTH(512),
                   .FIFO_DEPTH_BITS(BUFF_DEPTH_BITS),       // transfer size 1 -> 32 entries
