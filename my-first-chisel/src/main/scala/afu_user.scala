@@ -84,8 +84,29 @@ class afu_user(DATA_WIDTH: Int, k: Int, M: Int, FIFO_DEPTH_BITS: Int) extends Mo
   //output fifo
   val outputFIFOInst = Module(new syn_read_fifo(FIFO_DEPTH_BITS)).io
 
+  // total_output_count FSM
+  val idle :: run :: Nil = Enum(UInt(), 2)
+  val state = Reg(init = idle)
+
+  val total_time_count = Reg(init = UInt(0, width = 32))
+
+  when(state === idle) {
+    when(outputFIFOInst.we) {
+      state := run
+    }
+  }  .otherwise {
+    when(ctx_output_count =/= io.ctx_length) {
+      total_time_count := total_time_count + UInt(1)
+    }
+  }
+
   // slice the output of stream matrix transpose top
-  outputFIFOInst.din := convolutionKernel.out.toBits()
+  when (io.ctx_length - UInt(1) === ctx_output_count) {
+    outputFIFOInst.din := Cat(UInt(0, width = 480), total_time_count)
+  } .otherwise {
+    outputFIFOInst.din := convolutionKernel.out.toBits()
+  }
+
 
   // output count
   when (outputFIFOInst.we) {
@@ -110,6 +131,6 @@ object afu_userObj {
   def main(args: Array[String]): Unit = {
     val margs = Array("--targetDir", "./verilog/", "--v")
     //val margs = Array("--backend", "c", "--genHarness", "--compile", "--test")
-    chiselMain(margs, () => Module(new afu_user(32, 2, 8, 6)))
+    chiselMain(margs, () => Module(new afu_user(16, 4, 8, 6)))
   }
 }
