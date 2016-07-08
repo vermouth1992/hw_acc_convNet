@@ -36,7 +36,7 @@ def isPowerofTwo(num):
     return ((num & (num - 1)) == 0) and num > 0
 
 
-def convLayerSizeFFT(imageSize, filterSize, numKernel, padding, unitSize, stride=1, inGFLOP=True):
+def convLayerSizeFFT(imageSize, filterSize, numKernel, padding, unitSize, stride=1, inGFLOP=True, addFilter=True):
     """
     :param unitSize: L * L, the basic FFT imageSize, L + F - 1 must be some power of 2
     :return: The number of operations in FFT: accumulation + multiplication
@@ -49,15 +49,29 @@ def convLayerSizeFFT(imageSize, filterSize, numKernel, padding, unitSize, stride
     fftUnitSize = L + F - 1
     assert isPowerofTwo(fftUnitSize), "The FFT unit size must be a power of 2"
     # number of operations
-    numMultiplicationPerFFT = fftUnitSize // 2 * int(math.log(fftUnitSize, 2))
-    numAddPerFFT = fftUnitSize * int(math.log(fftUnitSize, 2))
-    FFTMultiplicationOp = numMultiplicationPerFFT * fftUnitSize * 2 * 2 * 3 + fftUnitSize * fftUnitSize
-    FFTAddOp = numAddPerFFT * fftUnitSize * 2 * 2 * 3
-    # number of add to overlap
-    overlapAddOp = (F - 1) * fftUnitSize * 2
-    numUnitSize = int(math.ceil(float(W1 + 2 * padding) / fftUnitSize))
-    onePlaneOp = (FFTMultiplicationOp + FFTAddOp + overlapAddOp) * (numUnitSize ** 2)
-    return (onePlaneOp + W2 * H2) * D1 * D2 / 10e9
+    logFFTUnitSize = int(math.log(fftUnitSize, 2))
+    numTilt = int(math.ceil((W1 + 2 * padding) / float(fftUnitSize))) ** 2
+    numMultImageFFT = 6 * fftUnitSize ** 2 * logFFTUnitSize * numTilt * D1
+    numMultImageFilter = fftUnitSize ** 2 * D1 * D2 * numTilt
+    numMultIFFT = 6 * fftUnitSize ** 2 * logFFTUnitSize * numTilt * D2
+    numAddImageFFT = fftUnitSize * logFFTUnitSize * fftUnitSize * 2 * 2 * numTilt * D1  # one complex add is two add
+    numAddInDepth = fftUnitSize ** 2 * D1 * D2 * numTilt
+    numAddOverlap = (F - 1) * fftUnitSize * 2 * numTilt * D2
+    numMult = numMultImageFFT + numMultImageFilter + numMultIFFT
+    numAdd = numAddImageFFT + numAddInDepth + numAddOverlap
+
+    # filter FFT
+    numFilterMult = 6 * fftUnitSize ** 2 * logFFTUnitSize * D1 * D2
+    numFilterAdd = fftUnitSize * logFFTUnitSize * fftUnitSize * 2 * 2 * D1 * D2
+
+    numOps = numMult + numAdd
+    if addFilter:
+        numOps += numFilterAdd + numFilterMult
+
+    if inGFLOP:
+        return numOps / 1e9
+    else:
+        return numOps
 
 
 def findUnitSize(filterSize):
@@ -78,14 +92,15 @@ def findUnitSize(filterSize):
         start += 1
     return unitSize, unitSize
 
+
 def test():
-    imageSize = (224, 224, 128)
-    filterSize = (3, 3, 128)
-    numKernel = 128
+    imageSize = (224, 224, 64)
+    filterSize = (5, 5, 64)
+    numKernel = 64
     padding = 1
     print convLayerSizeOriginal(imageSize, filterSize, numKernel, padding)
     unitSize = findUnitSize(filterSize)
-    print convLayerSizeFFT(imageSize, filterSize, numKernel, padding, unitSize)
+    print convLayerSizeFFT(imageSize, filterSize, numKernel, padding, unitSize, 3, True, True)
 
 
 if __name__ == "__main__":
