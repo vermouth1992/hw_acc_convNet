@@ -461,7 +461,7 @@ btInt HelloSPLLBApp::run()
 
             // Wait for SPL VAFU to finish code
             volatile bt32bitInt done = pVAFU2_cntxt->Status & VAFU2_CNTXT_STATUS_DONE;
-            while (!done && --count) {
+            while (!done) {
                 SleepMilli(delay);
                 done = pVAFU2_cntxt->Status & VAFU2_CNTXT_STATUS_DONE;
                 if (done) MSG("AFU has signaled done.");
@@ -491,7 +491,7 @@ btInt HelloSPLLBApp::run()
             int tres;              // If many errors in buffer, only dump a limited number
             ostringstream oss("");          // Place to stash fancy strings
 
-            bool verify_workspace = false;
+            bool verify_workspace = true;
             if (verify_workspace) {
                 MSG("Verifying buffers in workspace");
 
@@ -512,6 +512,9 @@ btInt HelloSPLLBApp::run()
             }
 
             // get the last cacheline
+            MSG("Show the last cacheline");
+            Show2CLs(&pSourceCL[a_num_cl - 1], &pDestCL[a_num_cl - 1], oss);
+            ERR(oss.str());
             MSG("The total execution cycle: " << pDestCL[a_num_cl - 1].dw[0]);
             MSG("The total number of cacheline is: " << a_num_cl);
 
