@@ -3,26 +3,26 @@
 	{
 		"selected_items":
 		[
-			[
-				"ou",
-				"output_fifo_empty"
-			],
-			[
-				"inp",
-				"input_fifo_empty"
-			],
-			[
-				"re",
-				"reset"
-			],
-			[
-				"inpu",
-				"input_fifo_re"
-			]
 		]
 	},
 	"buffers":
 	[
+		{
+			"file": "single_port_ram/src/single_port_ram.v",
+			"settings":
+			{
+				"buffer_size": 399,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "single_port_ram/src/single_port_ram_tb.v",
+			"settings":
+			{
+				"buffer_size": 1125,
+				"line_ending": "Unix"
+			}
+		}
 	],
 	"build_system": "",
 	"build_system_choices":
@@ -32,7 +32,7 @@
 	"command_palette":
 	{
 		"height": 104.0,
-		"last_filter": "",
+		"last_filter": "Package Control: insta",
 		"selected_items":
 		[
 			[
@@ -59,7 +59,7 @@
 		"height": 126.0,
 		"history":
 		[
-			"import urllib.request,os,hashlib; h = '2915d1851351e5ee549c20394736b442' + '8bc59f460fa1548d1514676163dafc88'; pf = 'Package Control.sublime-package'; ipp = sublime.installed_packages_path(); urllib.request.install_opener( urllib.request.build_opener( urllib.request.ProxyHandler()) ); by = urllib.request.urlopen( 'http://packagecontrol.io/' + pf.replace(' ', '%20')).read(); dh = hashlib.sha256(by).hexdigest(); print('Error validating download (got %s instead of %s), please try manual install' % (dh, h)) if dh != h else open(os.path.join( ipp, pf), 'wb' ).write(by) "
+			"import urllib.request,os,hashlib; h = '2915d1851351e5ee549c20394736b442' + '8bc59f460fa1548d1514676163dafc88'; pf = 'Package Control.sublime-package'; ipp = sublime.installed_packages_path(); urllib.request.install_opener( urllib.request.build_opener( urllib.request.ProxyHandler()) ); by = urllib.request.urlopen( 'http://packagecontrol.io/' + pf.replace(' ', '%20')).read(); dh = hashlib.sha256(by).hexdigest(); print('Error validating download (got %s instead of %s), please try manual install' % (dh, h)) if dh != h else open(os.path.join( ipp, pf), 'wb' ).write(by)"
 		]
 	},
 	"distraction_free":
@@ -73,24 +73,14 @@
 	},
 	"expanded_folders":
 	[
-		"/Z/verilog/generated",
-		"/Z/verilog/matrixTranspose"
+		"/Z/verilog",
+		"/Z/verilog/single_port_ram",
+		"/Z/verilog/single_port_ram/out",
+		"/Z/verilog/single_port_ram/src"
 	],
 	"file_history":
 	[
-		"/Z/verilog/matrixTranspose/run.do",
-		"/Z/verilog/matrixTranspose/src/afu_user.v",
-		"/Z/verilog/matrixTranspose/src/afu_user_tb.v",
-		"/Z/verilog/matrixTranspose/src/memArray2x32.v",
-		"/Z/verilog/matrixTranspose/stage0_wave.do",
-		"/Z/verilog/matrixTranspose/src/afu_user_tb.v.bak",
 		"/Z/verilog/single_port_ram/run.do",
-		"/Z/verilog/single_port_ram/src/single_port_ram.v",
-		"/Z/verilog/single_port_ram/src/single_port_ram_tb.v",
-		"/C/Users/Chi Zhang/AppData/Roaming/Sublime Text 3/Packages/User/Preferences.sublime-settings",
-		"/Z/verilog/generated/streamMatrixTransposeFSM_handwritten.v",
-		"/Z/verilog/generated/memArray2x32.v",
-		"/Z/verilog/generated/crossbar32x32.v",
 		"/Z/verilog/convNet.sublime-project",
 		"/Z/verilog/single_port_ram/single_port_ram.mpf",
 		"/Z/verilog/single_port_ram/single_port_ram.cr.mti",
@@ -98,6 +88,7 @@
 		"/Z/verilog/single_port_ram/single_port_ram_tb.vcd",
 		"/Z/verilog/single_port_ram/single_port_ram_tb.v",
 		"//vmware-host/Shared Folders/verilog/single_port_ram/single_port_ram_wave.do",
+		"/C/Users/Chi Zhang/AppData/Roaming/Sublime Text 3/Packages/User/Preferences.sublime-settings",
 		"/C/Users/Chi Zhang/AppData/Roaming/Sublime Text 3/Packages/Default/Preferences.sublime-settings"
 	],
 	"find":
@@ -133,8 +124,68 @@
 	"groups":
 	[
 		{
+			"selected": 1,
 			"sheets":
 			[
+				{
+					"buffer": 0,
+					"file": "single_port_ram/src/single_port_ram.v",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 399,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								190,
+								190
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/SystemVerilog/SystemVerilog.sublime-syntax",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 1,
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "single_port_ram/src/single_port_ram_tb.v",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 1125,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								213,
+								213
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/SystemVerilog/SystemVerilog.sublime-syntax",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": -0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 0,
+					"type": "text"
+				}
 			]
 		}
 	],
@@ -215,7 +266,7 @@
 	"show_open_files": false,
 	"show_tabs": true,
 	"side_bar_visible": true,
-	"side_bar_width": 366.0,
+	"side_bar_width": 199.0,
 	"status_bar_visible": true,
 	"template_settings":
 	{

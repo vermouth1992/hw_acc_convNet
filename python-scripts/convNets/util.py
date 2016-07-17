@@ -22,7 +22,7 @@ def convLayerSizeOriginal(imageSize, filterSize, numKernel, padding, stride=1, i
     F = filterSize[0]
     W2, H2, D2 = (W1 - F + 2 * padding) // stride + 1, (H1 - F + 2 * padding) // stride, numKernel
     # number of operations to get one result
-    numOpPerResult = 2 * F * F * D1
+    numOpPerResult = 2 * F * F * D1 + 1  # 1 is the bias
     return W2 * H2 * D2 * numOpPerResult / 10e9
 
 
@@ -93,6 +93,17 @@ def findUnitSize(filterSize):
     return unitSize, unitSize
 
 
+def AlexNetGOp():
+    # first layer
+    result = 0
+    result += convLayerSizeOriginal((227, 227, 3), (11, 11, 3), 96, 0, stride=4)
+    result += convLayerSizeOriginal((27, 27, 96), (5, 5, 96), 256, 2)
+    result += convLayerSizeOriginal((13, 13, 256), (3, 3, 256), 384, 1) * 2
+    result += convLayerSizeOriginal((13, 13, 256), (3, 3, 256), 256, 1)
+    result += (4096 ** 2 + 4096 * 1000) / 1e9
+    return result
+
+
 def test():
     imageSize = (224, 224, 64)
     filterSize = (5, 5, 64)
@@ -101,6 +112,7 @@ def test():
     print convLayerSizeOriginal(imageSize, filterSize, numKernel, padding)
     unitSize = findUnitSize(filterSize)
     print convLayerSizeFFT(imageSize, filterSize, numKernel, padding, unitSize, 3, True, True)
+    print "AlexNet GOps:", AlexNetGOp()
 
 
 if __name__ == "__main__":
