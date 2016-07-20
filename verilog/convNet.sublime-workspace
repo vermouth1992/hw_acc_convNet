@@ -8,18 +8,26 @@
 	"buffers":
 	[
 		{
-			"file": "single_port_ram/src/single_port_ram.v",
+			"file": "/C/Users/Chi Zhang/Desktop/DesignExamples_and_ModelSimFiles/DesignExamples_and_ModelSimFiles/altfp_mult/Design Example/fp_mult_ex.v",
 			"settings":
 			{
-				"buffer_size": 399,
+				"buffer_size": 5159,
 				"line_ending": "Windows"
 			}
 		},
 		{
-			"file": "single_port_ram/src/single_port_ram_tb.v",
+			"file": "/C/Users/Chi Zhang/Desktop/DesignExamples_and_ModelSimFiles/DesignExamples_and_ModelSimFiles/altfp_div/altfp_div - Modelsim/fp_div_ex.v",
 			"settings":
 			{
-				"buffer_size": 1125,
+				"buffer_size": 43245,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "/C/Users/Chi Zhang/Desktop/Sango2/SAVES/SANGO01.SAV",
+			"settings":
+			{
+				"buffer_size": 523960,
 				"line_ending": "Unix"
 			}
 		}
@@ -73,13 +81,14 @@
 	},
 	"expanded_folders":
 	[
-		"/Z/verilog",
-		"/Z/verilog/single_port_ram",
-		"/Z/verilog/single_port_ram/out",
-		"/Z/verilog/single_port_ram/src"
+		"/Z/verilog"
 	],
 	"file_history":
 	[
+		"/C/Users/Chi Zhang/Desktop/DesignExamples_and_ModelSimFiles/DesignExamples_and_ModelSimFiles/altfp_mult/Design Example/fp_mult_ex_bb.v",
+		"/Z/verilog/single_port_ram/src/single_port_ram.v",
+		"/Z/verilog/single_port_ram/src/single_port_ram_tb.v",
+		"/C/Users/Chi Zhang/Desktop/Sango2/InstallCfg.config",
 		"/Z/verilog/single_port_ram/run.do",
 		"/Z/verilog/convNet.sublime-project",
 		"/Z/verilog/single_port_ram/single_port_ram.mpf",
@@ -124,30 +133,57 @@
 	"groups":
 	[
 		{
-			"selected": 1,
+			"selected": 2,
 			"sheets":
 			[
 				{
 					"buffer": 0,
-					"file": "single_port_ram/src/single_port_ram.v",
+					"file": "/C/Users/Chi Zhang/Desktop/DesignExamples_and_ModelSimFiles/DesignExamples_and_ModelSimFiles/altfp_mult/Design Example/fp_mult_ex.v",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 399,
+						"buffer_size": 5159,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								190,
-								190
+								1887,
+								1887
 							]
 						],
 						"settings":
 						{
-							"syntax": "Packages/SystemVerilog/SystemVerilog.sublime-syntax",
-							"translate_tabs_to_spaces": false
+							"syntax": "Packages/SystemVerilog/SystemVerilog.sublime-syntax"
+						},
+						"translation.x": 0.0,
+						"translation.y": 768.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 2,
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "/C/Users/Chi Zhang/Desktop/DesignExamples_and_ModelSimFiles/DesignExamples_and_ModelSimFiles/altfp_div/altfp_div - Modelsim/fp_div_ex.v",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 43245,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								570,
+								570
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/SystemVerilog/SystemVerilog.sublime-syntax"
 						},
 						"translation.x": 0.0,
 						"translation.y": 0.0,
@@ -157,29 +193,27 @@
 					"type": "text"
 				},
 				{
-					"buffer": 1,
-					"file": "single_port_ram/src/single_port_ram_tb.v",
+					"buffer": 2,
+					"file": "/C/Users/Chi Zhang/Desktop/Sango2/SAVES/SANGO01.SAV",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 1125,
+						"buffer_size": 523960,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								213,
-								213
+								0,
+								0
 							]
 						],
 						"settings":
 						{
-							"syntax": "Packages/SystemVerilog/SystemVerilog.sublime-syntax",
-							"tab_size": 2,
-							"translate_tabs_to_spaces": true
+							"syntax": "Packages/Text/Plain text.tmLanguage"
 						},
-						"translation.x": -0.0,
+						"translation.x": 0.0,
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
