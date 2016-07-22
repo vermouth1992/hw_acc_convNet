@@ -1,8 +1,0 @@
-Z:/Developer/hw_acc_convNet/verilog/single_port_ram/single_port_ram_tb.v {1 {vlog -work work -stats=none Z:/Developer/hw_acc_convNet/verilog/single_port_ram/single_port_ram_tb.v
-Model Technology ModelSim PE Student Edition vlog 10.4a Compiler 2015.03 Apr  7 2015
--- Compiling module single_port_ram_tb
-
-Top level modules:
-	single_port_ram_tb
-
-} {} {}}

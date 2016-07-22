@@ -4,7 +4,6 @@
 .DS_Store
 node_modules/
 .ropeproject
-lectureCode-sp16-master/
 *.swp
 *.vcd
 *.o
@@ -13,12 +12,14 @@ lectureCode-sp16-master/
 */problems/
 *.mti
 *.mpf
-verilog/matrixTranspose/work/*
+work/
 *.wlf
-*/out/
+out/
 *.txt
-matrixTranspose
 *.h5
+*.do
+*.sublime-workspace
+*.sublime-project
 
 # Created by https://www.gitignore.io/api/java,python,osx,windows,intellij,eclipse,bluej,netbeans,vim,emacs,microsoftoffice
 

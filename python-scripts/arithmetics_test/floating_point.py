@@ -58,13 +58,13 @@ class FloatingPoint():
 @main
 def test():
     sign = "0"
-    exponent = "01111011"
-    mantissa = "10011001100110011001101"
+    exponent = "00000000"
+    mantissa = "0" * 19 + "0000"
     t = FloatingPoint(sign, exponent, mantissa)
     print t
     print t.binary_repr
     print t.hex_repr
-    print t.decimal_repr
+    print "Standard decimal:", t.decimal_repr
     print t.decimal_repr_separate
-    print t.raw_decimal_repr
+    print "My version:", t.raw_decimal_repr
     print FloatingPoint.floating_to_hex(0.1)
