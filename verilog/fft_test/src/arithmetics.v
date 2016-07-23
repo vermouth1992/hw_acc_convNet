@@ -41,8 +41,8 @@ module multfp32fp32(clk, enable, rst, a, b, out);
       isInf_a0 <= (expA == 8'hff) && sigAZero;
       isInf_b0 <= (expB == 8'hff) && sigBZero;
       
-      signP_m0<=signA!=signB;
-      expP_m0<=expA + expB;
+      signP_m0 <= signA != signB;
+      expP_m0 <= expA + expB;
    end 
 
    reg signP_m1, zero_m1, inf_m1, nan_m1, under_m1;
@@ -53,10 +53,10 @@ module multfp32fp32(clk, enable, rst, a, b, out);
       zero_m1 <= isZero_a0 || isZero_b0;
       inf_m1 <= isInf_a0 || isInf_b0;
       nan_m1 <= isNaN_a0 || isNaN_b0;
-      under_m1 <= (expP_m0 < 128);      
+      under_m1 <= (expP_m0 < 128);
       
-      signP_m1<=signP_m0;      
-      expP_m1<=expP_m0 - 127;      
+      signP_m1 <= signP_m0;
+      expP_m1 <= expP_m0 - 127;
    end 
 
    reg signP_m2, zero_m2, inf_m2, nan_m2; 
@@ -95,8 +95,8 @@ module multfp32fp32(clk, enable, rst, a, b, out);
       nan_m4 <= nan_m3;
       
       signP_m4<=signP_m3;      
-      expP_m4<=expP_m3;      
-   end 
+      expP_m4<=expP_m3;
+   end
 
    reg signP_m5, zero_m5, inf_m5, nan_m5;
    reg [8:0] expP_m5;
@@ -124,17 +124,17 @@ module multfp32fp32(clk, enable, rst, a, b, out);
       zero_m6 <= (zero_m5 || (mult_res0[47:23] == 0));
       nan_m6 <= nan_m5;      
       
-      signP_m6<=signP_m5;      
+      signP_m6 <= signP_m5;      
 
       if (mult_res0[47] == 1'b1) begin
-   expP_m6<=expP_m5+1;
-   sig_m6 <= mult_res0[47:24];
-   inf_m6 <= (inf_m5 || (expP_m5 == 9'h0ff));  
+        expP_m6 <= expP_m5+1;
+        sig_m6 <= mult_res0[47:24];
+        inf_m6 <= (inf_m5 || (expP_m5 == 9'h0ff));  
       end
       else begin
-   expP_m6 <= expP_m5;
-   sig_m6 <= mult_res0[46:23];
-   inf_m6 <= inf_m5;   
+        expP_m6 <= expP_m5;
+        sig_m6 <= mult_res0[46:23];
+        inf_m6 <= inf_m5;   
       end  
    end
 
@@ -145,20 +145,19 @@ module multfp32fp32(clk, enable, rst, a, b, out);
    // stage 8: cleanup
    always@(posedge clk) if (enable) begin
       signP_m7 <= signP_m6;
-
       if (inf_m6 || nan_m6)
-  expP_m7 <= 8'hff;
+        expP_m7 <= 8'hff;
       else if (zero_m6)
-  expP_m7 <= 8'h00;
+        expP_m7 <= 8'h00;
       else
-  expP_m7 <= expP_m6;
+        expP_m7 <= expP_m6;
 
       if (nan_m6)
-  sig_m7 <= 1;
+        sig_m7 <= 1;
       else if (zero_m6 || inf_m6)
-  sig_m7 <= 0;
+        sig_m7 <= 0;
       else
-  sig_m7 <= sig_m6[22:0];      
+        sig_m7 <= sig_m6[22:0];      
    end
 
    assign out = {signP_m7, expP_m7, sig_m7};   
@@ -167,21 +166,21 @@ endmodule
 
 
 module multfxp24fxp24(clk, enable, rst, a, b, out);
-        parameter WIDTH=24, CYCLES=6;
-        input  [WIDTH-1:0]   a,b;
-        output [2*WIDTH-1:0] out;
-        input                clk, rst,enable;
-        reg [2*WIDTH-1:0]    q[CYCLES-1:0];
-        integer              i;
+  parameter WIDTH=24, CYCLES=6;
+  input  [WIDTH-1:0]   a,b;
+  output [2*WIDTH-1:0] out;
+  input                clk, rst,enable;
+  reg [2*WIDTH-1:0]    q[CYCLES-1:0];
+  integer              i;
 
-        assign               out = q[CYCLES-1];   
+  assign               out = q[CYCLES-1];
 
-        always @(posedge clk) begin
-                q[0] <= a * b;
-                for (i = 1; i < CYCLES; i=i+1) begin
-                        q[i] <= q[i-1];
-                end
-        end
+  always @(posedge clk) begin
+    q[0] <= a * b;
+    for (i = 1; i < CYCLES; i=i+1) begin
+        q[i] <= q[i-1];
+    end
+  end
 endmodule 
 
 
@@ -420,7 +419,7 @@ module addfp32(clk, enable, rst,  a, b, out);
   end 
 
 
-  reg signSum_n4; 
+  reg signSum_n4;
   reg [8:0] expSum_n4;
   reg [23:0] sigSum_n4;
   reg of_n4;
@@ -466,11 +465,12 @@ module addfp32(clk, enable, rst,  a, b, out);
       expSum_f0<=expSum_n4[7:0];
       sigSum_f0<=sigSum_n4;
     end
-  end  
+  end
 
   assign out={signSum_f0, expSum_f0, sigSum_f0[22:0]};
 
 endmodule
+
 module addfxp(a, b, q, clk);
 
    parameter width = 16, cycles=1;
