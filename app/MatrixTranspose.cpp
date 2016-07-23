@@ -462,7 +462,7 @@ btInt HelloSPLLBApp::run()
             // Wait for SPL VAFU to finish code
             volatile bt32bitInt done = pVAFU2_cntxt->Status & VAFU2_CNTXT_STATUS_DONE;
             while (!done) {
-                SleepMilli(delay);
+                SleepMilli((unsigned long) delay);
                 done = pVAFU2_cntxt->Status & VAFU2_CNTXT_STATUS_DONE;
                 if (done) MSG("AFU has signaled done.");
             }
@@ -479,45 +479,23 @@ btInt HelloSPLLBApp::run()
             m_Sem.Wait();
             MSG("SPL Transaction complete");
 
-            // transpose the source buffer
-            for (int i = 0; i < numMatrix; i++) {
-                matrixTranspose(pSourceMatrix + i);
+            MSG("Dumping the input to file.");
+            std::ofstream inputBuffer;
+            inputBuffer.open("input_buffer.txt");
+            for (int i = 0; i < a_num_cl; i++) {
+                dumpOneCachelineFile(inputBuffer, pSourceCL + i);
             }
+            inputBuffer.close();
 
-            ////////////////////////////////////////////////////////////////////////////
-            // Check the buffers to make sure they copied okay
-
-            btUnsignedInt cl;               // Loop counter. Cache-Line number.
-            int tres;              // If many errors in buffer, only dump a limited number
-            ostringstream oss("");          // Place to stash fancy strings
-
-            bool verify_workspace = true;
-            if (verify_workspace) {
-                MSG("Verifying buffers in workspace");
-
-                // verifying whether the source buffer is the same as destination buffer
-
-                tres = 0;                                          // dump only 4 CL's at a time
-                for (cl = 0; cl < a_num_cl && tres < 4; ++cl) { // check for error in destination buffer
-                    if (::memcmp(&pSourceCL[cl], &pDestCL[cl], CL(1))) {
-                        Show2CLs(&pSourceCL[cl], &pDestCL[cl], oss);
-                        ERR("Destination cache line " << cl << " @" << (void *) &pDestCL[cl] <<
-                            " is not what was expected.\n" << oss.str());
-                        oss.str(std::string(""));
-                        ++tres;
-                    }
-                }
-
-                if (tres == 0) MSG("The source and destination buffer is exactly the same!");
+            MSG("Dumping the output to file.");
+            std::ofstream outputBuffer;
+            outputBuffer.open("output_buffer.txt");
+            for (int i = 0; i < a_num_cl; i++) {
+                dumpOneCachelineFile(outputBuffer, pDestCL + i);
             }
+            outputBuffer.close();
 
-            // get the last cacheline
-            MSG("Show the last cacheline");
-            Show2CLs(&pSourceCL[a_num_cl - 1], &pDestCL[a_num_cl - 1], oss);
-            ERR(oss.str());
-            MSG("The total execution cycle: " << pDestCL[a_num_cl - 1].dw[0]);
-            MSG("The total number of cacheline is: " << a_num_cl);
-
+            MSG("Please verify buffers in workspace using Python scripts");
 
         } else {
             ERR("The number of matrix in source buffer is not an integer, abort.");

@@ -19,6 +19,8 @@
 #include <time.h>
 #include <sys/time.h>
 #include <stdlib.h>
+#include <iostream>
+#include <fstream>
 
 // Convenience macros for printing messages and errors.
 #ifdef MSG
@@ -54,6 +56,13 @@
 struct OneCL {                      // Make a cache-line sized structure
     AAL::btUnsigned32bitInt dw[16];       //    for array arithmetic
 };
+
+void dumpOneCachelineFile(std::ofstream &dumpFile, struct OneCL *cacheline) {
+    for (int i = 0; i < 16; i++) {
+        dumpFile << cacheline->dw[i] << " ";
+    }
+    dumpFile << std::endl;
+}
 
 
 #endif //APP_COMMON_H
