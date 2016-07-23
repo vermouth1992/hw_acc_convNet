@@ -2,6 +2,14 @@ import struct
 from util.ucb import main
 
 
+def hex_to_num(hexadecimal):
+    return struct.unpack('!f', hexadecimal.decode('hex'))[0]
+
+
+def floating_to_hex(num):
+    return ''.join(bin(ord(c)).replace('0b', '').rjust(8, '0') for c in struct.pack('!f', num))
+
+
 class FloatingPoint():
     """
     ieee 754 standard 32-bit floating point
@@ -32,13 +40,13 @@ class FloatingPoint():
     def decimal_repr(self):
         return struct.unpack('!f', self.hex_repr.decode('hex'))[0]
 
-    @property
-    def raw_decimal_repr(self):
-        sign_dec = int(self.sign, 2)
-        exponent_dec = int(self.exponent, 2)
-        mantissa_dec = int(self.mantissa, 2)
-        decimal = 2 ** (exponent_dec - 127) * float(mantissa_dec / 2 ** 23 + 1) * (-1) ** sign_dec
-        return decimal
+    # @property
+    # def raw_decimal_repr(self):
+    #     sign_dec = int(self.sign, 2)
+    #     exponent_dec = int(self.exponent, 2)
+    #     mantissa_dec = int(self.mantissa, 2)
+    #     decimal = 2 ** (exponent_dec - 127) * float(mantissa_dec / 2 ** 23 + 1) * (-1) ** sign_dec
+    #     return decimal
 
     @property
     def decimal_repr_separate(self):
@@ -46,10 +54,6 @@ class FloatingPoint():
         exponent_dec = int(self.exponent, 2)
         mantissa_dec = int(self.mantissa, 2)
         return str(sign_dec) + " " + str(exponent_dec) + " " + str(mantissa_dec)
-
-    @classmethod
-    def floating_to_hex(self, num):
-        return ''.join(bin(ord(c)).replace('0b', '').rjust(8, '0') for c in struct.pack('!f', num))
 
     def __str__(self):
         return self.sign + " " + self.exponent + " " + self.mantissa
@@ -66,5 +70,4 @@ def test():
     print t.hex_repr
     print "Standard decimal:", t.decimal_repr
     print t.decimal_repr_separate
-    print "My version:", t.raw_decimal_repr
-    print FloatingPoint.floating_to_hex(0.1)
+    print floating_to_hex(0.1)
