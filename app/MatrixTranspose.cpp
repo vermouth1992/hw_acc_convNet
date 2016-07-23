@@ -423,10 +423,14 @@ btInt HelloSPLLBApp::run()
             // Init the src/dest buffers, based on the desired sequence (either fixed or random).
             MSG("Initializing source matrix. (random)");
 
+            struct OneCLSingle *pSourceCLSingle = reinterpret_cast<struct OneCLSingle*>(pSource);
+
             std::srand((uint) std::time(0));
-            for (int i = 0; i < a_num_bytes; i++) {  // 1 byte a time
-                char random = (char) (std::rand() % 256);
-                ::memset(pSource + i, random, 1);
+            for (int i = 0; i < a_num_cl; i++) {
+                for (int j = 0; j < 16; j++) {
+                    float random = (float) (std::rand() % 256 + 10);
+                    (pSourceCLSingle + i)->dw[j] = random;
+                }
             }
 
             MSG("Initializing the destination buffer as 0xBE");
