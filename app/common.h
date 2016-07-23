@@ -59,7 +59,7 @@ struct OneCL {                      // Make a cache-line sized structure
 
 void dumpOneCachelineFile(std::ofstream &dumpFile, struct OneCL *cacheline) {
     for (int i = 0; i < 16; i++) {
-        dumpFile << cacheline->dw[i] << " ";
+        dumpFile << std::hex << std::setfill('0') << std::setw(8) << cacheline->dw[i] << " ";
     }
     dumpFile << std::endl;
 }
