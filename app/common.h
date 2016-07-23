@@ -57,6 +57,11 @@ struct OneCL {                      // Make a cache-line sized structure
     AAL::btUnsigned32bitInt dw[16];       //    for array arithmetic
 };
 
+struct OneCLSingle {
+    float dw[16];
+};
+
+
 void dumpOneCachelineFile(std::ofstream &dumpFile, struct OneCL *cacheline) {
     for (int i = 0; i < 16; i++) {
         dumpFile << std::hex << std::setfill('0') << std::setw(8) << cacheline->dw[i] << " ";
