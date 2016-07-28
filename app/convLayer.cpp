@@ -281,7 +281,7 @@ typedef struct list {
 
 int ConvLayer::run() {
     cout << "=======================" << endl;
-    cout << "= Linked List Example =" << endl;
+    cout << "= Convolutional Layer =" << endl;
     cout << "=======================" << endl;
 
     // Request our AFU.
@@ -339,34 +339,35 @@ int ConvLayer::run() {
                           << std::hex << (void *) pWSUsrVirt);
 
         // Number of bytes in each of the source and destination buffers (4 MiB in this case)
-        btUnsigned32bitInt a_num_bytes = (btUnsigned32bitInt) ((WSLen - sizeof(VAFU2_CNTXT)) / 2);
-        btUnsigned32bitInt a_num_cl = a_num_bytes / CL(1);  // number of cache lines in buffer
+        btUnsigned32bitInt a_num_bytes = (btUnsigned32bitInt) (WSLen - sizeof(VAFU2_CNTXT));
+        btUnsigned32bitInt a_num_cl = a_num_bytes / CL(1);  // number of cache lines in total
 
         // VAFU Context is at the beginning of the buffer
         VAFU2_CNTXT *pVAFU2_cntxt = reinterpret_cast<VAFU2_CNTXT *>(pWSUsrVirt);
 
         // The source buffer is right after the VAFU Context
-        btVirtAddr pSource = pWSUsrVirt + sizeof(VAFU2_CNTXT);
+        btVirtAddr pImage = pWSUsrVirt + sizeof(VAFU2_CNTXT);
 
+        btVirtAddr pFilter = pImage + testLayer.getImageSizeInBytes();
         // The destination buffer is right after the source buffer
-        btVirtAddr pDest = pSource + a_num_bytes;
+        btVirtAddr pDestImage = pFilter + testLayer.getFilterSizeInBytes();
 
-        struct OneCL {                      // Make a cache-line sized structure
-            btUnsigned32bitInt dw[16];       //    for array arithmetic
-        };
-        struct OneCL *pSourceCL = reinterpret_cast<struct OneCL *>(pSource);
-        struct OneCL *pDestCL = reinterpret_cast<struct OneCL *>(pDest);
+        assert(testLayer.getImageSizeInBytes() * 2 + testLayer.getFilterSizeInBytes() == a_num_bytes);
 
         // Note: the usage of the VAFU2_CNTXT structure here is specific to the underlying bitstream
         // implementation. The bitstream targeted for use with this sample application must implement
         // the Validation AFU 2 interface and abide by the contract that a VAFU2_CNTXT structure will
         // appear at byte offset 0 within the supplied AFU Context workspace.
 
+        btUnsigned32bitInt a_num_cl_image = (btUnsigned32bitInt) testLayer.getImageSizeInBytes() / CL(1);
         // Initialize the command buffer
         ::memset(pVAFU2_cntxt, 0, sizeof(VAFU2_CNTXT));
-        pVAFU2_cntxt->num_cl = a_num_cl;
-        pVAFU2_cntxt->pSource = pSource;
-        pVAFU2_cntxt->pDest = pDest;
+        pVAFU2_cntxt->num_cl = a_num_cl;   // note that it is number of cache line in total
+        pVAFU2_cntxt->pSource = pImage;
+        pVAFU2_cntxt->pDest = pDestImage;
+        pVAFU2_cntxt->qword0[4] = (btUnsigned64bitInt) pFilter;  // cat address to 64 unsigned int
+        pVAFU2_cntxt->qword0[5] = testLayer.getNumInputFeatureMap();
+        pVAFU2_cntxt->qword0[6] = testLayer.getNumOutputFeatureMap();
 
         MSG("VAFU2 Context=" << std::hex << (void *) pVAFU2_cntxt <<
                               " Src=" << std::hex << (void *) pVAFU2_cntxt->pSource <<
@@ -374,23 +375,6 @@ int ConvLayer::run() {
         MSG("Cache lines in each buffer=" << std::dec << pVAFU2_cntxt->num_cl <<
                                            " (bytes=" << std::dec << pVAFU2_cntxt->num_cl * CL(1) <<
                                            " 0x" << std::hex << pVAFU2_cntxt->num_cl * CL(1) << std::dec << ")");
-
-        uint8_t *ptr = (uint8_t *) pSource;
-        /* start linked list at 2nd cacheline in region */
-        list_t *myList = (list_t *) (ptr + 64);
-        size_t n_nodes = ((1UL << 8) / sizeof(list_t));
-
-        //MSG("allocating" << n_nodes << "nodes\n");
-        for (uint32_t i = 0; i < n_nodes; i++) {
-            myList[i].next = myList + (i + 1);
-            myList[i].value = i;
-        }
-        myList[n_nodes - 1].next = myList + 3;
-
-        btUnsigned64bitInt *scan64 = (btUnsigned64bitInt *) pVAFU2_cntxt;
-        /* DBS : pass base ptr to FPGA configuration register (in cache lines) */
-        scan64[4] = ((uint64_t) ptr);
-
 
         // Buffers have been initialized
         ////////////////////////////////////////////////////////////////////////////
@@ -405,6 +389,12 @@ int ConvLayer::run() {
         m_SPLService->StartTransactionContext(TransactionID(), pWSUsrVirt, 100);
         m_Sem.Wait();
 
+        // set the timer
+        timespec start;
+        timespec end;
+
+        // start the timer
+        clock_gettime(CLOCK_REALTIME, &start);
         // The AFU is running
         ////////////////////////////////////////////////////////////////////////////
 
@@ -426,17 +416,11 @@ int ConvLayer::run() {
             ERR("AFU never signaled it was done. Timing out anyway. Results may be strange.\n");
         }
         ////////////////////////////////////////////////////////////////////////////
-        // Stop the AFU
+        // set the end time
+        clock_gettime(CLOCK_REALTIME, &end);
 
-        /* change pointer to write region space */
-        ptr = (uint8_t *) (pDest);
-        printf("ptr[0] = %u\n", *ptr);
-        if (*ptr)
-            printf("==> found cycle in linked-list!\n");
-        else
-            printf("==> did not find cycle in linked-list\n");
-
-
+        string precision = "ms";
+        MSG("The processing time is " << calculate_time_interval(end, start, precision) << precision);
 
         // Issue Stop Transaction and wait for OnTransactionStopped
         MSG("Stopping SPL Transaction");
@@ -473,8 +457,13 @@ void ConvLayer::serviceAllocated(IBase *pServiceBase,
 
     MSG("Service Allocated");
 
+    int imageSize = testLayer.getImageSizeInBytes();
+    int filterSize = testLayer.getFilterSizeInBytes();
+    int sourceBufferSize = imageSize + filterSize;
+    int destinationBufferSize = imageSize;
     // Allocate Workspaces needed.
-    m_SPLService->WorkspaceAllocate(sizeof(VAFU2_CNTXT) + MB(4) + MB(4), TransactionID());
+    m_SPLService->WorkspaceAllocate(sizeof(VAFU2_CNTXT) + sourceBufferSize + destinationBufferSize,
+                                    TransactionID());
 
 }
 

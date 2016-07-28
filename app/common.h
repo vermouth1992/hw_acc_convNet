@@ -18,8 +18,11 @@
 #include <time.h>
 #include <sys/time.h>
 #include <stdlib.h>
+#include <math.h>
+#include <assert.h>
 #include <iostream>
 #include <fstream>
+#include <stdexcept>
 
 // Convenience macros for printing messages and errors.
 #ifdef MSG
@@ -45,7 +48,7 @@
 # define LOG2_CL                   6
 #endif // LOG2_CL
 #ifndef MB
-# define MB(x)               ConvLayer      ((x) * 1024 * 1024)
+# define MB(x)                   ((x) * 1024 * 1024)
 #endif // MB
 #define LPBK1_BUFFER_SIZE        CL(1)
 
@@ -70,6 +73,29 @@ void dumpOneCachelineFile(std::ofstream &dumpFile, struct OneCL *cacheline) {
         dumpFile << std::hex << std::setfill('0') << std::setw(8) << cacheline->dw[i] << " ";
     }
     dumpFile << std::endl;
+}
+
+// time related
+double calculate_time_interval(timespec late, timespec early, string precision) {
+    timespec time_difference;
+    if (late.tv_nsec < early.tv_nsec) {
+        time_difference.tv_sec = late.tv_sec - early.tv_sec - 1;
+        time_difference.tv_nsec = late.tv_nsec - early.tv_nsec + 1000000000;
+    } else {
+        time_difference.tv_sec = late.tv_sec - early.tv_sec;
+        time_difference.tv_nsec = late.tv_nsec - early.tv_nsec;
+    }
+    if (precision == "s") {
+        return time_difference.tv_sec + (double) time_difference.tv_nsec / 1e9;
+    } else if (precision == "ms") {
+        return time_difference.tv_sec * 1000 + (double) time_difference.tv_nsec / 1e6;
+    } else if (precision == "us") {
+        return time_difference.tv_sec * 1e6 + (double) time_difference.tv_nsec / 1e3;
+    } else if (precision == "ns") {
+        return time_difference.tv_sec * 1e9 + time_difference.tv_nsec;
+    } else {
+        throw std::invalid_argument("Invalid argument precision");
+    }
 }
 
 
