@@ -9,7 +9,6 @@
 #include <aalsdk/xlRuntime.h>
 #include <aalsdk/AALLoggerExtern.h> // Logger
 
-
 #include <aalsdk/service/ISPLAFU.h>       // Service Interface
 #include <aalsdk/service/ISPLClient.h>    // Service Client Interface
 #include <aalsdk/kernel/vafu2defs.h>      // AFU structure definitions (brings in spl2defs.h)
