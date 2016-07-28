@@ -56,6 +56,50 @@ module fft_wrapper (
 
 endmodule
 
+module ifft_wrapper (
+  intf_fft fft_io
+);
+
+  idft_top ifft_inst (
+    .clk(fft_io.clk),
+    .reset(fft_io.reset),
+    .next(fft_io.next),
+    .next_out(fft_io.next_out),
+    .X0(fft_io.in[0]),
+    .X1(fft_io.in[1]),
+    .X2(fft_io.in[2]),
+    .X3(fft_io.in[3]),
+    .X4(fft_io.in[4]),
+    .X5(fft_io.in[5]),
+    .X6(fft_io.in[6]),
+    .X7(fft_io.in[7]),
+    .X8(fft_io.in[8]),
+    .X9(fft_io.in[9]),
+    .X10(fft_io.in[10]),
+    .X11(fft_io.in[11]),
+    .X12(fft_io.in[12]),
+    .X13(fft_io.in[13]),
+    .X14(fft_io.in[14]),
+    .X15(fft_io.in[15]),
+    .Y0(fft_io.out[0]),
+    .Y1(fft_io.out[1]),
+    .Y2(fft_io.out[2]),
+    .Y3(fft_io.out[3]),
+    .Y4(fft_io.out[4]),
+    .Y5(fft_io.out[5]),
+    .Y6(fft_io.out[6]),
+    .Y7(fft_io.out[7]),
+    .Y8(fft_io.out[8]),
+    .Y9(fft_io.out[9]),
+    .Y10(fft_io.out[10]),
+    .Y11(fft_io.out[11]),
+    .Y12(fft_io.out[12]),
+    .Y13(fft_io.out[13]),
+    .Y14(fft_io.out[14]),
+    .Y15(fft_io.out[15])
+    );
+
+endmodule
 
 module fft_wrapper_tb (
   intf_fft fft_io
