@@ -45,7 +45,7 @@
 # define LOG2_CL                   6
 #endif // LOG2_CL
 #ifndef MB
-# define MB(x)                     ((x) * 1024 * 1024)
+# define MB(x)               ConvLayer      ((x) * 1024 * 1024)
 #endif // MB
 #define LPBK1_BUFFER_SIZE        CL(1)
 
