@@ -50,14 +50,18 @@
 #define LPBK1_BUFFER_SIZE        CL(1)
 
 #define LPBK1_DSM_SIZE           MB(4);
-/// @addtogroup HelloSPLLB
+/// @addtogroup convLayer
 
 struct OneCL {                      // Make a cache-line sized structure
     AAL::btUnsigned32bitInt dw[16];       //    for array arithmetic
 };
 
 struct OneCLSingle {
-    float dw[16];
+    float dw[16];     // 32 bits single precision
+};
+
+struct OneCLDouble {
+    double dw[8];     // 16 bits double precision
 };
 
 

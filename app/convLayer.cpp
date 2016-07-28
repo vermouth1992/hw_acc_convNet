@@ -185,12 +185,12 @@ IRuntime *RuntimeClient::getRuntime() {
 ///          The Service Client contains the application logic.
 ///
 /// When we request an AFU (Service) from AAL, the request will be fulfilled by calling into this interface.
-class llApp : public CAASBase, public IServiceClient, public ISPLClient {
+class ConvLayer : public CAASBase, public IServiceClient, public ISPLClient {
 public:
 
-    llApp(RuntimeClient *rtc);
+    ConvLayer(RuntimeClient *rtc);
 
-    ~llApp();
+    ~ConvLayer();
 
     btInt run();
 
@@ -250,7 +250,7 @@ protected:
 ///  Implementation
 ///
 ///////////////////////////////////////////////////////////////////////////////
-llApp::llApp(RuntimeClient *rtc) :
+ConvLayer::ConvLayer(RuntimeClient *rtc) :
         m_pAALService(NULL),
         m_runtimClient(rtc),
         m_SPLService(NULL),
@@ -265,7 +265,7 @@ llApp::llApp(RuntimeClient *rtc) :
     m_Sem.Create(0, 1);
 }
 
-llApp::~llApp() {
+ConvLayer::~ConvLayer() {
     m_Sem.Destroy();
 }
 
@@ -279,7 +279,7 @@ typedef struct list {
 } __attribute__((__packed__)) list_t;
 
 
-int llApp::run() {
+int ConvLayer::run() {
     cout << "=======================" << endl;
     cout << "= Linked List Example =" << endl;
     cout << "=======================" << endl;
@@ -458,7 +458,7 @@ int llApp::run() {
 // We must implement the IServiceClient interface (IServiceClient.h):
 
 // <begin IServiceClient interface>
-void llApp::serviceAllocated(IBase *pServiceBase,
+void ConvLayer::serviceAllocated(IBase *pServiceBase,
                              TransactionID const &rTranID) {
     m_pAALService = pServiceBase;
     ASSERT(NULL != m_pAALService);
@@ -478,7 +478,7 @@ void llApp::serviceAllocated(IBase *pServiceBase,
 
 }
 
-void llApp::serviceAllocateFailed(const IEvent &rEvent) {
+void ConvLayer::serviceAllocateFailed(const IEvent &rEvent) {
     IExceptionTransactionEvent *pExEvent = dynamic_ptr<IExceptionTransactionEvent>(iidExTranEvent, rEvent);
     ERR("Failed to allocate a Service");
     ERR(pExEvent->Description());
@@ -486,14 +486,14 @@ void llApp::serviceAllocateFailed(const IEvent &rEvent) {
     m_Sem.Post(1);
 }
 
-void llApp::serviceFreed(TransactionID const &rTranID) {
+void ConvLayer::serviceFreed(TransactionID const &rTranID) {
     MSG("Service Freed");
     // Unblock Main()
     m_Sem.Post(1);
 }
 
 // <ISPLClient>
-void llApp::OnWorkspaceAllocated(TransactionID const &TranID,
+void ConvLayer::OnWorkspaceAllocated(TransactionID const &TranID,
                                  btVirtAddr WkspcVirt,
                                  btPhysAddr WkspcPhys,
                                  btWSSize WkspcSize) {
@@ -506,7 +506,7 @@ void llApp::OnWorkspaceAllocated(TransactionID const &TranID,
     m_Sem.Post(1);
 }
 
-void llApp::OnWorkspaceAllocateFailed(const IEvent &rEvent) {
+void ConvLayer::OnWorkspaceAllocateFailed(const IEvent &rEvent) {
     IExceptionTransactionEvent *pExEvent = dynamic_ptr<IExceptionTransactionEvent>(iidExTranEvent, rEvent);
     ERR("OnWorkspaceAllocateFailed");
     ERR(pExEvent->Description());
@@ -514,13 +514,13 @@ void llApp::OnWorkspaceAllocateFailed(const IEvent &rEvent) {
     m_Sem.Post(1);
 }
 
-void llApp::OnWorkspaceFreed(TransactionID const &TranID) {
+void ConvLayer::OnWorkspaceFreed(TransactionID const &TranID) {
     ERR("OnWorkspaceFreed");
     // Freed so now Release() the Service through the Services IAALService::Release() method
     (dynamic_ptr<IAALService>(iidService, m_pAALService))->Release(TransactionID());
 }
 
-void llApp::OnWorkspaceFreeFailed(const IEvent &rEvent) {
+void ConvLayer::OnWorkspaceFreeFailed(const IEvent &rEvent) {
     IExceptionTransactionEvent *pExEvent = dynamic_ptr<IExceptionTransactionEvent>(iidExTranEvent, rEvent);
     ERR("OnWorkspaceAllocateFailed");
     ERR(pExEvent->Description());
@@ -529,7 +529,7 @@ void llApp::OnWorkspaceFreeFailed(const IEvent &rEvent) {
 }
 
 /// CMyApp Client implementation of ISPLClient::OnTransactionStarted
-void llApp::OnTransactionStarted(TransactionID const &TranID,
+void ConvLayer::OnTransactionStarted(TransactionID const &TranID,
                                  btVirtAddr AFUDSMVirt,
                                  btWSSize AFUDSMSize) {
     MSG("Transaction Started");
@@ -539,13 +539,13 @@ void llApp::OnTransactionStarted(TransactionID const &TranID,
 }
 
 /// CMyApp Client implementation of ISPLClient::OnContextWorkspaceSet
-void llApp::OnContextWorkspaceSet(TransactionID const &TranID) {
+void ConvLayer::OnContextWorkspaceSet(TransactionID const &TranID) {
     MSG("Context Set");
     m_Sem.Post(1);
 }
 
 /// CMyApp Client implementation of ISPLClient::OnTransactionFailed
-void llApp::OnTransactionFailed(const IEvent &rEvent) {
+void ConvLayer::OnTransactionFailed(const IEvent &rEvent) {
     IExceptionTransactionEvent *pExEvent = dynamic_ptr<IExceptionTransactionEvent>(iidExTranEvent, rEvent);
     MSG("Runtime AllocateService failed");
     MSG(pExEvent->Description());
@@ -558,7 +558,7 @@ void llApp::OnTransactionFailed(const IEvent &rEvent) {
 }
 
 /// CMyApp Client implementation of ISPLClient::OnTransactionComplete
-void llApp::OnTransactionComplete(TransactionID const &TranID) {
+void ConvLayer::OnTransactionComplete(TransactionID const &TranID) {
     m_AFUDSMVirt = NULL;
     m_AFUDSMSize = 0;
     MSG("Transaction Complete");
@@ -566,14 +566,14 @@ void llApp::OnTransactionComplete(TransactionID const &TranID) {
 }
 
 /// CMyApp Client implementation of ISPLClient::OnTransactionStopped
-void llApp::OnTransactionStopped(TransactionID const &TranID) {
+void ConvLayer::OnTransactionStopped(TransactionID const &TranID) {
     m_AFUDSMVirt = NULL;
     m_AFUDSMSize = 0;
     MSG("Transaction Stopped");
     m_Sem.Post(1);
 }
 
-void llApp::serviceEvent(const IEvent &rEvent) {
+void ConvLayer::serviceEvent(const IEvent &rEvent) {
     ERR("unexpected event 0x" << hex << rEvent.SubClassID());
 }
 // <end IServiceClient interface>
@@ -591,7 +591,7 @@ void llApp::serviceEvent(const IEvent &rEvent) {
 //=============================================================================
 int main(int argc, char *argv[]) {
     RuntimeClient runtimeClient;
-    llApp theApp(&runtimeClient);
+    ConvLayer theApp(&runtimeClient);
 
     if (!runtimeClient.isOK()) {
         ERR("Runtime Failed to Start");
