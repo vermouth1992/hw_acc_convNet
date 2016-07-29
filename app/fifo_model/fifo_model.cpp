@@ -50,9 +50,8 @@
 /// 06/15/2015     JG       Initial version started based on older sample code.@endverbatim
 //****************************************************************************
 
-#include "common.h"
+#include "../common.h"
 #include "config.h"
-#include "myThread.h"
 
 using namespace AAL;
 
@@ -72,7 +71,7 @@ int posToIndex(int x, int y) {
     return M * x + y;
 }
 
-void matrixTranspose(Matrix* m) {
+void matrixTranspose(Matrix *m) {
     for (int y = 0; y < M - 1; y++) {   // the range of y is [0, M-2]
         for (int x = y + 1; x < M; x++) {  // the range of x is [y+1, M-1]
             int upperIndex = posToIndex(x, y);
@@ -86,39 +85,39 @@ void matrixTranspose(Matrix* m) {
 ///
 /// We implement a Service client within, to handle AAL Service allocation/free.
 /// We also implement a Semaphore for synchronization with the AAL runtime.
-class RuntimeClient : public CAASBase, public IRuntimeClient
-{
+class RuntimeClient : public CAASBase, public IRuntimeClient {
 public:
     RuntimeClient();
+
     ~RuntimeClient();
 
     void end();
 
-    IRuntime* getRuntime();
+    IRuntime *getRuntime();
 
     btBool isOK();
 
     // <begin IRuntimeClient interface>
-    void runtimeStarted(IRuntime            *pRuntime,
+    void runtimeStarted(IRuntime *pRuntime,
                         const NamedValueSet &rConfigParms);
 
     void runtimeStopped(IRuntime *pRuntime);
 
     void runtimeStartFailed(const IEvent &rEvent);
 
-    void runtimeAllocateServiceFailed( IEvent const &rEvent);
+    void runtimeAllocateServiceFailed(IEvent const &rEvent);
 
-    void runtimeAllocateServiceSucceeded(IBase               *pClient,
+    void runtimeAllocateServiceSucceeded(IBase *pClient,
                                          TransactionID const &rTranID);
 
     void runtimeEvent(const IEvent &rEvent);
     // <end IRuntimeClient interface>
 
 protected:
-    IRuntime        *m_pRuntime;  ///< Pointer to AAL runtime instance.
-    Runtime          m_Runtime;   ///< AAL Runtime
-    btBool           m_isOK;      ///< Status
-    CSemaphore       m_Sem;       ///< For synchronizing with the AAL runtime.
+    IRuntime *m_pRuntime;  ///< Pointer to AAL runtime instance.
+    Runtime m_Runtime;   ///< AAL Runtime
+    btBool m_isOK;      ///< Status
+    CSemaphore m_Sem;       ///< For synchronizing with the AAL runtime.
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -127,10 +126,9 @@ protected:
 ///
 ///////////////////////////////////////////////////////////////////////////////
 RuntimeClient::RuntimeClient() :
-    m_Runtime(),        // Instantiate the AAL Runtime
-    m_pRuntime(NULL),
-    m_isOK(false)
-{
+        m_Runtime(),        // Instantiate the AAL Runtime
+        m_pRuntime(NULL),
+        m_isOK(false) {
     NamedValueSet configArgs;
     NamedValueSet configRecord;
 
@@ -154,65 +152,55 @@ RuntimeClient::RuntimeClient() :
     m_Sem.Wait();
 }
 
-RuntimeClient::~RuntimeClient()
-{
+RuntimeClient::~RuntimeClient() {
     m_Sem.Destroy();
 }
 
-btBool RuntimeClient::isOK()
-{
+btBool RuntimeClient::isOK() {
     return m_isOK;
 }
 
 void RuntimeClient::runtimeStarted(IRuntime *pRuntime,
-                                   const NamedValueSet &rConfigParms)
-{
+                                   const NamedValueSet &rConfigParms) {
     // Save a copy of our runtime interface instance.
     m_pRuntime = pRuntime;
     m_isOK = true;
     m_Sem.Post(1);
 }
 
-void RuntimeClient::end()
-{
+void RuntimeClient::end() {
     m_Runtime.stop();
     m_Sem.Wait();
 }
 
-void RuntimeClient::runtimeStopped(IRuntime *pRuntime)
-{
+void RuntimeClient::runtimeStopped(IRuntime *pRuntime) {
     MSG("Runtime stopped");
     m_isOK = false;
     m_Sem.Post(1);
 }
 
-void RuntimeClient::runtimeStartFailed(const IEvent &rEvent)
-{
-    IExceptionTransactionEvent * pExEvent = dynamic_ptr<IExceptionTransactionEvent>(iidExTranEvent, rEvent);
+void RuntimeClient::runtimeStartFailed(const IEvent &rEvent) {
+    IExceptionTransactionEvent *pExEvent = dynamic_ptr<IExceptionTransactionEvent>(iidExTranEvent, rEvent);
     ERR("Runtime start failed");
     ERR(pExEvent->Description());
 }
 
-void RuntimeClient::runtimeAllocateServiceFailed( IEvent const &rEvent)
-{
-    IExceptionTransactionEvent * pExEvent = dynamic_ptr<IExceptionTransactionEvent>(iidExTranEvent, rEvent);
+void RuntimeClient::runtimeAllocateServiceFailed(IEvent const &rEvent) {
+    IExceptionTransactionEvent *pExEvent = dynamic_ptr<IExceptionTransactionEvent>(iidExTranEvent, rEvent);
     ERR("Runtime AllocateService failed");
     ERR(pExEvent->Description());
 }
 
 void RuntimeClient::runtimeAllocateServiceSucceeded(IBase *pClient,
-        TransactionID const &rTranID)
-{
+                                                    TransactionID const &rTranID) {
     MSG("Runtime Allocate Service Succeeded");
 }
 
-void RuntimeClient::runtimeEvent(const IEvent &rEvent)
-{
+void RuntimeClient::runtimeEvent(const IEvent &rEvent) {
     MSG("Generic message handler (runtime)");
 }
 
-IRuntime * RuntimeClient::getRuntime()
-{
+IRuntime *RuntimeClient::getRuntime() {
     return m_pRuntime;
 }
 
@@ -221,17 +209,19 @@ IRuntime * RuntimeClient::getRuntime()
 ///          The Service Client contains the application logic.
 ///
 /// When we request an AFU (Service) from AAL, the request will be fulfilled by calling into this interface.
-class HelloSPLLBApp: public CAASBase, public IServiceClient, public ISPLClient
-{
+class HelloSPLLBApp : public CAASBase, public IServiceClient, public ISPLClient {
 public:
 
-    HelloSPLLBApp(RuntimeClient * rtc);
+    HelloSPLLBApp(RuntimeClient *rtc);
+
     ~HelloSPLLBApp();
 
     btInt run();
+
     void Show2CLs(void *pCLExpected,
                   void *pCLFound,
                   ostringstream &oss);
+
     void _DumpCL(void *pCL,
                  ostringstream &oss);
 
@@ -240,6 +230,7 @@ public:
     virtual void OnTransactionStarted(TransactionID const &TranID,
                                       btVirtAddr AFUDSM,
                                       btWSSize AFUDSMSize);
+
     virtual void OnContextWorkspaceSet(TransactionID const &TranID);
 
     virtual void OnTransactionFailed(const IEvent &Event);
@@ -247,6 +238,7 @@ public:
     virtual void OnTransactionComplete(TransactionID const &TranID);
 
     virtual void OnTransactionStopped(TransactionID const &TranID);
+
     virtual void OnWorkspaceAllocated(TransactionID const &TranID,
                                       btVirtAddr WkspcVirt,
                                       btPhysAddr WkspcPhys,
@@ -271,18 +263,18 @@ public:
     // <end IServiceClient interface>
 
 protected:
-    IBase         *m_pAALService;    // The generic AAL Service interface for the AFU.
+    IBase *m_pAALService;    // The generic AAL Service interface for the AFU.
     RuntimeClient *m_runtimClient;
-    ISPLAFU       *m_SPLService;
-    CSemaphore     m_Sem;            // For synchronizing with the AAL runtime.
-    btInt          m_Result;
+    ISPLAFU *m_SPLService;
+    CSemaphore m_Sem;            // For synchronizing with the AAL runtime.
+    btInt m_Result;
 
     // Workspace info
-    btVirtAddr     m_pWkspcVirt;     ///< Workspace virtual address.
-    btWSSize       m_WkspcSize;      ///< DSM workspace size in bytes.
+    btVirtAddr m_pWkspcVirt;     ///< Workspace virtual address.
+    btWSSize m_WkspcSize;      ///< DSM workspace size in bytes.
 
-    btVirtAddr     m_AFUDSMVirt;     ///< Points to DSM
-    btWSSize       m_AFUDSMSize;     ///< Length in bytes of DSM
+    btVirtAddr m_AFUDSMVirt;     ///< Points to DSM
+    btWSSize m_AFUDSMSize;     ///< Length in bytes of DSM
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -291,28 +283,25 @@ protected:
 ///
 ///////////////////////////////////////////////////////////////////////////////
 HelloSPLLBApp::HelloSPLLBApp(RuntimeClient *rtc) :
-    m_pAALService(NULL),
-    m_runtimClient(rtc),
-    m_SPLService(NULL),
-    m_Result(0),
-    m_pWkspcVirt(NULL),
-    m_WkspcSize(0),
-    m_AFUDSMVirt(NULL),
-    m_AFUDSMSize(0)
-{
+        m_pAALService(NULL),
+        m_runtimClient(rtc),
+        m_SPLService(NULL),
+        m_Result(0),
+        m_pWkspcVirt(NULL),
+        m_WkspcSize(0),
+        m_AFUDSMVirt(NULL),
+        m_AFUDSMSize(0) {
     SetSubClassInterface(iidServiceClient, dynamic_cast<IServiceClient *>(this));
     SetInterface(iidSPLClient, dynamic_cast<ISPLClient *>(this));
     SetInterface(iidCCIClient, dynamic_cast<ICCIClient *>(this));
     m_Sem.Create(0, 1);
 }
 
-HelloSPLLBApp::~HelloSPLLBApp()
-{
+HelloSPLLBApp::~HelloSPLLBApp() {
     m_Sem.Destroy();
 }
 
-btInt HelloSPLLBApp::run()
-{
+btInt HelloSPLLBApp::run() {
     cout << "===========================================" << endl;
     cout << "= Hello Streaming Matrix Transpose Sample =" << endl;
     cout << "===========================================" << endl;
@@ -365,27 +354,27 @@ btInt HelloSPLLBApp::run()
         //=============================
         MSG("Running Test");
 
-        btVirtAddr         pWSUsrVirt = m_pWkspcVirt; // Address of Workspace
-        const btWSSize     WSLen      = m_WkspcSize; // Length of workspace
+        btVirtAddr pWSUsrVirt = m_pWkspcVirt; // Address of Workspace
+        const btWSSize WSLen = m_WkspcSize; // Length of workspace
 
         MSG("Allocated " << WSLen << "-byte Workspace at virtual address "
-            << std::hex << (void *)pWSUsrVirt);
+                         << std::hex << (void *) pWSUsrVirt);
 
         // Number of bytes in each of the source and destination buffers (4 MiB in this case)
         btUnsigned32bitInt a_num_bytes = (btUnsigned32bitInt) ((WSLen - sizeof(VAFU2_CNTXT)) / 2);
-        btUnsigned32bitInt a_num_cl   = a_num_bytes / CL(1);  // number of cache lines in buffer
+        btUnsigned32bitInt a_num_cl = a_num_bytes / CL(1);  // number of cache lines in buffer
 
         // VAFU Context is at the beginning of the buffer
-        VAFU2_CNTXT       *pVAFU2_cntxt = reinterpret_cast<VAFU2_CNTXT *>(pWSUsrVirt);
+        VAFU2_CNTXT *pVAFU2_cntxt = reinterpret_cast<VAFU2_CNTXT *>(pWSUsrVirt);
 
         // The source buffer is right after the VAFU Context
-        btVirtAddr         pSource = pWSUsrVirt + sizeof(VAFU2_CNTXT);  // the same as char*
+        btVirtAddr pSource = pWSUsrVirt + sizeof(VAFU2_CNTXT);  // the same as char*
 
         // The destination buffer is right after the source buffer
-        btVirtAddr         pDest   = pSource + a_num_bytes;
+        btVirtAddr pDest = pSource + a_num_bytes;
 
-        struct OneCL      *pSourceCL = reinterpret_cast<struct OneCL *>(pSource);
-        struct OneCL      *pDestCL   = reinterpret_cast<struct OneCL *>(pDest);
+        struct OneCL *pSourceCL = reinterpret_cast<struct OneCL *>(pSource);
+        struct OneCL *pDestCL = reinterpret_cast<struct OneCL *>(pDest);
 
         // Note: the usage of the VAFU2_CNTXT structure here is specific to the underlying bitstream
         // implementation. The bitstream targeted for use with this sample application must implement
@@ -394,16 +383,16 @@ btInt HelloSPLLBApp::run()
 
         // Initialize the command buffer
         ::memset(pVAFU2_cntxt, 0, sizeof(VAFU2_CNTXT));
-        pVAFU2_cntxt->num_cl  = a_num_cl;
+        pVAFU2_cntxt->num_cl = a_num_cl;
         pVAFU2_cntxt->pSource = pSource;
-        pVAFU2_cntxt->pDest   = pDest;
+        pVAFU2_cntxt->pDest = pDest;
 
-        MSG("VAFU2 Context=" << std::hex << (void *)pVAFU2_cntxt <<
-            " Src="          << std::hex << (void *)pVAFU2_cntxt->pSource <<
-            " Dest="         << std::hex << (void *)pVAFU2_cntxt->pDest << std::dec);
-        MSG("Cache lines in each buffer="  << std::dec << pVAFU2_cntxt->num_cl <<
-            " (bytes="       << std::dec << pVAFU2_cntxt->num_cl * CL(1) <<
-            " 0x"            << std::hex << pVAFU2_cntxt->num_cl * CL(1) << std::dec << ")");
+        MSG("VAFU2 Context=" << std::hex << (void *) pVAFU2_cntxt <<
+                             " Src=" << std::hex << (void *) pVAFU2_cntxt->pSource <<
+                             " Dest=" << std::hex << (void *) pVAFU2_cntxt->pDest << std::dec);
+        MSG("Cache lines in each buffer=" << std::dec << pVAFU2_cntxt->num_cl <<
+                                          " (bytes=" << std::dec << pVAFU2_cntxt->num_cl * CL(1) <<
+                                          " 0x" << std::hex << pVAFU2_cntxt->num_cl * CL(1) << std::dec << ")");
 
 
 
@@ -413,7 +402,7 @@ btInt HelloSPLLBApp::run()
          *       4. The wordLength is 512 / k / M
          */
         // we must make sure that the number of matrix is integer
-        Matrix* pSourceMatrix = reinterpret_cast<Matrix *>(pSource);
+        Matrix *pSourceMatrix = reinterpret_cast<Matrix *>(pSource);
         int oneMatrixSize = oneMatrixSizeBytes;
         if (a_num_bytes % oneMatrixSize == 0) {
 
@@ -423,7 +412,7 @@ btInt HelloSPLLBApp::run()
             // Init the src/dest buffers, based on the desired sequence (either fixed or random).
             MSG("Initializing source matrix. (random)");
 
-            struct OneCLSingle *pSourceCLSingle = reinterpret_cast<struct OneCLSingle*>(pSource);
+            struct OneCLSingle *pSourceCLSingle = reinterpret_cast<struct OneCLSingle *>(pSource);
 
             std::srand((uint) std::time(0));
             for (int i = 0; i < a_num_cl; i++) {
@@ -520,8 +509,7 @@ btInt HelloSPLLBApp::run()
 
 // <begin IServiceClient interface>
 void HelloSPLLBApp::serviceAllocated(IBase *pServiceBase,
-                                     TransactionID const &rTranID)
-{
+                                     TransactionID const &rTranID) {
     m_pAALService = pServiceBase;
     ASSERT(NULL != m_pAALService);
 
@@ -529,7 +517,7 @@ void HelloSPLLBApp::serviceAllocated(IBase *pServiceBase,
     m_SPLService = subclass_ptr<ISPLAFU>(pServiceBase);
 
     ASSERT(NULL != m_SPLService);
-    if ( NULL == m_SPLService ) {
+    if (NULL == m_SPLService) {
         return;
     }
 
@@ -548,17 +536,15 @@ void HelloSPLLBApp::serviceAllocated(IBase *pServiceBase,
 
 }
 
-void HelloSPLLBApp::serviceAllocateFailed(const IEvent &rEvent)
-{
-    IExceptionTransactionEvent * pExEvent = dynamic_ptr<IExceptionTransactionEvent>(iidExTranEvent, rEvent);
+void HelloSPLLBApp::serviceAllocateFailed(const IEvent &rEvent) {
+    IExceptionTransactionEvent *pExEvent = dynamic_ptr<IExceptionTransactionEvent>(iidExTranEvent, rEvent);
     ERR("Failed to allocate a Service");
     ERR(pExEvent->Description());
     ++m_Result;
     m_Sem.Post(1);
 }
 
-void HelloSPLLBApp::serviceFreed(TransactionID const &rTranID)
-{
+void HelloSPLLBApp::serviceFreed(TransactionID const &rTranID) {
     MSG("Service Freed");
     // Unblock Main()
     m_Sem.Post(1);
@@ -566,10 +552,9 @@ void HelloSPLLBApp::serviceFreed(TransactionID const &rTranID)
 
 // <ISPLClient>
 void HelloSPLLBApp::OnWorkspaceAllocated(TransactionID const &TranID,
-        btVirtAddr           WkspcVirt,
-        btPhysAddr           WkspcPhys,
-        btWSSize             WkspcSize)
-{
+                                         btVirtAddr WkspcVirt,
+                                         btPhysAddr WkspcPhys,
+                                         btWSSize WkspcSize) {
     AutoLock(this);
 
     m_pWkspcVirt = WkspcVirt;
@@ -579,25 +564,22 @@ void HelloSPLLBApp::OnWorkspaceAllocated(TransactionID const &TranID,
     m_Sem.Post(1);
 }
 
-void HelloSPLLBApp::OnWorkspaceAllocateFailed(const IEvent &rEvent)
-{
-    IExceptionTransactionEvent * pExEvent = dynamic_ptr<IExceptionTransactionEvent>(iidExTranEvent, rEvent);
+void HelloSPLLBApp::OnWorkspaceAllocateFailed(const IEvent &rEvent) {
+    IExceptionTransactionEvent *pExEvent = dynamic_ptr<IExceptionTransactionEvent>(iidExTranEvent, rEvent);
     ERR("OnWorkspaceAllocateFailed");
     ERR(pExEvent->Description());
     ++m_Result;
     m_Sem.Post(1);
 }
 
-void HelloSPLLBApp::OnWorkspaceFreed(TransactionID const &TranID)
-{
+void HelloSPLLBApp::OnWorkspaceFreed(TransactionID const &TranID) {
     MSG("OnWorkspaceFreed");
     // Freed so now Release() the Service through the Services IAALService::Release() method
     (dynamic_ptr<IAALService>(iidService, m_pAALService))->Release(TransactionID());
 }
 
-void HelloSPLLBApp::OnWorkspaceFreeFailed(const IEvent &rEvent)
-{
-    IExceptionTransactionEvent * pExEvent = dynamic_ptr<IExceptionTransactionEvent>(iidExTranEvent, rEvent);
+void HelloSPLLBApp::OnWorkspaceFreeFailed(const IEvent &rEvent) {
+    IExceptionTransactionEvent *pExEvent = dynamic_ptr<IExceptionTransactionEvent>(iidExTranEvent, rEvent);
     ERR("OnWorkspaceAllocateFailed");
     ERR(pExEvent->Description());
     ++m_Result;
@@ -605,58 +587,57 @@ void HelloSPLLBApp::OnWorkspaceFreeFailed(const IEvent &rEvent)
 }
 
 /// CMyApp Client implementation of ISPLClient::OnTransactionStarted
-void HelloSPLLBApp::OnTransactionStarted( TransactionID const &TranID,
-        btVirtAddr           AFUDSMVirt,
-        btWSSize             AFUDSMSize)
-{
+void HelloSPLLBApp::OnTransactionStarted(TransactionID const &TranID,
+                                         btVirtAddr AFUDSMVirt,
+                                         btWSSize AFUDSMSize) {
     MSG("Transaction Started");
     m_AFUDSMVirt = AFUDSMVirt;
-    m_AFUDSMSize =  AFUDSMSize;
+    m_AFUDSMSize = AFUDSMSize;
     m_Sem.Post(1);
 }
+
 /// CMyApp Client implementation of ISPLClient::OnContextWorkspaceSet
-void HelloSPLLBApp::OnContextWorkspaceSet( TransactionID const &TranID)
-{
+void HelloSPLLBApp::OnContextWorkspaceSet(TransactionID const &TranID) {
     MSG("Context Set");
     m_Sem.Post(1);
 }
+
 /// CMyApp Client implementation of ISPLClient::OnTransactionFailed
-void HelloSPLLBApp::OnTransactionFailed( const IEvent &rEvent)
-{
-    IExceptionTransactionEvent * pExEvent = dynamic_ptr<IExceptionTransactionEvent>(iidExTranEvent, rEvent);
+void HelloSPLLBApp::OnTransactionFailed(const IEvent &rEvent) {
+    IExceptionTransactionEvent *pExEvent = dynamic_ptr<IExceptionTransactionEvent>(iidExTranEvent, rEvent);
     ERR("Runtime AllocateService failed");
     ERR(pExEvent->Description());
     m_bIsOK = false;
     ++m_Result;
     m_AFUDSMVirt = NULL;
-    m_AFUDSMSize =  0;
+    m_AFUDSMSize = 0;
     ERR("Transaction Failed");
     m_Sem.Post(1);
 }
+
 /// CMyApp Client implementation of ISPLClient::OnTransactionComplete
-void HelloSPLLBApp::OnTransactionComplete( TransactionID const &TranID)
-{
+void HelloSPLLBApp::OnTransactionComplete(TransactionID const &TranID) {
     m_AFUDSMVirt = NULL;
-    m_AFUDSMSize =  0;
+    m_AFUDSMSize = 0;
     MSG("Transaction Complete");
     m_Sem.Post(1);
 }
+
 /// CMyApp Client implementation of ISPLClient::OnTransactionStopped
-void HelloSPLLBApp::OnTransactionStopped( TransactionID const &TranID)
-{
+void HelloSPLLBApp::OnTransactionStopped(TransactionID const &TranID) {
     m_AFUDSMVirt = NULL;
-    m_AFUDSMSize =  0;
+    m_AFUDSMSize = 0;
     MSG("Transaction Stopped");
     m_Sem.Post(1);
 }
-void HelloSPLLBApp::serviceEvent(const IEvent &rEvent)
-{
+
+void HelloSPLLBApp::serviceEvent(const IEvent &rEvent) {
     ERR("unexpected event 0x" << hex << rEvent.SubClassID());
 }
 // <end IServiceClient interface>
 
-void HelloSPLLBApp::Show2CLs(void          *pCLExpected, // pointer to cache-line expected
-                             void          *pCLFound,    // pointer to found cache line
+void HelloSPLLBApp::Show2CLs(void *pCLExpected, // pointer to cache-line expected
+                             void *pCLFound,    // pointer to found cache line
                              ostringstream &oss)         // add it to this ostringstream
 {
     oss << "Expected: ";
@@ -666,12 +647,12 @@ void HelloSPLLBApp::Show2CLs(void          *pCLExpected, // pointer to cache-lin
     _DumpCL(pCLFound, oss);
 }  // _DumpCL
 
-void HelloSPLLBApp::_DumpCL( void         *pCL,  // pointer to cache-line to print
-                             ostringstream &oss)  // add it to this ostringstream
+void HelloSPLLBApp::_DumpCL(void *pCL,  // pointer to cache-line to print
+                            ostringstream &oss)  // add it to this ostringstream
 {
     oss << std::hex << std::setfill('0') << std::uppercase;
-    btUnsigned32bitInt *pu32 = reinterpret_cast<btUnsigned32bitInt*>(pCL);
-    for ( int i = 0; i < ( CL(1) / sizeof(btUnsigned32bitInt)); ++i ) {
+    btUnsigned32bitInt *pu32 = reinterpret_cast<btUnsigned32bitInt *>(pCL);
+    for (int i = 0; i < (CL(1) / sizeof(btUnsigned32bitInt)); ++i) {
         oss << "0x" << std::setw(8) << *pu32 << " ";
         ++pu32;
     }
@@ -689,9 +670,8 @@ void HelloSPLLBApp::_DumpCL( void         *pCL,  // pointer to cache-line to pri
 // Comments: Main initializes the system. The rest of the example is implemented
 //           in the objects.
 //=============================================================================
-int main(int argc, char *argv[])
-{
-    RuntimeClient  runtimeClient;
+int main(int argc, char *argv[]) {
+    RuntimeClient runtimeClient;
     HelloSPLLBApp theApp(&runtimeClient);
 
     if (!runtimeClient.isOK()) {
