@@ -67,7 +67,7 @@ all: convLayer.out
 convLayer.out: convLayer.o
 	$(CXX) -g -O2 -o convLayer.out convLayer.o $(LDFLAGS) -lOSAL -lAAS -lxlrt -lrt
 
-convLayer.o: config.h common.h convLayer.h convLayer.cpp  Makefile
+convLayer.o: config.h convLayer.h convLayer.cpp  Makefile
 	$(CXX) $(CPPFLAGS) -D__AAL_USER__=1  -g -O2 -c -o convLayer.o convLayer.cpp
 
 clean:

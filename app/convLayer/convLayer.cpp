@@ -45,8 +45,9 @@
 /// WHEN:          WHO:     WHAT:
 /// 06/29/2015     HM       Initial integration into Samples.@endverbatim
 //****************************************************************************
-#include "common.h"
+#include "../common.h"
 #include "config.h"
+#include "convLayer.h"
 
 using namespace AAL;
 

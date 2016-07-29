@@ -5,7 +5,7 @@
 #ifndef APP_CONVLAYER_H
 #define APP_CONVLAYER_H
 
-#include "common.h"
+#include "../common.h"
 
 using namespace AAL;
 
