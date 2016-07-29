@@ -1,4 +1,7 @@
 
+`ifndef COMMON_VH
+`define COMMON_VH
+
 typedef struct packed {
   logic [31:0] r;
   logic [31:0] i;
@@ -30,3 +33,5 @@ interface intf_fft16 (
   complex_t out [0:16-1];  // out[0]+j*out[1], out[2]+j*out[3]
   logic next, next_out;
 endinterface
+
+`endif
