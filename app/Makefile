@@ -62,15 +62,15 @@ LDFLAGS  += -L$(DESTDIR)$(prefix)/lib -Wl,-rpath-link -Wl,$(prefix)/lib -Wl,-rpa
             -L$(DESTDIR)$(prefix)/lib64 -Wl,-rpath-link -Wl,$(prefix)/lib64 -Wl,-rpath -Wl,$(DESTDIR)$(prefix)/lib64
 endif
 
-all: matrixTranspose
+all: convLayer.out
 
-matrixTranspose: MatrixTranspose.o
-	$(CXX) -g -O2 -o matrixTranspose MatrixTranspose.o $(LDFLAGS) -lOSAL -lAAS -lxlrt
+convLayer.out: convLayer.o
+	$(CXX) -g -O2 -o convLayer.out convLayer.o $(LDFLAGS) -lOSAL -lAAS -lxlrt -lrt
 
-MatrixTranspose.o: config.h myThread.h common.h MatrixTranspose.cpp  Makefile
-	$(CXX) $(CPPFLAGS) -D__AAL_USER__=1  -g -O2 -c -o MatrixTranspose.o MatrixTranspose.cpp
+convLayer.o: config.h common.h convLayer.h convLayer.cpp  Makefile
+	$(CXX) $(CPPFLAGS) -D__AAL_USER__=1  -g -O2 -c -o convLayer.o convLayer.cpp
 
 clean:
-	$(RM) matrixTranspose MatrixTranspose.o
+	$(RM) *.out *.o
 
 .PHONY:all clean
