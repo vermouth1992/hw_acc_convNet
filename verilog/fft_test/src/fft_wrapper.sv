@@ -2,107 +2,196 @@
  * This file is a fft wrapper using system verilog interface
  */
 
-interface intf_fft(
+typedef struct packed {
+  logic [31:0] r;
+  logic [31:0] i;
+} complex_t;
+
+
+interface intf_fft4 (
   input clk,
   input reset
   );
-  logic [31:0] in [0:15];   // in[0]+j*in[1], in[2]+j*in[3]
-  logic [31:0] out [0:15];  // out[0]+j*out[1], out[2]+j*out[3]
+  complex_t in [0:4-1];   // in[0]+j*in[1], in[2]+j*in[3]
+  complex_t out [0:4-1];  // out[0]+j*out[1], out[2]+j*out[3]
   logic next, next_out;
 endinterface
 
-module fft_wrapper (
-  intf_fft fft_io
+interface intf_fft8 (
+  input clk,
+  input reset
+  );
+  complex_t in [0:8-1];   // in[0]+j*in[1], in[2]+j*in[3]
+  complex_t out [0:8-1];  // out[0]+j*out[1], out[2]+j*out[3]
+  logic next, next_out;
+endinterface
+
+interface intf_fft16 (
+  input clk,
+  input reset
+  );
+  complex_t in [0:16-1];   // in[0]+j*in[1], in[2]+j*in[3]
+  complex_t out [0:16-1];  // out[0]+j*out[1], out[2]+j*out[3]
+  logic next, next_out;
+endinterface
+
+module fft4_wrapper (
+  intf_fft4 fft_io
 );
 
-  dft_top fft_inst (
+  dft4_top fft_inst (
     .clk(fft_io.clk),
     .reset(fft_io.reset),
     .next(fft_io.next),
     .next_out(fft_io.next_out),
-    .X0(fft_io.in[0]),
-    .X1(fft_io.in[1]),
-    .X2(fft_io.in[2]),
-    .X3(fft_io.in[3]),
-    .X4(fft_io.in[4]),
-    .X5(fft_io.in[5]),
-    .X6(fft_io.in[6]),
-    .X7(fft_io.in[7]),
-    .X8(fft_io.in[8]),
-    .X9(fft_io.in[9]),
-    .X10(fft_io.in[10]),
-    .X11(fft_io.in[11]),
-    .X12(fft_io.in[12]),
-    .X13(fft_io.in[13]),
-    .X14(fft_io.in[14]),
-    .X15(fft_io.in[15]),
-    .Y0(fft_io.out[0]),
-    .Y1(fft_io.out[1]),
-    .Y2(fft_io.out[2]),
-    .Y3(fft_io.out[3]),
-    .Y4(fft_io.out[4]),
-    .Y5(fft_io.out[5]),
-    .Y6(fft_io.out[6]),
-    .Y7(fft_io.out[7]),
-    .Y8(fft_io.out[8]),
-    .Y9(fft_io.out[9]),
-    .Y10(fft_io.out[10]),
-    .Y11(fft_io.out[11]),
-    .Y12(fft_io.out[12]),
-    .Y13(fft_io.out[13]),
-    .Y14(fft_io.out[14]),
-    .Y15(fft_io.out[15])
+    .X0(fft_io.in[0].r),
+    .X1(fft_io.in[0].i),
+    .X2(fft_io.in[1].r),
+    .X3(fft_io.in[1].i),
+    .X4(fft_io.in[2].r),
+    .X5(fft_io.in[2].i),
+    .X6(fft_io.in[3].r),
+    .X7(fft_io.in[3].i),
+    .Y0(fft_io.out[0].r),
+    .Y1(fft_io.out[0].i),
+    .Y2(fft_io.out[1].r),
+    .Y3(fft_io.out[1].i),
+    .Y4(fft_io.out[2].r),
+    .Y5(fft_io.out[2].i),
+    .Y6(fft_io.out[3].r),
+    .Y7(fft_io.out[3].i)
     );
 
 endmodule
 
-module ifft_wrapper (
-  intf_fft fft_io
+
+module ifft4_wrapper (
+  intf_fft4 fft_io
 );
 
-  idft_top ifft_inst (
+  idft4_top fft_inst (
     .clk(fft_io.clk),
     .reset(fft_io.reset),
     .next(fft_io.next),
     .next_out(fft_io.next_out),
-    .X0(fft_io.in[0]),
-    .X1(fft_io.in[1]),
-    .X2(fft_io.in[2]),
-    .X3(fft_io.in[3]),
-    .X4(fft_io.in[4]),
-    .X5(fft_io.in[5]),
-    .X6(fft_io.in[6]),
-    .X7(fft_io.in[7]),
-    .X8(fft_io.in[8]),
-    .X9(fft_io.in[9]),
-    .X10(fft_io.in[10]),
-    .X11(fft_io.in[11]),
-    .X12(fft_io.in[12]),
-    .X13(fft_io.in[13]),
-    .X14(fft_io.in[14]),
-    .X15(fft_io.in[15]),
-    .Y0(fft_io.out[0]),
-    .Y1(fft_io.out[1]),
-    .Y2(fft_io.out[2]),
-    .Y3(fft_io.out[3]),
-    .Y4(fft_io.out[4]),
-    .Y5(fft_io.out[5]),
-    .Y6(fft_io.out[6]),
-    .Y7(fft_io.out[7]),
-    .Y8(fft_io.out[8]),
-    .Y9(fft_io.out[9]),
-    .Y10(fft_io.out[10]),
-    .Y11(fft_io.out[11]),
-    .Y12(fft_io.out[12]),
-    .Y13(fft_io.out[13]),
-    .Y14(fft_io.out[14]),
-    .Y15(fft_io.out[15])
+    .X0(fft_io.in[0].r),
+    .X1(fft_io.in[0].i),
+    .X2(fft_io.in[1].r),
+    .X3(fft_io.in[1].i),
+    .X4(fft_io.in[2].r),
+    .X5(fft_io.in[2].i),
+    .X6(fft_io.in[3].r),
+    .X7(fft_io.in[3].i),
+    .Y0(fft_io.out[0].r),
+    .Y1(fft_io.out[0].i),
+    .Y2(fft_io.out[1].r),
+    .Y3(fft_io.out[1].i),
+    .Y4(fft_io.out[2].r),
+    .Y5(fft_io.out[2].i),
+    .Y6(fft_io.out[3].r),
+    .Y7(fft_io.out[3].i)
     );
 
 endmodule
 
-module fft_wrapper_tb (
-  intf_fft fft_io
+
+module fft8_wrapper (
+  intf_fft8 fft_io
+);
+
+  dft8_top fft_inst (
+    .clk(fft_io.clk),
+    .reset(fft_io.reset),
+    .next(fft_io.next),
+    .next_out(fft_io.next_out),
+    .X0(fft_io.in[0].r),
+    .X1(fft_io.in[0].i),
+    .X2(fft_io.in[1].r),
+    .X3(fft_io.in[1].i),
+    .X4(fft_io.in[2].r),
+    .X5(fft_io.in[2].i),
+    .X6(fft_io.in[3].r),
+    .X7(fft_io.in[3].i),
+    .X8(fft_io.in[4].r),
+    .X9(fft_io.in[4].i),
+    .X10(fft_io.in[5].r),
+    .X11(fft_io.in[5].i),
+    .X12(fft_io.in[6].r),
+    .X13(fft_io.in[6].i),
+    .X14(fft_io.in[7].r),
+    .X15(fft_io.in[7].i),
+    .Y0(fft_io.out[0].r),
+    .Y1(fft_io.out[0].i),
+    .Y2(fft_io.out[1].r),
+    .Y3(fft_io.out[1].i),
+    .Y4(fft_io.out[2].r),
+    .Y5(fft_io.out[2].i),
+    .Y6(fft_io.out[3].r),
+    .Y7(fft_io.out[3].i),
+    .Y8(fft_io.out[4].r),
+    .Y9(fft_io.out[4].i),
+    .Y10(fft_io.out[5].r),
+    .Y11(fft_io.out[5].i),
+    .Y12(fft_io.out[6].r),
+    .Y13(fft_io.out[6].i),
+    .Y14(fft_io.out[7].r),
+    .Y15(fft_io.out[7].i)
+    );
+
+endmodule
+
+module ifft8_wrapper (
+  intf_fft8 fft_io
+);
+
+  idft8_top fft_inst (
+    .clk(fft_io.clk),
+    .reset(fft_io.reset),
+    .next(fft_io.next),
+    .next_out(fft_io.next_out),
+    .X0(fft_io.in[0].r),
+    .X1(fft_io.in[0].i),
+    .X2(fft_io.in[1].r),
+    .X3(fft_io.in[1].i),
+    .X4(fft_io.in[2].r),
+    .X5(fft_io.in[2].i),
+    .X6(fft_io.in[3].r),
+    .X7(fft_io.in[3].i),
+    .X8(fft_io.in[4].r),
+    .X9(fft_io.in[4].i),
+    .X10(fft_io.in[5].r),
+    .X11(fft_io.in[5].i),
+    .X12(fft_io.in[6].r),
+    .X13(fft_io.in[6].i),
+    .X14(fft_io.in[7].r),
+    .X15(fft_io.in[7].i),
+    .Y0(fft_io.out[0].r),
+    .Y1(fft_io.out[0].i),
+    .Y2(fft_io.out[1].r),
+    .Y3(fft_io.out[1].i),
+    .Y4(fft_io.out[2].r),
+    .Y5(fft_io.out[2].i),
+    .Y6(fft_io.out[3].r),
+    .Y7(fft_io.out[3].i),
+    .Y8(fft_io.out[4].r),
+    .Y9(fft_io.out[4].i),
+    .Y10(fft_io.out[5].r),
+    .Y11(fft_io.out[5].i),
+    .Y12(fft_io.out[6].r),
+    .Y13(fft_io.out[6].i),
+    .Y14(fft_io.out[7].r),
+    .Y15(fft_io.out[7].i)
+    );
+
+endmodule
+
+
+
+
+// testbench for SystemVerilog fft wrapper
+
+module fft8_wrapper_tb (
+  intf_fft8 fft_io
 );
 
   integer i;
@@ -116,25 +205,26 @@ module fft_wrapper_tb (
     @(posedge fft_io.clk);
     // insert input
     $display("--- begin input ---");
-    for (i=0; i<16; i=i+1) begin
-      fft_io.in[i] <= $random;
+    for (i=0; i<8; i=i+1) begin
+      fft_io.in[i].r <= $random;
+      fft_io.in[i].i <= $random;
     end
     @(posedge fft_io.clk);
-    for (i=0; i<16; i=i+1) begin
-      $display("%h", fft_io.in[i]);
+    for (i=0; i<8; i=i+1) begin
+      $display("%h + j%h", fft_io.in[i].r, fft_io.in[i].i);
     end
     fft_io.next <= 0;
     // wait for next out to be asserted
     @(posedge fft_io.next_out);
     @(posedge fft_io.clk); #1;
     $display("--- begin output ---");
-    for (i=0; i<16;i=i+1) begin
-      $display("%h", fft_io.out[i]);
+    for (i=0; i<8; i=i+1) begin
+      $display("%h + j%h", fft_io.out[i].r, fft_io.out[i].i);
     end
   end
 endmodule
 
-module fft_wrapper_tb_top;
+module fft8_wrapper_tb_top;
   reg clk;
   reg reset;
   initial begin
@@ -146,10 +236,10 @@ module fft_wrapper_tb_top;
 
   always # 10 clk = ~clk;
   
-  intf_fft io(clk, reset);
+  intf_fft8 io(clk, reset);
 
-  fft_wrapper fft_inst(io);
-  fft_wrapper_tb fft_inst_tb(io);
+  fft8_wrapper fft_inst(io);
+  fft8_wrapper_tb fft_inst_tb(io);
 
 endmodule
 

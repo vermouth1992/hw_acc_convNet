@@ -44,29 +44,26 @@ module afu_user # (
                 .almostfull         (input_fifo_almost_full)
             );
 
-  intf_fft fft_io(clk, reset);
-  intf_fft ifft_io(clk, reset);
+  intf_fft4_2d fft2d_io(clk, reset);
 
-  fft_wrapper fft_inst(fft_io);
-  ifft_wrapper ifft_inst(ifft_io);
-
-  genvar i;
+  genvar i, j;
   generate
-    for (i=0; i<16; i=i+1) begin: fft_input_generate
-      assign fft_io.in[i] = input_fifo_dout[32*i+31:32*i];
-      assign ifft_io.in[i] = fft_io.out[i];
-      assign output_fifo_din[32*i+31:32*i] = ifft_io.out[i];
+    for (i=0; i<4; i=i+1) begin: fft_input_generate_first
+      for (j=0; j<4; j=j+1) begin: fft_input_generate_second
+        assign fft2d_io.in[i][j].r = input_fifo_dout[128*i+32*j+31 : 128*i+32*j];
+        assign fft2d_io.in[i][j].i = 32'h0;
+        assign output_fifo_din[128*i+32*j+31 : 128*i+32*j] = fft2d_io.out[i][j].r;
+      end
     end
   endgenerate
 
   // input re
   assign input_fifo_re = ~input_fifo_empty;
   // io next
-  assign fft_io.next = input_fifo_re;
-  assign ifft_io.next = fft_io.next_out;
+  assign fft2d_io.next = input_fifo_re;
 
   always@(posedge clk) begin
-    output_fifo_we <= ifft_io.next_out;
+    output_fifo_we <= fft2d_io.next_out;
   end
 
   syn_read_fifo #(.FIFO_WIDTH(512),

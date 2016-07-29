@@ -36,7 +36,7 @@
 //     4 multipliers (32 x 32 bit)
 //     52 adders (32 x 32 bit)
 
-// Generated on Fri Jul 22 01:47:51 EDT 2016
+// Generated on Fri Jul 29 01:18:34 EDT 2016
 
 // Latency: 54 clock cycles
 // Throughput: 1 transform every 1 cycles
@@ -73,9 +73,196 @@
 
 
 
+
+// Latency: 54
+// Gap: 1
+// module_name_is:dft_top
+module idft8_top(clk, reset, next, next_out,
+   X0, Y0,
+   X1, Y1,
+   X2, Y2,
+   X3, Y3,
+   X4, Y4,
+   X5, Y5,
+   X6, Y6,
+   X7, Y7,
+   X8, Y8,
+   X9, Y9,
+   X10, Y10,
+   X11, Y11,
+   X12, Y12,
+   X13, Y13,
+   X14, Y14,
+   X15, Y15);
+
+   output next_out;
+   input clk, reset, next;
+
+   input [31:0] X0,
+      X1,
+      X2,
+      X3,
+      X4,
+      X5,
+      X6,
+      X7,
+      X8,
+      X9,
+      X10,
+      X11,
+      X12,
+      X13,
+      X14,
+      X15;
+
+   output [31:0] Y0,
+      Y1,
+      Y2,
+      Y3,
+      Y4,
+      Y5,
+      Y6,
+      Y7,
+      Y8,
+      Y9,
+      Y10,
+      Y11,
+      Y12,
+      Y13,
+      Y14,
+      Y15;
+
+   wire [31:0] t0_0;
+   wire [31:0] t0_1;
+   wire [31:0] t0_2;
+   wire [31:0] t0_3;
+   wire [31:0] t0_4;
+   wire [31:0] t0_5;
+   wire [31:0] t0_6;
+   wire [31:0] t0_7;
+   wire [31:0] t0_8;
+   wire [31:0] t0_9;
+   wire [31:0] t0_10;
+   wire [31:0] t0_11;
+   wire [31:0] t0_12;
+   wire [31:0] t0_13;
+   wire [31:0] t0_14;
+   wire [31:0] t0_15;
+   wire next_0;
+   wire [31:0] t1_0;
+   wire [31:0] t1_1;
+   wire [31:0] t1_2;
+   wire [31:0] t1_3;
+   wire [31:0] t1_4;
+   wire [31:0] t1_5;
+   wire [31:0] t1_6;
+   wire [31:0] t1_7;
+   wire [31:0] t1_8;
+   wire [31:0] t1_9;
+   wire [31:0] t1_10;
+   wire [31:0] t1_11;
+   wire [31:0] t1_12;
+   wire [31:0] t1_13;
+   wire [31:0] t1_14;
+   wire [31:0] t1_15;
+   wire next_1;
+   wire [31:0] t2_0;
+   wire [31:0] t2_1;
+   wire [31:0] t2_2;
+   wire [31:0] t2_3;
+   wire [31:0] t2_4;
+   wire [31:0] t2_5;
+   wire [31:0] t2_6;
+   wire [31:0] t2_7;
+   wire [31:0] t2_8;
+   wire [31:0] t2_9;
+   wire [31:0] t2_10;
+   wire [31:0] t2_11;
+   wire [31:0] t2_12;
+   wire [31:0] t2_13;
+   wire [31:0] t2_14;
+   wire [31:0] t2_15;
+   wire next_2;
+   assign t0_0 = X0;
+   assign Y0 = t2_0;
+   assign t0_1 = X1;
+   assign Y1 = t2_1;
+   assign t0_2 = X2;
+   assign Y2 = t2_2;
+   assign t0_3 = X3;
+   assign Y3 = t2_3;
+   assign t0_4 = X4;
+   assign Y4 = t2_4;
+   assign t0_5 = X5;
+   assign Y5 = t2_5;
+   assign t0_6 = X6;
+   assign Y6 = t2_6;
+   assign t0_7 = X7;
+   assign Y7 = t2_7;
+   assign t0_8 = X8;
+   assign Y8 = t2_8;
+   assign t0_9 = X9;
+   assign Y9 = t2_9;
+   assign t0_10 = X10;
+   assign Y10 = t2_10;
+   assign t0_11 = X11;
+   assign Y11 = t2_11;
+   assign t0_12 = X12;
+   assign Y12 = t2_12;
+   assign t0_13 = X13;
+   assign Y13 = t2_13;
+   assign t0_14 = X14;
+   assign Y14 = t2_14;
+   assign t0_15 = X15;
+   assign Y15 = t2_15;
+   assign next_0 = next;
+   assign next_out = next_2;
+
+// latency=31, gap=1
+   codeBlock13915 stage0(.clk(clk), .reset(reset), .next_in(next_0), .next_out(next_1),
+       .X0_in(t0_0), .Y0(t1_0),
+       .X1_in(t0_1), .Y1(t1_1),
+       .X2_in(t0_2), .Y2(t1_2),
+       .X3_in(t0_3), .Y3(t1_3),
+       .X4_in(t0_4), .Y4(t1_4),
+       .X5_in(t0_5), .Y5(t1_5),
+       .X6_in(t0_6), .Y6(t1_6),
+       .X7_in(t0_7), .Y7(t1_7),
+       .X8_in(t0_8), .Y8(t1_8),
+       .X9_in(t0_9), .Y9(t1_9),
+       .X10_in(t0_10), .Y10(t1_10),
+       .X11_in(t0_11), .Y11(t1_11),
+       .X12_in(t0_12), .Y12(t1_12),
+       .X13_in(t0_13), .Y13(t1_13),
+       .X14_in(t0_14), .Y14(t1_14),
+       .X15_in(t0_15), .Y15(t1_15));
+
+
+// latency=23, gap=1
+   codeBlock14279 stage1(.clk(clk), .reset(reset), .next_in(next_1), .next_out(next_2),
+       .X0_in(t1_0), .Y0(t2_0),
+       .X1_in(t1_1), .Y1(t2_1),
+       .X2_in(t1_2), .Y2(t2_2),
+       .X3_in(t1_3), .Y3(t2_3),
+       .X4_in(t1_4), .Y4(t2_4),
+       .X5_in(t1_5), .Y5(t2_5),
+       .X6_in(t1_6), .Y6(t2_6),
+       .X7_in(t1_7), .Y7(t2_7),
+       .X8_in(t1_8), .Y8(t2_8),
+       .X9_in(t1_9), .Y9(t2_9),
+       .X10_in(t1_10), .Y10(t2_10),
+       .X11_in(t1_11), .Y11(t2_11),
+       .X12_in(t1_12), .Y12(t2_12),
+       .X13_in(t1_13), .Y13(t2_13),
+       .X14_in(t1_14), .Y14(t2_14),
+       .X15_in(t1_15), .Y15(t2_15));
+
+
+endmodule
+
 // Latency: 31
 // Gap: 1
-module codeBlock70968(clk, reset, next_in, next_out,
+module codeBlock13915(clk, reset, next_in, next_out,
    X0_in, Y0,
    X1_in, Y1,
    X2_in, Y2,
@@ -149,7 +336,7 @@ module codeBlock70968(clk, reset, next_in, next_out,
       Y14,
       Y15;
 
-   shiftRegFIFO #(30, 1) shiftFIFO_72665(.X(next), .Y(next_out), .clk(clk));
+   shiftRegFIFO #(30, 1) shiftFIFO_15612(.X(next), .Y(next_out), .clk(clk));
 
 
    wire signed [31:0] a109;
@@ -470,33 +657,33 @@ module codeBlock70968(clk, reset, next_in, next_out,
    assign Y11 = tm193;
    assign Y12 = tm212;
    assign Y13 = tm231;
-   assign Y14 = t367;
-   assign Y15 = {~(t368[31]), t368[30:0]};
+   assign Y14 = {~(t367[31]), t367[30:0]};
+   assign Y15 = t368;
 
-    addfp32 add70980(.a(a109), .b(a110), .clk(clk), .out(t349), .enable(1'b1), .rst(reset));
-    addfp32 add70995(.a(a111), .b(a112), .clk(clk), .out(t350), .enable(1'b1), .rst(reset));
-    subfp32 sub71010(.a(a109), .b(a110), .clk(clk), .out(t351), .enable(1'b1), .rst(reset));
-    subfp32 sub71025(.a(a111), .b(a112), .clk(clk), .out(t352), .enable(1'b1), .rst(reset));
-    addfp32 add71056(.a(a117), .b(a118), .clk(clk), .out(t353), .enable(1'b1), .rst(reset));
-    addfp32 add71071(.a(a119), .b(a120), .clk(clk), .out(t354), .enable(1'b1), .rst(reset));
-    subfp32 sub71086(.a(a117), .b(a118), .clk(clk), .out(t355), .enable(1'b1), .rst(reset));
-    subfp32 sub71101(.a(a119), .b(a120), .clk(clk), .out(t356), .enable(1'b1), .rst(reset));
-    addfp32 add71160(.a(a125), .b(a126), .clk(clk), .out(t359), .enable(1'b1), .rst(reset));
-    addfp32 add71175(.a(a127), .b(a128), .clk(clk), .out(t360), .enable(1'b1), .rst(reset));
-    subfp32 sub71190(.a(a125), .b(a126), .clk(clk), .out(t361), .enable(1'b1), .rst(reset));
-    subfp32 sub71205(.a(a127), .b(a128), .clk(clk), .out(t362), .enable(1'b1), .rst(reset));
-    addfp32 add71237(.a(a133), .b(a134), .clk(clk), .out(t363), .enable(1'b1), .rst(reset));
-    addfp32 add71252(.a(a135), .b(a136), .clk(clk), .out(t364), .enable(1'b1), .rst(reset));
-    subfp32 sub71267(.a(a133), .b(a134), .clk(clk), .out(t365), .enable(1'b1), .rst(reset));
-    subfp32 sub71282(.a(a135), .b(a136), .clk(clk), .out(t366), .enable(1'b1), .rst(reset));
-    multfp32fp32 m71108(.a(tm0), .b(t355), .clk(clk), .out(a105), .enable(1'b1), .rst(reset));
-    multfp32fp32 m71115(.a(tm0), .b(t356), .clk(clk), .out(a106), .enable(1'b1), .rst(reset));
-    multfp32fp32 m71289(.a(tm0), .b(t366), .clk(clk), .out(a107), .enable(1'b1), .rst(reset));
-    multfp32fp32 m71296(.a(tm0), .b(t365), .clk(clk), .out(a108), .enable(1'b1), .rst(reset));
-    addfp32 add71122(.a(a105), .b(a106), .clk(clk), .out(t357), .enable(1'b1), .rst(reset));
-    subfp32 sub71129(.a(a106), .b(a105), .clk(clk), .out(t358), .enable(1'b1), .rst(reset));
-    subfp32 sub71303(.a(a107), .b(a108), .clk(clk), .out(t367), .enable(1'b1), .rst(reset));
-    addfp32 add71310(.a(a108), .b(a107), .clk(clk), .out(t368), .enable(1'b1), .rst(reset));
+    addfp32 add13927(.a(a109), .b(a110), .clk(clk), .out(t349), .enable(1'b1), .rst(reset));
+    addfp32 add13942(.a(a111), .b(a112), .clk(clk), .out(t350), .enable(1'b1), .rst(reset));
+    subfp32 sub13957(.a(a109), .b(a110), .clk(clk), .out(t351), .enable(1'b1), .rst(reset));
+    subfp32 sub13972(.a(a111), .b(a112), .clk(clk), .out(t352), .enable(1'b1), .rst(reset));
+    addfp32 add14003(.a(a117), .b(a118), .clk(clk), .out(t353), .enable(1'b1), .rst(reset));
+    addfp32 add14018(.a(a119), .b(a120), .clk(clk), .out(t354), .enable(1'b1), .rst(reset));
+    subfp32 sub14033(.a(a117), .b(a118), .clk(clk), .out(t355), .enable(1'b1), .rst(reset));
+    subfp32 sub14048(.a(a119), .b(a120), .clk(clk), .out(t356), .enable(1'b1), .rst(reset));
+    addfp32 add14107(.a(a125), .b(a126), .clk(clk), .out(t359), .enable(1'b1), .rst(reset));
+    addfp32 add14122(.a(a127), .b(a128), .clk(clk), .out(t360), .enable(1'b1), .rst(reset));
+    subfp32 sub14137(.a(a125), .b(a126), .clk(clk), .out(t361), .enable(1'b1), .rst(reset));
+    subfp32 sub14152(.a(a127), .b(a128), .clk(clk), .out(t362), .enable(1'b1), .rst(reset));
+    addfp32 add14184(.a(a133), .b(a134), .clk(clk), .out(t363), .enable(1'b1), .rst(reset));
+    addfp32 add14199(.a(a135), .b(a136), .clk(clk), .out(t364), .enable(1'b1), .rst(reset));
+    subfp32 sub14214(.a(a133), .b(a134), .clk(clk), .out(t365), .enable(1'b1), .rst(reset));
+    subfp32 sub14229(.a(a135), .b(a136), .clk(clk), .out(t366), .enable(1'b1), .rst(reset));
+    multfp32fp32 m14055(.a(tm0), .b(t355), .clk(clk), .out(a105), .enable(1'b1), .rst(reset));
+    multfp32fp32 m14062(.a(tm0), .b(t356), .clk(clk), .out(a106), .enable(1'b1), .rst(reset));
+    multfp32fp32 m14236(.a(tm0), .b(t365), .clk(clk), .out(a107), .enable(1'b1), .rst(reset));
+    multfp32fp32 m14243(.a(tm0), .b(t366), .clk(clk), .out(a108), .enable(1'b1), .rst(reset));
+    subfp32 sub14069(.a(a105), .b(a106), .clk(clk), .out(t357), .enable(1'b1), .rst(reset));
+    addfp32 add14076(.a(a105), .b(a106), .clk(clk), .out(t358), .enable(1'b1), .rst(reset));
+    addfp32 add14250(.a(a107), .b(a108), .clk(clk), .out(t367), .enable(1'b1), .rst(reset));
+    subfp32 sub14257(.a(a107), .b(a108), .clk(clk), .out(t368), .enable(1'b1), .rst(reset));
 
 
    always @(posedge clk) begin
@@ -528,8 +715,8 @@ module codeBlock70968(clk, reset, next_in, next_out,
          tm99 <= t354;
          tm118 <= t359;
          tm137 <= t360;
-         tm156 <= t362;
-         tm175 <= {~(t361[31]), t361[30:0]};
+         tm156 <= {~(t362[31]), t362[30:0]};
+         tm175 <= t361;
          tm194 <= t363;
          tm213 <= t364;
          tm5 <= tm4;
@@ -754,7 +941,7 @@ endmodule
 
 // Latency: 23
 // Gap: 1
-module codeBlock71332(clk, reset, next_in, next_out,
+module codeBlock14279(clk, reset, next_in, next_out,
    X0_in, Y0,
    X1_in, Y1,
    X2_in, Y2,
@@ -828,7 +1015,7 @@ module codeBlock71332(clk, reset, next_in, next_out,
       Y14,
       Y15;
 
-   shiftRegFIFO #(22, 1) shiftFIFO_72668(.X(next), .Y(next_out), .clk(clk));
+   shiftRegFIFO #(22, 1) shiftFIFO_15615(.X(next), .Y(next_out), .clk(clk));
 
 
    wire signed [31:0] a33;
@@ -930,38 +1117,38 @@ module codeBlock71332(clk, reset, next_in, next_out,
    assign Y14 = t239;
    assign Y15 = t240;
 
-    addfp32 add71344(.a(a33), .b(a34), .clk(clk), .out(t209), .enable(1'b1), .rst(reset));
-    addfp32 add71359(.a(a35), .b(a36), .clk(clk), .out(t210), .enable(1'b1), .rst(reset));
-    subfp32 sub71374(.a(a33), .b(a34), .clk(clk), .out(t211), .enable(1'b1), .rst(reset));
-    subfp32 sub71389(.a(a35), .b(a36), .clk(clk), .out(t212), .enable(1'b1), .rst(reset));
-    addfp32 add71404(.a(a41), .b(a42), .clk(clk), .out(t213), .enable(1'b1), .rst(reset));
-    addfp32 add71419(.a(a43), .b(a44), .clk(clk), .out(t214), .enable(1'b1), .rst(reset));
-    subfp32 sub71434(.a(a41), .b(a42), .clk(clk), .out(t215), .enable(1'b1), .rst(reset));
-    subfp32 sub71449(.a(a43), .b(a44), .clk(clk), .out(t216), .enable(1'b1), .rst(reset));
-    addfp32 add71552(.a(a49), .b(a50), .clk(clk), .out(t225), .enable(1'b1), .rst(reset));
-    addfp32 add71567(.a(a51), .b(a52), .clk(clk), .out(t226), .enable(1'b1), .rst(reset));
-    subfp32 sub71582(.a(a49), .b(a50), .clk(clk), .out(t227), .enable(1'b1), .rst(reset));
-    subfp32 sub71597(.a(a51), .b(a52), .clk(clk), .out(t228), .enable(1'b1), .rst(reset));
-    addfp32 add71612(.a(a57), .b(a58), .clk(clk), .out(t229), .enable(1'b1), .rst(reset));
-    addfp32 add71627(.a(a59), .b(a60), .clk(clk), .out(t230), .enable(1'b1), .rst(reset));
-    subfp32 sub71642(.a(a57), .b(a58), .clk(clk), .out(t231), .enable(1'b1), .rst(reset));
-    subfp32 sub71657(.a(a59), .b(a60), .clk(clk), .out(t232), .enable(1'b1), .rst(reset));
-    addfp32 add71456(.a(t209), .b(t213), .clk(clk), .out(t217), .enable(1'b1), .rst(reset));
-    addfp32 add71463(.a(t210), .b(t214), .clk(clk), .out(t218), .enable(1'b1), .rst(reset));
-    subfp32 sub71470(.a(t209), .b(t213), .clk(clk), .out(t219), .enable(1'b1), .rst(reset));
-    subfp32 sub71477(.a(t210), .b(t214), .clk(clk), .out(t220), .enable(1'b1), .rst(reset));
-    addfp32 add71500(.a(t211), .b(t216), .clk(clk), .out(t221), .enable(1'b1), .rst(reset));
-    subfp32 sub71507(.a(t212), .b(t215), .clk(clk), .out(t222), .enable(1'b1), .rst(reset));
-    subfp32 sub71514(.a(t211), .b(t216), .clk(clk), .out(t223), .enable(1'b1), .rst(reset));
-    addfp32 add71521(.a(t212), .b(t215), .clk(clk), .out(t224), .enable(1'b1), .rst(reset));
-    addfp32 add71664(.a(t225), .b(t229), .clk(clk), .out(t233), .enable(1'b1), .rst(reset));
-    addfp32 add71671(.a(t226), .b(t230), .clk(clk), .out(t234), .enable(1'b1), .rst(reset));
-    subfp32 sub71678(.a(t225), .b(t229), .clk(clk), .out(t235), .enable(1'b1), .rst(reset));
-    subfp32 sub71685(.a(t226), .b(t230), .clk(clk), .out(t236), .enable(1'b1), .rst(reset));
-    addfp32 add71708(.a(t227), .b(t232), .clk(clk), .out(t237), .enable(1'b1), .rst(reset));
-    subfp32 sub71715(.a(t228), .b(t231), .clk(clk), .out(t238), .enable(1'b1), .rst(reset));
-    subfp32 sub71722(.a(t227), .b(t232), .clk(clk), .out(t239), .enable(1'b1), .rst(reset));
-    addfp32 add71729(.a(t228), .b(t231), .clk(clk), .out(t240), .enable(1'b1), .rst(reset));
+    addfp32 add14291(.a(a33), .b(a34), .clk(clk), .out(t209), .enable(1'b1), .rst(reset));
+    addfp32 add14306(.a(a35), .b(a36), .clk(clk), .out(t210), .enable(1'b1), .rst(reset));
+    subfp32 sub14321(.a(a33), .b(a34), .clk(clk), .out(t211), .enable(1'b1), .rst(reset));
+    subfp32 sub14336(.a(a35), .b(a36), .clk(clk), .out(t212), .enable(1'b1), .rst(reset));
+    addfp32 add14351(.a(a41), .b(a42), .clk(clk), .out(t213), .enable(1'b1), .rst(reset));
+    addfp32 add14366(.a(a43), .b(a44), .clk(clk), .out(t214), .enable(1'b1), .rst(reset));
+    subfp32 sub14381(.a(a41), .b(a42), .clk(clk), .out(t215), .enable(1'b1), .rst(reset));
+    subfp32 sub14396(.a(a43), .b(a44), .clk(clk), .out(t216), .enable(1'b1), .rst(reset));
+    addfp32 add14499(.a(a49), .b(a50), .clk(clk), .out(t225), .enable(1'b1), .rst(reset));
+    addfp32 add14514(.a(a51), .b(a52), .clk(clk), .out(t226), .enable(1'b1), .rst(reset));
+    subfp32 sub14529(.a(a49), .b(a50), .clk(clk), .out(t227), .enable(1'b1), .rst(reset));
+    subfp32 sub14544(.a(a51), .b(a52), .clk(clk), .out(t228), .enable(1'b1), .rst(reset));
+    addfp32 add14559(.a(a57), .b(a58), .clk(clk), .out(t229), .enable(1'b1), .rst(reset));
+    addfp32 add14574(.a(a59), .b(a60), .clk(clk), .out(t230), .enable(1'b1), .rst(reset));
+    subfp32 sub14589(.a(a57), .b(a58), .clk(clk), .out(t231), .enable(1'b1), .rst(reset));
+    subfp32 sub14604(.a(a59), .b(a60), .clk(clk), .out(t232), .enable(1'b1), .rst(reset));
+    addfp32 add14403(.a(t209), .b(t213), .clk(clk), .out(t217), .enable(1'b1), .rst(reset));
+    addfp32 add14410(.a(t210), .b(t214), .clk(clk), .out(t218), .enable(1'b1), .rst(reset));
+    subfp32 sub14417(.a(t209), .b(t213), .clk(clk), .out(t219), .enable(1'b1), .rst(reset));
+    subfp32 sub14424(.a(t210), .b(t214), .clk(clk), .out(t220), .enable(1'b1), .rst(reset));
+    subfp32 sub14447(.a(t211), .b(t216), .clk(clk), .out(t221), .enable(1'b1), .rst(reset));
+    addfp32 add14454(.a(t212), .b(t215), .clk(clk), .out(t222), .enable(1'b1), .rst(reset));
+    addfp32 add14461(.a(t211), .b(t216), .clk(clk), .out(t223), .enable(1'b1), .rst(reset));
+    subfp32 sub14468(.a(t212), .b(t215), .clk(clk), .out(t224), .enable(1'b1), .rst(reset));
+    addfp32 add14611(.a(t225), .b(t229), .clk(clk), .out(t233), .enable(1'b1), .rst(reset));
+    addfp32 add14618(.a(t226), .b(t230), .clk(clk), .out(t234), .enable(1'b1), .rst(reset));
+    subfp32 sub14625(.a(t225), .b(t229), .clk(clk), .out(t235), .enable(1'b1), .rst(reset));
+    subfp32 sub14632(.a(t226), .b(t230), .clk(clk), .out(t236), .enable(1'b1), .rst(reset));
+    subfp32 sub14655(.a(t227), .b(t232), .clk(clk), .out(t237), .enable(1'b1), .rst(reset));
+    addfp32 add14662(.a(t228), .b(t231), .clk(clk), .out(t238), .enable(1'b1), .rst(reset));
+    addfp32 add14669(.a(t227), .b(t232), .clk(clk), .out(t239), .enable(1'b1), .rst(reset));
+    subfp32 sub14676(.a(t228), .b(t231), .clk(clk), .out(t240), .enable(1'b1), .rst(reset));
 
 
    always @(posedge clk) begin
@@ -988,5 +1175,3 @@ module codeBlock71332(clk, reset, next_in, next_out,
       end
    end
 endmodule
-
-
