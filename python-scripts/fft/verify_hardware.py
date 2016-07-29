@@ -10,7 +10,7 @@ def transformLine(line):
     return data
 
 def getExpectedOutputLine(input_array):
-    return np.fft.fft2(input_array).real
+    return np.fft.fft2(input_array).real.T
 
 
 def verifyLine(input_line_data, output_line_data, line_index):
@@ -27,10 +27,10 @@ def verifyLine(input_line_data, output_line_data, line_index):
     # calculate expected result
     expected_array = getExpectedOutputLine(input_array)
     # calculate error
-    err = np.absolute(expected_array / output_array)
+    err = np.absolute(expected_array - output_array)
     err_msg = "line: " + str(line_index) + "\n" + "expected: " + str(expected_array) + "\n" + \
               "actual:" + str(output_array) + "\n"
-    np.testing.assert_almost_equal(err, np.ones(err.shape), err_msg=err_msg, decimal=6, verbose=True)
+    np.testing.assert_almost_equal(err, np.zeros(err.shape), err_msg=err_msg, decimal=6, verbose=True)
 
 
 def verify(input_data, output_data):
