@@ -4,15 +4,13 @@ import numpy as np
 from arithmetics_test.floating_point import hex_to_num
 
 
-def lineToComplex(line):
+def transformLine(line):
     assert len(line) == 16
-    data = list()
-    i = 0
-    while i < 16:
-        c = line[i] + 1j * line[i + 1]
-        data.append(c)
-        i += 2
+    data = np.array(line).reshape((4, 4))
     return data
+
+def getExpectedOutputLine(input_array):
+    return np.fft.fft2(input_array).real
 
 
 def verifyLine(input_line_data, output_line_data, line_index):
@@ -23,13 +21,15 @@ def verifyLine(input_line_data, output_line_data, line_index):
     """
     input_data_raw = [hex_to_num(data) for data in input_line_data]
     output_data_raw = [hex_to_num(data) for data in output_line_data]
-    # translate input raw data to complex number
-    input_array = np.array(lineToComplex(input_data_raw))
-    output_array = np.array(lineToComplex(output_data_raw))
-    actual_fft_array = np.fft.fft(input_array)
-    err = np.absolute(actual_fft_array / output_array)
-    err_msg = "line: " + str(line_index) + "\n" + "input: " + str(actual_fft_array) + "\n" + \
-              "output:" + str(output_array) + "\n"
+    # translate input raw data to numpy array
+    input_array = transformLine(input_data_raw)
+    output_array = transformLine(output_data_raw)
+    # calculate expected result
+    expected_array = getExpectedOutputLine(input_array)
+    # calculate error
+    err = np.absolute(expected_array / output_array)
+    err_msg = "line: " + str(line_index) + "\n" + "expected: " + str(expected_array) + "\n" + \
+              "actual:" + str(output_array) + "\n"
     np.testing.assert_almost_equal(err, np.ones(err.shape), err_msg=err_msg, decimal=6, verbose=True)
 
 
