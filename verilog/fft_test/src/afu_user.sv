@@ -46,6 +46,8 @@ module afu_user # (
 
   intf_fft4_2d fft2d_io(clk, reset);
 
+  fft4_2d fft2d_inst(fft2d_io);
+
   genvar i, j;
   generate
     for (i=0; i<4; i=i+1) begin: fft_input_generate_first

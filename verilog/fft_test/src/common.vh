@@ -34,4 +34,13 @@ interface intf_fft16 (
   logic next, next_out;
 endinterface
 
+interface intf_fft4_2d (
+  input clk,
+  input reset
+  );
+  complex_t in [0:3][0:3];
+  complex_t out [0:3][0:3];
+  logic next, next_out;
+endinterface
+
 `endif
