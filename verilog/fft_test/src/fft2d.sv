@@ -1,4 +1,6 @@
 
+`include "common.vh"
+
 interface intf_fft4_2d (
   input clk,
   input reset
@@ -12,10 +14,11 @@ module fft4_2d (
   intf_fft4_2d fft_2d_io
 );
 
-  intf_fft4 fft_1d_io_first(fft_2d_io.clk, fft_2d_io.reset) [0:3];
-  intf_fft4 fft_1d_io_second(fft_2d_io.clk, fft_2d_io.reset) [0:3];
+  intf_fft4 fft_1d_io_first[3](fft_2d_io.clk, fft_2d_io.reset);
+  intf_fft4 fft_1d_io_second[3](fft_2d_io.clk, fft_2d_io.reset);
 
   genvar i, j;
+
   // matrix transpose
   generate
     for (i=0; i<4; i=i+1) begin: matrix_traspose_loop_over_fft_inst
