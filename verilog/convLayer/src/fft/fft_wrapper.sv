@@ -5,22 +5,38 @@
 typedef struct packed {
   logic [31:0] r;
   logic [31:0] i;
-} complex_t
+} complex_t;
 
 
-interface intf_fft # (
-  parameter N = 4    // fft number of sample
-) (
+interface intf_fft4 (
   input clk,
   input reset
   );
-  complex_t in [0:N-1];   // in[0]+j*in[1], in[2]+j*in[3]
-  complex_t out [0:N-1];  // out[0]+j*out[1], out[2]+j*out[3]
+  complex_t in [0:4-1];   // in[0]+j*in[1], in[2]+j*in[3]
+  complex_t out [0:4-1];  // out[0]+j*out[1], out[2]+j*out[3]
+  logic next, next_out;
+endinterface
+
+interface intf_fft8 (
+  input clk,
+  input reset
+  );
+  complex_t in [0:8-1];   // in[0]+j*in[1], in[2]+j*in[3]
+  complex_t out [0:8-1];  // out[0]+j*out[1], out[2]+j*out[3]
+  logic next, next_out;
+endinterface
+
+interface intf_fft16 (
+  input clk,
+  input reset
+  );
+  complex_t in [0:16-1];   // in[0]+j*in[1], in[2]+j*in[3]
+  complex_t out [0:16-1];  // out[0]+j*out[1], out[2]+j*out[3]
   logic next, next_out;
 endinterface
 
 module fft4_wrapper (
-  intf_fft #(.N(4)) fft_io
+  intf_fft4 fft_io
 );
 
   dft4_top fft_inst (
@@ -50,7 +66,7 @@ endmodule
 
 
 module ifft4_wrapper (
-  intf_fft #(.N(4)) fft_io
+  intf_fft4 fft_io
 );
 
   idft4_top fft_inst (
@@ -80,7 +96,7 @@ endmodule
 
 
 module fft8_wrapper (
-  intf_fft #(.N(8)) fft_io
+  intf_fft8 fft_io
 );
 
   dft8_top fft_inst (
@@ -125,7 +141,7 @@ module fft8_wrapper (
 endmodule
 
 module ifft8_wrapper (
-  intf_fft #(.N(8)) fft_io
+  intf_fft8 fft_io
 );
 
   idft8_top fft_inst (
@@ -171,7 +187,7 @@ endmodule
 
 
 module fft8_wrapper_tb (
-  intf_fft #(.N(8)) fft_io
+  intf_fft8 fft_io
 );
 
   integer i;
@@ -186,8 +202,8 @@ module fft8_wrapper_tb (
     // insert input
     $display("--- begin input ---");
     for (i=0; i<8; i=i+1) begin
-      fft_io.in.r[i] <= $random;
-      fft_io.in.i[i] <= $random;
+      fft_io.in[i].r <= $random;
+      fft_io.in[i].i <= $random;
     end
     @(posedge fft_io.clk);
     for (i=0; i<8; i=i+1) begin
@@ -216,7 +232,7 @@ module fft8_wrapper_tb_top;
 
   always # 10 clk = ~clk;
   
-  intf_fft #(.N(8)) io(clk, reset);
+  intf_fft8 io(clk, reset);
 
   fft8_wrapper fft_inst(io);
   fft8_wrapper_tb fft_inst_tb(io);
