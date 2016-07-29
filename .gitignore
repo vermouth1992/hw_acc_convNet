@@ -20,7 +20,7 @@ out/
 *.do
 *.sublime-workspace
 *.sublime-project
-matrixTranspose
+python-scripts/convNets/.ipynb_checkpoints/
 
 # Created by https://www.gitignore.io/api/java,python,osx,windows,intellij,eclipse,bluej,netbeans,vim,emacs,microsoftoffice
 
