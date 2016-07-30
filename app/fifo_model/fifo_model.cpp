@@ -438,6 +438,13 @@ btInt HelloSPLLBApp::run() {
             m_SPLService->StartTransactionContext(TransactionID(), pWSUsrVirt, 100);
             m_Sem.Wait();
 
+            // set the timer
+            timespec start;
+            timespec end;
+
+            // start the timer
+            clock_gettime(CLOCK_REALTIME, &start);
+
             // The AFU is running
             ////////////////////////////////////////////////////////////////////////////
 
@@ -465,6 +472,11 @@ btInt HelloSPLLBApp::run() {
             }
             ////////////////////////////////////////////////////////////////////////////
             // Stop the AFU
+
+            clock_gettime(CLOCK_REALTIME, &end);
+
+            string precision = "ms";
+            MSG("The processing time is " << calculate_time_interval(end, start, precision) << precision);
 
             // Issue Stop Transaction and wait for OnTransactionStopped
             MSG("Stopping SPL Transaction");

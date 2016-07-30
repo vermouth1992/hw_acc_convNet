@@ -65,7 +65,7 @@ endif
 all: test.out
 
 test.out: test.o
-	$(CXX) -g -O2 -o test.out test.o $(LDFLAGS) -lOSAL -lAAS -lxlrt
+	$(CXX) -g -O2 -o test.out test.o $(LDFLAGS) -lOSAL -lAAS -lxlrt -lrt
 
 test.o: config.h fifo_model.cpp  Makefile
 	$(CXX) $(CPPFLAGS) -D__AAL_USER__=1  -g -O2 -c -o test.o fifo_model.cpp
