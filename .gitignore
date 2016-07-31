@@ -21,6 +21,7 @@ out/
 *.sublime-workspace
 *.sublime-project
 .ipynb_checkpoints/
+transcript
 
 # Created by https://www.gitignore.io/api/java,python,osx,windows,intellij,eclipse,bluej,netbeans,vim,emacs,microsoftoffice
 
