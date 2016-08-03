@@ -65,6 +65,8 @@ module afu_user #(ADDR_LMT = 20, MDATA = 14, CACHE_WIDTH = 512) (
   reg reg_done;
   wire reset;
 
+  integer i;
+
   assign reset = ~reset_n;
 
   always@(posedge start) begin
@@ -72,10 +74,13 @@ module afu_user #(ADDR_LMT = 20, MDATA = 14, CACHE_WIDTH = 512) (
       reg_done <= 1'b0;
     end else if (start) begin
       reg_done <= 1'b1;
-      $display("afu_context = %h", afu_context);
+      for(i=0; i<8; i=i+1) begin
+        $display("afu_context[%d] = %h", i, afu_context[i*64+63:i*64]);
+      end
     end
   end
 
+  assign done = reg_done;
      
 endmodule // afu_user
 
