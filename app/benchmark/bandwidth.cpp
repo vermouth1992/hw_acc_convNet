@@ -361,7 +361,7 @@ int ConvLayer::run() {
         pVAFU2_cntxt->num_cl = a_num_cl;   // note that it is number of cache line in total
         pVAFU2_cntxt->pSource = pSource;
         pVAFU2_cntxt->pDest = pDest;
-        pVAFU2_cntxt->qword0[4] = 3;    // 0 is illegal 1 for read, 2 for write, 3 for read/write
+        pVAFU2_cntxt->qword0[4] = 2;    // 0 is illegal 1 for read, 2 for write, 3 for read/write
 
         MSG("VAFU2 Context=" << std::hex << (void *) pVAFU2_cntxt <<
                              " Src=" << std::hex << (void *) pVAFU2_cntxt->pSource <<

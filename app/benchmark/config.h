@@ -19,7 +19,7 @@
 
 // ASE tests using small image size and kernel
 #ifdef ASEAFU
-#define num_cacheline 10000
+#define num_cacheline 16
 #endif
 
 #define bufferSize CL(1) * num_cacheline

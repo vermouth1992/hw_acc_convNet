@@ -120,7 +120,7 @@ module afu_user #(ADDR_LMT = 20, MDATA = 14, CACHE_WIDTH = 512) (
         end
         RUN: begin
           // read request
-          if (mode[0] == 1'b1 && ~rd_req_almostfull && rd_req_addr < num_cl) begin
+          if (mode[0] == 1'b1 && ~rd_req_almostfull && rd_req_addr < num_cl - 1) begin
             rd_req_en <= 1'b1;
             rd_req_addr <= rd_req_addr + 1'b1;
           end else begin
@@ -132,7 +132,7 @@ module afu_user #(ADDR_LMT = 20, MDATA = 14, CACHE_WIDTH = 512) (
           end
 
           // write request
-          if (mode[1] == 1'b1 && ~wr_req_almostfull && wr_req_addr < num_cl) begin
+          if (mode[1] == 1'b1 && ~wr_req_almostfull && wr_req_addr < num_cl - 1) begin
             wr_req_en <= 1'b1;
             wr_req_addr <= wr_req_addr + 1'b1;
           end else begin
