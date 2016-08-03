@@ -376,6 +376,7 @@ int ConvLayer::run() {
         MSG("Cache lines in each buffer=" << std::dec << pVAFU2_cntxt->num_cl <<
                                            " (bytes=" << std::dec << pVAFU2_cntxt->num_cl * CL(1) <<
                                            " 0x" << std::hex << pVAFU2_cntxt->num_cl * CL(1) << std::dec << ")");
+        MSG("pFilter=" << std::hex << (void*) pFilter);
 
         // Buffers have been initialized
         ////////////////////////////////////////////////////////////////////////////

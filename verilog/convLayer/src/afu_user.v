@@ -61,11 +61,9 @@ module afu_user #(ADDR_LMT = 20, MDATA = 14, CACHE_WIDTH = 512) (
   // Control info from software
   input [511:0] 	    afu_context
   );
-  
+
   reg reg_done;
   wire reset;
-
-  integer i;
 
   assign reset = ~reset_n;
 
@@ -74,9 +72,12 @@ module afu_user #(ADDR_LMT = 20, MDATA = 14, CACHE_WIDTH = 512) (
       reg_done <= 1'b0;
     end else if (start) begin
       reg_done <= 1'b1;
-      for(i=0; i<8; i=i+1) begin
-        $display("afu_context[%d] = %h", i, afu_context[i*64+63:i*64]);
-      end
+      $display("src = %h", afu_context[127:64]);
+      $display("dest = %h", afu_context[191:128]);
+      $display("num_cl = %d", afu_context[223:192]);
+      $display("filter address = %h", afu_context[319:256]);
+      $display("num input feature map = %d", afu_context[383:320]);
+      $display("num output feature map = %d", afu_context[447:384]);
     end
   end
 
