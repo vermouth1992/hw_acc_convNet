@@ -62,13 +62,13 @@ LDFLAGS  += -L$(DESTDIR)$(prefix)/lib -Wl,-rpath-link -Wl,$(prefix)/lib -Wl,-rpa
             -L$(DESTDIR)$(prefix)/lib64 -Wl,-rpath-link -Wl,$(prefix)/lib64 -Wl,-rpath -Wl,$(DESTDIR)$(prefix)/lib64
 endif
 
-all: convLayer.out
+all: bandwidth.out
 
-convLayer.out: convLayer.o
-	$(CXX) -g -O2 -o convLayer.out convLayer.o $(LDFLAGS) -lOSAL -lAAS -lxlrt -lrt
+bandwidth.out: bandwidth.o
+	$(CXX) -g -O2 -o bandwidth.out bandwidth.o $(LDFLAGS) -lOSAL -lAAS -lxlrt -lrt
 
-convLayer.o: config.h bandwidth.cpp  Makefile
-	$(CXX) $(CPPFLAGS) -D__AAL_USER__=1  -g -O2 -c -o convLayer.o convLayer.cpp
+bandwidth.o: config.h bandwidth.cpp  Makefile
+	$(CXX) $(CPPFLAGS) -D__AAL_USER__=1  -g -O2 -c -o bandwidth.o bandwidth.cpp
 
 clean:
 	$(RM) *.out *.o

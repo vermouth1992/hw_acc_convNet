@@ -47,7 +47,6 @@
 //****************************************************************************
 #include "../common.h"
 #include "config.h"
-#include "convLayer.h"
 
 using namespace AAL;
 
@@ -282,7 +281,7 @@ typedef struct list {
 
 int ConvLayer::run() {
     cout << "=======================" << endl;
-    cout << "= Convolutional Layer =" << endl;
+    cout << "= Bandwidth Benchmark =" << endl;
     cout << "=======================" << endl;
 
     // Request our AFU.
@@ -337,46 +336,39 @@ int ConvLayer::run() {
         const btWSSize WSLen = m_WkspcSize; // Length of workspace
 
         MSG("Allocated " << WSLen << "-byte Workspace at virtual address "
-                          << std::hex << (void *) pWSUsrVirt);
+                         << std::hex << (void *) pWSUsrVirt);
 
         // Number of bytes in each of the source and destination buffers (4 MiB in this case)
-        btUnsigned32bitInt a_num_bytes = (btUnsigned32bitInt) (WSLen - sizeof(VAFU2_CNTXT));
-        btUnsigned32bitInt a_num_cl = a_num_bytes / CL(1);  // number of cache lines in total
+        btUnsigned32bitInt a_num_bytes = (btUnsigned32bitInt) ((WSLen - sizeof(VAFU2_CNTXT)) / 2);
+        btUnsigned32bitInt a_num_cl = a_num_bytes / CL(1);  // number of cache lines in each buffer
 
         // VAFU Context is at the beginning of the buffer
         VAFU2_CNTXT *pVAFU2_cntxt = reinterpret_cast<VAFU2_CNTXT *>(pWSUsrVirt);
 
         // The source buffer is right after the VAFU Context
-        btVirtAddr pImage = pWSUsrVirt + sizeof(VAFU2_CNTXT);
+        btVirtAddr pSource = pWSUsrVirt + sizeof(VAFU2_CNTXT);  // the same as char*
 
-        btVirtAddr pFilter = pImage + testLayer.getImageSizeInBytes();
         // The destination buffer is right after the source buffer
-        btVirtAddr pDestImage = pFilter + testLayer.getFilterSizeInBytes();
-
-        assert(testLayer.getImageSizeInBytes() * 2 + testLayer.getFilterSizeInBytes() == a_num_bytes);
+        btVirtAddr pDest = pSource + a_num_bytes;
 
         // Note: the usage of the VAFU2_CNTXT structure here is specific to the underlying bitstream
         // implementation. The bitstream targeted for use with this sample application must implement
         // the Validation AFU 2 interface and abide by the contract that a VAFU2_CNTXT structure will
         // appear at byte offset 0 within the supplied AFU Context workspace.
 
-        btUnsigned32bitInt a_num_cl_image = (btUnsigned32bitInt) testLayer.getImageSizeInBytes() / CL(1);
         // Initialize the command buffer
         ::memset(pVAFU2_cntxt, 0, sizeof(VAFU2_CNTXT));
         pVAFU2_cntxt->num_cl = a_num_cl;   // note that it is number of cache line in total
-        pVAFU2_cntxt->pSource = pImage;
-        pVAFU2_cntxt->pDest = pDestImage;
-        pVAFU2_cntxt->qword0[4] = (btUnsigned64bitInt) pFilter;  // cat address to 64 unsigned int
-        pVAFU2_cntxt->qword0[5] = testLayer.getNumInputFeatureMap();
-        pVAFU2_cntxt->qword0[6] = testLayer.getNumOutputFeatureMap();
+        pVAFU2_cntxt->pSource = pSource;
+        pVAFU2_cntxt->pDest = pDest;
+        pVAFU2_cntxt->qword0[4] = 3;    // 0 is illegal 1 for read, 2 for write, 3 for read/write
 
         MSG("VAFU2 Context=" << std::hex << (void *) pVAFU2_cntxt <<
-                              " Src=" << std::hex << (void *) pVAFU2_cntxt->pSource <<
-                              " Dest=" << std::hex << (void *) pVAFU2_cntxt->pDest << std::dec);
+                             " Src=" << std::hex << (void *) pVAFU2_cntxt->pSource <<
+                             " Dest=" << std::hex << (void *) pVAFU2_cntxt->pDest << std::dec);
         MSG("Cache lines in each buffer=" << std::dec << pVAFU2_cntxt->num_cl <<
-                                           " (bytes=" << std::dec << pVAFU2_cntxt->num_cl * CL(1) <<
-                                           " 0x" << std::hex << pVAFU2_cntxt->num_cl * CL(1) << std::dec << ")");
-        MSG("pFilter=" << std::hex << (void*) pFilter);
+                                          " (bytes=" << std::dec << pVAFU2_cntxt->num_cl * CL(1) <<
+                                          " 0x" << std::hex << pVAFU2_cntxt->num_cl * CL(1) << std::dec << ")");
 
         // Buffers have been initialized
         ////////////////////////////////////////////////////////////////////////////
@@ -445,7 +437,7 @@ int ConvLayer::run() {
 
 // <begin IServiceClient interface>
 void ConvLayer::serviceAllocated(IBase *pServiceBase,
-                             TransactionID const &rTranID) {
+                                 TransactionID const &rTranID) {
     m_pAALService = pServiceBase;
     ASSERT(NULL != m_pAALService);
 
@@ -459,12 +451,8 @@ void ConvLayer::serviceAllocated(IBase *pServiceBase,
 
     MSG("Service Allocated");
 
-    int imageSize = testLayer.getImageSizeInBytes();
-    int filterSize = testLayer.getFilterSizeInBytes();
-    int sourceBufferSize = imageSize + filterSize;
-    int destinationBufferSize = imageSize;
     // Allocate Workspaces needed.
-    m_SPLService->WorkspaceAllocate(sizeof(VAFU2_CNTXT) + sourceBufferSize + destinationBufferSize,
+    m_SPLService->WorkspaceAllocate(sizeof(VAFU2_CNTXT) + bufferSize + bufferSize,
                                     TransactionID());
 
 }
@@ -485,9 +473,9 @@ void ConvLayer::serviceFreed(TransactionID const &rTranID) {
 
 // <ISPLClient>
 void ConvLayer::OnWorkspaceAllocated(TransactionID const &TranID,
-                                 btVirtAddr WkspcVirt,
-                                 btPhysAddr WkspcPhys,
-                                 btWSSize WkspcSize) {
+                                     btVirtAddr WkspcVirt,
+                                     btPhysAddr WkspcPhys,
+                                     btWSSize WkspcSize) {
     AutoLock(this);
 
     m_pWkspcVirt = WkspcVirt;
@@ -521,8 +509,8 @@ void ConvLayer::OnWorkspaceFreeFailed(const IEvent &rEvent) {
 
 /// CMyApp Client implementation of ISPLClient::OnTransactionStarted
 void ConvLayer::OnTransactionStarted(TransactionID const &TranID,
-                                 btVirtAddr AFUDSMVirt,
-                                 btWSSize AFUDSMSize) {
+                                     btVirtAddr AFUDSMVirt,
+                                     btWSSize AFUDSMSize) {
     MSG("Transaction Started");
     m_AFUDSMVirt = AFUDSMVirt;
     m_AFUDSMSize = AFUDSMSize;
