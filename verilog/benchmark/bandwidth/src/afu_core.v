@@ -172,7 +172,7 @@ module afu_core #(MDATA = 14)
    assign 	    dsr_latency_cnt_addr = csr_id_addr + AFU_CSR__LATENCY_CNT;
    assign 	    dsr_performance_cnt_addr = csr_id_addr + AFU_CSR__PERFORMANCE_CNT;
 
-   localparam 	    ADDR_LMT=20;
+   localparam 	    ADDR_LMT=32;
    localparam 	    CACHE_WIDTH=512;
 
    wire [ADDR_LMT-1:0]    uafu_rd_req_addr;

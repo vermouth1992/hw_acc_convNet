@@ -24,6 +24,10 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
+/* 1. note that the address should be transform to relative address 
+ *
+ */
+
 module afu_user #(ADDR_LMT = 20, MDATA = 14, CACHE_WIDTH = 512) (
   input 		    clk, 
   input 		    reset_n, 
