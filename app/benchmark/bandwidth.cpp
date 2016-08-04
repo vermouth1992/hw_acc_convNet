@@ -414,7 +414,17 @@ int ConvLayer::run() {
         clock_gettime(CLOCK_REALTIME, &end);
 
         string precision = "ms";
-        MSG("The processing time is " << calculate_time_interval(end, start, precision) << precision);
+        double duration = calculate_time_interval(end, start, precision);
+        double bandwidth = (float) bufferSize / 1024.0 / 1024.0 / 1024.0 / duration * 1000;
+        MSG("The processing time is " << duration << precision);
+
+        if (mode == read_only) {
+            MSG("Read only bandwidth: " << bandwidth << "GB/s");
+        } else if (mode == write_only) {
+            MSG("Write only bandwidth: " << bandwidth << "GB/s");
+        } else if (mode == read_write) {
+            MSG("Read/Write bandwidth: " << bandwidth << "GB/s");
+        }
 
         // Issue Stop Transaction and wait for OnTransactionStopped
         MSG("Stopping SPL Transaction");

@@ -16,9 +16,9 @@
 #define write_only 2
 #define read_write 3
 
-// convLayer configuration
+// testing configuration, maximum num cacheline is 16777215
 #ifdef HWAFU
-#define num_cacheline 10000
+#define num_cacheline 16777215
 #endif
 
 // ASE tests using small image size and kernel
