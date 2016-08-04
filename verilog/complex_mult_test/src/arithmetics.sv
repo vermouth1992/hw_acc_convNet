@@ -4,12 +4,12 @@ module complexMultConventionfp32fp32(
   input clk,
   input reset,
   // data
-  complex_t in0,
-  complex_t in1,
-  complex_t out,
+  input complex_t in0,
+  input complex_t in1,
+  output complex_t out,
   // control signal
   input next,
-  input next_out
+  output next_out
   );
   
   // instantiate 4 multfp32fp32 and 1 addfp32, 1 subfp32

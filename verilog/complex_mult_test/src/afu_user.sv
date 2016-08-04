@@ -1,3 +1,6 @@
+
+`include "common.vh"
+
 module afu_user # (
   parameter DATA_WIDTH = 32,
   parameter BUFF_DEPTH_BITS = 3
@@ -56,16 +59,16 @@ module afu_user # (
       assign output_fifo_din[64*i+63:64*i+32] = io_out[i].i;
     end
   endgenerate
+    
+  wire next;
 
   generate
     for (i=0; i<7; i=i+1) begin: complex_mult_array
-      complexMultConventionfp32fp32 complex_mult_inst(.clk(clk), .reset(reset), .in0(io_in[i]), 
-        .in1(io_in[i+1], .out(io_out[i]), .next(next), .next_out(),);
+      complexMultConventionfp32fp32 complex_mult_inst(.clk(clk), .reset(reset), .in0(io_in[i]), .in1(io_in[i+1]), .out(io_out[i]), .next(next), .next_out());
     end
   endgenerate
   wire next_out;
-  complexMultConventionfp32fp32 complex_mult_inst1(.clk(clk), .reset(reset), .in0(io_in[7]), 
-        .in1(io_in[0], .out(io_out[i]), .next(next), .next_out(next_out),);
+  complexMultConventionfp32fp32 complex_mult_inst1(.clk(clk), .reset(reset), .in0(io_in[7]), .in1(io_in[0]), .out(io_out[7]), .next(next), .next_out(next_out));
 
   // input re
   assign input_fifo_re = ~input_fifo_empty;
