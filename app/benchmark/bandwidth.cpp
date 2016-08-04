@@ -380,15 +380,17 @@ int ConvLayer::run() {
         // Provide a workspace and so also start the task.
         // The VAFU2 Context is assumed to be at the start of the workspace.
         MSG("Starting SPL Transaction with Workspace");
-        m_SPLService->StartTransactionContext(TransactionID(), pWSUsrVirt, 100);
-        m_Sem.Wait();
-
+        
         // set the timer
         timespec start;
         timespec end;
 
         // start the timer
         clock_gettime(CLOCK_REALTIME, &start);
+        
+        m_SPLService->StartTransactionContext(TransactionID(), pWSUsrVirt, 100);
+        m_Sem.Wait();
+
         // The AFU is running
         ////////////////////////////////////////////////////////////////////////////
 
@@ -396,8 +398,8 @@ int ConvLayer::run() {
         // Wait for the AFU to be done. This is AFU-specific, we have chosen to poll ...
 
         // Set timeout increment based on hardware, software, or simulation
-        bt32bitInt count(500);  // 5 seconds with 10 millisecond sleep
-        bt32bitInt delay(1000);   // 10 milliseconds is the default
+        bt32bitInt count(500000000);  // 5 seconds with 10 millisecond sleep
+        bt32bitInt delay(1);   // 10 milliseconds is the default
 
         // Wait for SPL VAFU to finish code
         volatile bt32bitInt done = pVAFU2_cntxt->Status & VAFU2_CNTXT_STATUS_DONE;
@@ -504,7 +506,7 @@ void ConvLayer::OnWorkspaceAllocateFailed(const IEvent &rEvent) {
 }
 
 void ConvLayer::OnWorkspaceFreed(TransactionID const &TranID) {
-    ERR("OnWorkspaceFreed");
+    MSG("OnWorkspaceFreed");
     // Freed so now Release() the Service through the Services IAALService::Release() method
     (dynamic_ptr<IAALService>(iidService, m_pAALService))->Release(TransactionID());
 }

@@ -9,8 +9,8 @@
 // UN-COMMENT appropriate #define in order to enable either Hardware or ASE.
 //    DEFAULT is to use Software Simulation.
 //****************************************************************************
-// #define  HWAFU
-#define  ASEAFU
+#define  HWAFU
+// #define  ASEAFU
 
 #define read_only 1
 #define write_only 2
@@ -27,6 +27,6 @@
 #endif
 
 #define bufferSize CL(1) * num_cacheline
-#define mode read_only
+#define mode read_write
 
 #endif //SW_APP_CONFIG_H
