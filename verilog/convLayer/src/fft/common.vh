@@ -43,4 +43,16 @@ interface intf_fft4_2d (
   logic next, next_out;
 endinterface
 
+interface intf_block_mem_image (
+  input clk
+  );
+  logic re;
+  logic [12:0] raddr;
+  logic wr;
+  logic [12:0] waddr;
+  complex_t in [0:3][0:3];
+  complex_t out [0:3][0:3];
+
+endinterface
+
 `endif

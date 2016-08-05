@@ -33,9 +33,9 @@ module afu_user #(ADDR_LMT = 20, MDATA = 14, CACHE_WIDTH = 512) (
   input 		    reset_n, 
 
   // Read Request
-  output [ADDR_LMT-1:0]    rd_req_addr, 
-  output [MDATA-1:0] 	    rd_req_mdata, 
-  output 		    rd_req_en, 
+  output reg [ADDR_LMT-1:0]    rd_req_addr, 
+  output reg [MDATA-1:0] 	    rd_req_mdata, 
+  output reg		    rd_req_en, 
   input 		    rd_req_almostfull, 
 
   // Read Response
@@ -44,10 +44,10 @@ module afu_user #(ADDR_LMT = 20, MDATA = 14, CACHE_WIDTH = 512) (
   input [CACHE_WIDTH-1:0]  rd_rsp_data, 
 
   // Write Request 
-  output [ADDR_LMT-1:0]    wr_req_addr, 
-  output [MDATA-1:0] 	    wr_req_mdata, 
-  output [CACHE_WIDTH-1:0] wr_req_data, 
-  output 		    wr_req_en, 
+  output reg [ADDR_LMT-1:0]    wr_req_addr, 
+  output reg [MDATA-1:0] 	    wr_req_mdata, 
+  output reg [CACHE_WIDTH-1:0] wr_req_data, 
+  output reg		    wr_req_en, 
   input 		    wr_req_almostfull, 
 
   // Write Response 
@@ -60,35 +60,32 @@ module afu_user #(ADDR_LMT = 20, MDATA = 14, CACHE_WIDTH = 512) (
   input 		    start, 
 
   // Done output signal 
-  output  		    done, 
+  output reg 		    done, 
 
   // Control info from software
   input [511:0] 	    afu_context
   );
 
-  reg reg_done;
   wire reset;
-
   assign reset = ~reset_n;
 
-  always@(posedge start) begin
-    if (reset) begin
-      reg_done <= 1'b0;
-    end else if (start) begin
-      reg_done <= 1'b1;
-      // synthesis translate_off
-      $display("src = %h", afu_context[127:64]);
-      $display("dest = %h", afu_context[191:128]);
-      $display("num_cl = %d", afu_context[223:192]);
-      $display("filter address = %h", afu_context[319:256]);
-      $display("num input feature map = %d", afu_context[383:320]);
-      $display("num output feature map = %d", afu_context[447:384]);
-      // synthesis translate_on 
-    end
-  end
+  // always@(posedge start) begin
+  //   if (reset) begin
+  //     done_reg <= 1'b0;
+  //   end else if (start) begin
+  //     done_reg <= 1'b1;
+  //     // synthesis translate_off
+  //     $display("src = %h", afu_context[127:64]);
+  //     $display("dest = %h", afu_context[191:128]);
+  //     $display("num_cl = %d", afu_context[223:192]);
+  //     $display("filter address = %h", afu_context[319:256]);
+  //     $display("num input feature map = %d", afu_context[383:320]);
+  //     $display("num output feature map = %d", afu_context[447:384]);
+  //     // synthesis translate_on 
+  //   end
+  // end
 
-  assign done = reg_done;
-     
+
 endmodule // afu_user
 
 
