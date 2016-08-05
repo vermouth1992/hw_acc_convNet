@@ -1,6 +1,6 @@
 `include "common.vh"
 
-module complexMultConventionfp32fp32(
+module complexMultConventionfp32fp32 (
   input clk,
   input reset,
   // data
@@ -24,7 +24,42 @@ module complexMultConventionfp32fp32(
   subfp32 real_out(.clk(clk), .enable(1'b1), .rst(reset), .a(real_real_out), .b(imag_imag_out), .out(out.r));
   addfp32 imag_out(.clk(clk), .enable(1'b1), .rst(reset), .a(real_imag_out), .b(imag_real_out), .out(out.i));
 
+  // multiplier delay: 8, adder delay: 11
   shiftRegFIFO #(19, 1) shiftFIFO_complex(.X(next), .Y(next_out), .clk(clk));
+
+endmodule
+
+module complexMultCanonicalfp32fp32 (
+  input clk,
+  input reset,
+  // data
+  input complex_t in0,
+  input complex_t in1,
+  output complex_t out,
+  // control signal
+  input next,
+  output next_out
+  );
+
+  wire [31:0] r0_minus_i0;
+  wire [31:0] r1_minus_i1;
+  wire [31:0] r1_add_i1;
+  wire [31:0] r0_reg, r1_reg, i0_reg;
+  wire [31:0] mult0_result, mult1_result, mult2_result;
+  shiftRegFIFO #(11, 32) shiftFIFO_r0(.X(in0.r), .Y(r0_reg), .clk(clk));
+  shiftRegFIFO #(11, 32) shiftFIFO_r1(.X(in1.r), .Y(r1_reg), .clk(clk));
+  shiftRegFIFO #(11, 32) shiftFIFO_i1(.X(in0.i), .Y(i0_reg), .clk(clk));
+  subfp32 sub0(.clk(clk), .enable(1'b1), .rst(reset), .a(in0.r), .b(in0.i), .out(r0_minus_i0));
+  subfp32 sub1(.clk(clk), .enable(1'b1), .rst(reset), .a(in1.r), .b(in1.i), .out(r1_minus_i1));
+  addfp32 add0(.clk(clk), .enable(1'b1), .rst(reset), .a(in1.r), .b(in1.i), .out(r1_add_i1));
+  multfp32fp32 mult0(.clk(clk), .enable(1'b1), .rst(reset), .a(r0_minus_i0), .b(r1_reg), .out(mult0_result));
+  multfp32fp32 mult1(.clk(clk), .enable(1'b1), .rst(reset), .a(i0_reg), .b(r1_minus_i1), .out(mult1_result));
+  multfp32fp32 mult1(.clk(clk), .enable(1'b1), .rst(reset), .a(r1_add_i1), .b(r0_reg), .out(mult2_result));
+  addfp32 add1(.clk(clk), .enable(1'b1), .rst(reset), .a(mult0_result), .b(mult1_result), .out(out.r));
+  subfp32 sub2(.clk(clk), .enable(1'b1), .rst(reset), .a(mult0_result), .b(mult2_result), .out(out.i));
+
+  // delay 11 + 8 + 11 = 30
+  shiftRegFIFO #(30, 1) shiftFIFO_complex(.X(next), .Y(next_out), .clk(clk));
 
 endmodule
 
