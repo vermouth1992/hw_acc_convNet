@@ -54,9 +54,9 @@ module complexMultCanonicalfp32fp32 (
   addfp32 add0(.clk(clk), .enable(1'b1), .rst(reset), .a(in1.r), .b(in1.i), .out(r1_add_i1));
   multfp32fp32 mult0(.clk(clk), .enable(1'b1), .rst(reset), .a(r0_minus_i0), .b(r1_reg), .out(mult0_result));
   multfp32fp32 mult1(.clk(clk), .enable(1'b1), .rst(reset), .a(i0_reg), .b(r1_minus_i1), .out(mult1_result));
-  multfp32fp32 mult1(.clk(clk), .enable(1'b1), .rst(reset), .a(r1_add_i1), .b(r0_reg), .out(mult2_result));
+  multfp32fp32 mult2(.clk(clk), .enable(1'b1), .rst(reset), .a(r1_add_i1), .b(r0_reg), .out(mult2_result));
   addfp32 add1(.clk(clk), .enable(1'b1), .rst(reset), .a(mult0_result), .b(mult1_result), .out(out.r));
-  subfp32 sub2(.clk(clk), .enable(1'b1), .rst(reset), .a(mult0_result), .b(mult2_result), .out(out.i));
+  subfp32 sub2(.clk(clk), .enable(1'b1), .rst(reset), .a(mult2_result), .b(mult0_result), .out(out.i));
 
   // delay 11 + 8 + 11 = 30
   shiftRegFIFO #(30, 1) shiftFIFO_complex(.X(next), .Y(next_out), .clk(clk));

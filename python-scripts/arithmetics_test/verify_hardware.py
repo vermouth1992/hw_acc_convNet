@@ -1,4 +1,7 @@
 import sys
+
+sys.path.append("../")
+
 from util.ucb import main
 import numpy as np
 from arithmetics_test.floating_point import hex_to_num
