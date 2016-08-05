@@ -27,6 +27,6 @@
 #endif
 
 #define bufferSize CL(1) * num_cacheline
-#define mode read_write
+#define mode read_only
 
 #endif //SW_APP_CONFIG_H

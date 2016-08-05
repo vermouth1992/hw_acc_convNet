@@ -398,14 +398,15 @@ int ConvLayer::run() {
         // Wait for the AFU to be done. This is AFU-specific, we have chosen to poll ...
 
         // Set timeout increment based on hardware, software, or simulation
-        bt32bitInt count(500000000);  // 5 seconds with 10 millisecond sleep
+        bt32bitInt count(500);  // 5 seconds with 10 millisecond sleep
         bt32bitInt delay(1);   // 10 milliseconds is the default
 
         // Wait for SPL VAFU to finish code
         volatile bt32bitInt done = pVAFU2_cntxt->Status & VAFU2_CNTXT_STATUS_DONE;
-        while (!done && --count) {
-            SleepMilli(delay);
+        while (!done) {
+            // SleepMilli(delay);
             done = pVAFU2_cntxt->Status & VAFU2_CNTXT_STATUS_DONE;
+            if (done) MSG("AFU has signaled done."); 
         }
         if (!done) {
             // must have dropped out of loop due to count -- never saw update
