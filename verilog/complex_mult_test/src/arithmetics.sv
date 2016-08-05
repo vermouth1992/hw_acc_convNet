@@ -63,6 +63,27 @@ module complexMultCanonicalfp32fp32 (
 
 endmodule
 
+module complexAdd (
+  input clk,    // Clock
+  input reset, // Reset
+  // data
+  input complex_t in0,
+  input complex_t in1,
+  output complex_t out,
+  // control signal
+  input next,
+  output next_out
+);
+
+  addfp32 adder_real(.clk(clk), .enable(1'b1), .rst(reset), .a(in0.r), .b(in1.r), .out(out.r));
+  addfp32 adder_imag(.clk(clk), .enable(1'b1), .rst(reset), .a(in0.i), .b(in1.i), .out(out.i));
+
+  // delay 11
+  shiftRegFIFO #(11, 1) shiftFIFO_compplex_add(.X(next), .Y(next_out), .clk(clk));
+
+endmodule
+
+
 module multfp32fp32(clk, enable, rst, a, b, out);
    input [31:0] a, b;
    output [31:0] out;
