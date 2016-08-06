@@ -95,7 +95,7 @@ module convLayerFFT (
     for (i = 0; i < 4; i = i + 1) begin: tile_assignment_1
       for (j = 0; j < 4; j = j + 1) begin: tile_assignment_1_inner
         assign cacheline_out[128 * i + 32 * j + 31 : 128 * i + 32 * j] = tile_out[i][j];
-        assign tile_out[i][j] = block_mem_image_io[i].out[i][j].r;
+        assign tile_out[i][j] = block_mem_image_io[3].out[i][j].r;
       end
     end
   endgenerate

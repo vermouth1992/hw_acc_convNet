@@ -15,7 +15,7 @@
 #define bt32BitsWordLength
 #define M 8
 
-#define numMatrixWorkSpace 20
+#define numMatrixWorkSpace 2
 
 #ifdef bt32BitsWordLength
 #define oneMatrixSizeBytes M * M * 4

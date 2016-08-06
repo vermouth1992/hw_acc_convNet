@@ -1,15 +1,23 @@
 import sys
+
+sys.path.append("../")
+
 from util.ucb import main
 import numpy as np
 from arithmetics_test.floating_point import hex_to_num
 
 
-def transformLine(line):
+def transformLine_input(line):
     assert len(line) == 16
-    data = np.array(line).reshape((4, 4))
+    data = np.array(line[12:16]).reshape((2, 2))
     return data
 
+def transformLine_output(line):
+    assert len(line) == 16
+    return np.array(line).reshape((4, 4))
+
 def getExpectedOutputLine(input_array):
+    input_array = np.lib.pad(input_array, ((0, 2), (0, 2)), 'constant', constant_values=0)
     return np.fft.fft2(input_array).real.T
 
 
@@ -22,8 +30,8 @@ def verifyLine(input_line_data, output_line_data, line_index):
     input_data_raw = [hex_to_num(data) for data in input_line_data]
     output_data_raw = [hex_to_num(data) for data in output_line_data]
     # translate input raw data to numpy array
-    input_array = transformLine(input_data_raw)
-    output_array = transformLine(output_data_raw)
+    input_array = transformLine_input(input_data_raw)
+    output_array = transformLine_output(output_data_raw)
     # calculate expected result
     expected_array = getExpectedOutputLine(input_array)
     # calculate error
