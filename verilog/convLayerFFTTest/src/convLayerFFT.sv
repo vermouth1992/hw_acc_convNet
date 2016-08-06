@@ -13,11 +13,11 @@ module convLayerFFT (
   input input_valid,   // the valid data is on the next cycle
   input [511:0] cacheline_in,  // cache line data
   output reg output_valid,
-  output [511:0] cacheline_out
+  output [511:0] cacheline_out,
   // context
   input [31:0] ctx_length,
   input [2:0] select,
-  input output_fifo_full,
+  input output_fifo_full
 );
 
   // 4 fft4_2d_io
@@ -106,8 +106,7 @@ module convLayerFFT (
                               : (select == 3'b100) ? block_mem_image_io[2].out[i][j].r
                               : (select == 3'b101) ? block_mem_image_io[2].out[i][j].i
                               : (select == 3'b110) ? block_mem_image_io[3].out[i][j].r
-                              : (select == 3'b111) ? block_mem_image_io[3].out[i][j].i
-                              ;
+                              : block_mem_image_io[3].out[i][j].i;
       end
     end
   endgenerate

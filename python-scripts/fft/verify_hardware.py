@@ -18,7 +18,7 @@ def transformLine_output(line):
 
 def getExpectedOutputLine(input_array):
     input_array = np.lib.pad(input_array, ((0, 2), (0, 2)), 'constant', constant_values=0)
-    return np.fft.fft2(input_array).real.T
+    return np.fft.fft2(input_array).imag.T
 
 
 def verifyLine(input_line_data, output_line_data, line_index):

@@ -387,7 +387,7 @@ btInt HelloSPLLBApp::run() {
         pVAFU2_cntxt->pSource = pSource;
         pVAFU2_cntxt->pDest = pDest;
 
-        pVAFU2_cntxt->qword0[4] = 0;
+        pVAFU2_cntxt->qword0[4] = mode;
 
         MSG("VAFU2 Context=" << std::hex << (void *) pVAFU2_cntxt <<
                              " Src=" << std::hex << (void *) pVAFU2_cntxt->pSource <<

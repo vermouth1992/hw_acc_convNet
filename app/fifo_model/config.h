@@ -15,12 +15,15 @@
 #define bt32BitsWordLength
 #define M 8
 
-#define numMatrixWorkSpace 2
+#define numMatrixWorkSpace 20
 
 #ifdef bt32BitsWordLength
 #define oneMatrixSizeBytes M * M * 4
 #else
 #define oneMatrixSizeBytes M * M * 2
 #endif
+
+// 0 for 1st real, 1 for 1st imag, etc
+#define mode 7
 
 #endif //SW_APP_CONFIG_H
