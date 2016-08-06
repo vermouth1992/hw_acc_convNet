@@ -43,16 +43,27 @@ interface intf_fft4_2d (
   logic next, next_out;
 endinterface
 
-interface intf_block_mem_image (
+interface intf_block_mem # (
+  parameter DATA_WIDTH = 64,
+  parameter ADDR_WIDTH = 13
+) (
   input clk
   );
-  logic re;
-  logic [12:0] raddr;
-  logic wr;
-  logic [12:0] waddr;
-  complex_t in [0:3][0:3];
-  complex_t out [0:3][0:3];
+  logic we; // Write Enable
+  logic [DATA_WIDTH-1:0] data_in;
+  logic [ADDR_WIDTH-1:0] write_address;
+  logic [ADDR_WIDTH-1:0] read_address;
+  logic [DATA_WIDTH-1:0] data_out;
 
 endinterface
+
+interface intf_block_mem_image (
+  input clk
+  )
+  logic we;
+  logic [12:0] read_address;
+  logic [12:0] write_address;
+  complex_t in [0:3][0:3];
+  complex_t out [0:3][0:3];
 
 `endif
