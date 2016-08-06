@@ -9,12 +9,15 @@
 module convLayerFFT (
   input clk,    // Clock
   input reset,  // Synchronous reset active high
-  input [31:0] ctx_length,
+  // data
   input input_valid,   // the valid data is on the next cycle
   input [511:0] cacheline_in,  // cache line data
-  input output_fifo_full,
   output reg output_valid,
   output [511:0] cacheline_out
+  // context
+  input [31:0] ctx_length,
+  input [2:0] select,
+  input output_fifo_full,
 );
 
   // 4 fft4_2d_io
@@ -91,11 +94,20 @@ module convLayerFFT (
   /* output first fft_2d real */
   // reformat cacheline to vector
   wire [31:0] tile_out [0:3][0:3];
+
   generate
     for (i = 0; i < 4; i = i + 1) begin: tile_assignment_1
       for (j = 0; j < 4; j = j + 1) begin: tile_assignment_1_inner
         assign cacheline_out[128 * i + 32 * j + 31 : 128 * i + 32 * j] = tile_out[i][j];
-        assign tile_out[i][j] = block_mem_image_io[3].out[i][j].r;
+        assign tile_out[i][j] = (select == 3'b000) ? block_mem_image_io[0].out[i][j].r
+                              : (select == 3'b001) ? block_mem_image_io[0].out[i][j].i
+                              : (select == 3'b010) ? block_mem_image_io[1].out[i][j].r
+                              : (select == 3'b011) ? block_mem_image_io[1].out[i][j].i
+                              : (select == 3'b100) ? block_mem_image_io[2].out[i][j].r
+                              : (select == 3'b101) ? block_mem_image_io[2].out[i][j].i
+                              : (select == 3'b110) ? block_mem_image_io[3].out[i][j].r
+                              : (select == 3'b111) ? block_mem_image_io[3].out[i][j].i
+                              ;
       end
     end
   endgenerate
@@ -118,7 +130,7 @@ module convLayerFFT (
     if (reset) begin
       output_valid <= 0;
       read_address <= 0;
-    end else if (write_address == ctx_length && read_address != ctx_length && ~output_fifo_full) begin
+    end else if (read_address < write_address && read_address != ctx_length && ~output_fifo_full) begin
       output_valid <= 1;
       read_address <= read_address + 1;
     end else begin

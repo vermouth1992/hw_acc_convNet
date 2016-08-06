@@ -16,7 +16,8 @@ module afu_user # (
   output output_fifo_empty,
   output output_fifo_almost_empty,
   // other information
-  input [31:0] ctx_length
+  input [31:0] ctx_length,
+  input [511:0] afu_context
 );
   // input fifo
   wire [511:0] input_fifo_dout;
@@ -26,6 +27,10 @@ module afu_user # (
   wire [511:0] output_fifo_din;
   wire output_fifo_full;
   reg output_fifo_we;
+
+  wire [3:0] select;
+
+  assign select = afu_context[258:256];
 
   syn_read_fifo #(.FIFO_WIDTH(512),
                   .FIFO_DEPTH_BITS(BUFF_DEPTH_BITS),       // transfer size 1 -> 32 entries
@@ -52,6 +57,7 @@ module afu_user # (
     .reset        (reset),
     .ctx_length   (ctx_length),
     .input_valid  (input_fifo_re),
+    .select       (select),
     .cacheline_in (input_fifo_dout),
     .output_fifo_full (output_fifo_full),
     .output_valid (output_valid),

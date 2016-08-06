@@ -186,6 +186,7 @@ module afu_core (
     (* ramstyle = "logic" *) reg  [63:0]                     dsr_data[0:3]; 
 `endif
 
+    reg [511:0] afu_context;
 
     afu_user #(.BUFF_DEPTH_BITS(5+`MAX_TRANSFER_SIZE)
                ) afu_user (
@@ -200,7 +201,8 @@ module afu_core (
         .output_fifo_re(rxq_re),
         .output_fifo_empty(rxq_empty),
         .output_fifo_almost_empty(rxq_almostempty),
-        .ctx_length(ctx_length)
+        .ctx_length(ctx_length),
+        .afu_context(afu_context)
     );
         
     //-----------------------------------------------------------
@@ -630,7 +632,8 @@ module afu_core (
 //                        ctx_threshold <= io_rx_data[31:16];
                         ctx_src_ptr <= io_rx_data[127:70];
                         ctx_dst_ptr <= io_rx_data[191:134];
-                        ctx_length <= io_rx_data[223:192];    
+                        ctx_length <= io_rx_data[223:192];
+                        afu_context <= io_rx_data;    
                         ctx_valid <= 1'b1;
                         rx_rd_state <= RX_RD_STATE__RUN;
                     end
