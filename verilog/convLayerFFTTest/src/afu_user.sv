@@ -55,7 +55,7 @@ module afu_user # (
     .cacheline_in (input_fifo_dout),
     .output_fifo_full (output_fifo_full),
     .output_valid (output_valid),
-    .cacheline_out(output_fifo_din),
+    .cacheline_out(output_fifo_din)
     );
 
   // input re

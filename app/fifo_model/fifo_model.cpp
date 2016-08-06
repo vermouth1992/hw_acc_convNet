@@ -461,8 +461,8 @@ btInt HelloSPLLBApp::run() {
 
             // Wait for SPL VAFU to finish code
             volatile bt32bitInt done = pVAFU2_cntxt->Status & VAFU2_CNTXT_STATUS_DONE;
-            while (!done) {
-                // SleepMilli((unsigned long) delay);
+            while (!done && --count) {
+                SleepMilli((unsigned long) delay);
                 done = pVAFU2_cntxt->Status & VAFU2_CNTXT_STATUS_DONE;
                 if (done) MSG("AFU has signaled done.");
             }

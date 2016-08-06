@@ -59,11 +59,12 @@ endinterface
 
 interface intf_block_mem_image (
   input clk
-  )
+  );
   logic we;
   logic [12:0] read_address;
   logic [12:0] write_address;
   complex_t in [0:3][0:3];
   complex_t out [0:3][0:3];
 
+endinterface
 `endif

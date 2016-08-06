@@ -48,13 +48,13 @@ module convLayerFFT (
       assign fft4_2d_io[i].in[1][1].r = tile[i][3];
       assign fft4_2d_io[i].in[1][2].r = 0;
       assign fft4_2d_io[i].in[1][3].r = 0;
-      for (j=2; j<4; j=j+1) begin: zero_assign
-        for (k=0; k<4; k=k+1) begin: zero_assign_inner
+      for (j=2; j<4; j=j+1) begin: zero_assign_0_outer
+        for (k=0; k<4; k=k+1) begin: zero_assign_0_inner
           assign fft4_2d_io[i].in[j][k].r = 0;
         end
       end
-      for (j=0; j<4; j=j+1) begin: zero_assign
-        for (k=0; k<4; k=k+1) begin: zero_assign_inner
+      for (j=0; j<4; j=j+1) begin: zero_assign_1_outer
+        for (k=0; k<4; k=k+1) begin: zero_assign_1_inner
           assign fft4_2d_io[i].in[j][k].i = 0;
         end
       end
@@ -92,8 +92,8 @@ module convLayerFFT (
   // reformat cacheline to vector
   wire [31:0] tile_out [0:3][0:3];
   generate
-    for (i = 0; i < 4; i = i + 1) begin: tile_assignment
-      for (j = 0; j < 4; j = j + 1) begin: tile_assignment_inner
+    for (i = 0; i < 4; i = i + 1) begin: tile_assignment_1
+      for (j = 0; j < 4; j = j + 1) begin: tile_assignment_1_inner
         assign cacheline_out[128 * i + 32 * j + 31 : 128 * i + 32 * j] = tile_out[i][j];
         assign tile_out[i][j] = block_mem_image_io[i].out[i][j].r;
       end

@@ -38,14 +38,14 @@ module memBlockImage (
   intf_block_mem block_mem_io [15:0] (block_mem_image_io.clk);
 
   generate
-    for (i=0; i<16; i=i+1) begin: i
+    for (i=0; i<16; i=i+1) begin: dual_port_ram_loop
       dual_port_ram #(64, 13) dual_port_ram_inst (
-        .clk           (block_mem_io.clk),
+        .clk           (block_mem_io[i].clk),
         .we            (block_mem_io[i].we),
         .data_in       (block_mem_io[i].data_in),
         .write_address (block_mem_io[i].write_address),
         .read_address (block_mem_io[i].read_address),
-        .data_out     (block_mem_io[i].data_out),
+        .data_out     (block_mem_io[i].data_out)
         );
       assign block_mem_io[i].we = block_mem_image_io.we;
       assign block_mem_io[i].write_address = block_mem_image_io.write_address;
@@ -54,9 +54,10 @@ module memBlockImage (
   endgenerate
 
   generate
-    for (i=0; i<4; i=i+1) begin:i
-      for (j=0; j<4; j=j+1) begin: j
-        assign block_mem_io[4*i+j].data_in = '{block_mem_image_io.in[i][j].r, block_mem_image_io.in[i][j].i};
+    for (i=0; i<4; i=i+1) begin: block_mem_image_io_loop_outer
+      for (j=0; j<4; j=j+1) begin: block_mem_image_io_loop_inner
+        assign block_mem_io[4*i+j].data_in[63:32] = block_mem_image_io.in[i][j].r;
+        assign block_mem_io[4*i+j].data_in[31:0] = block_mem_image_io.in[i][j].i;
         assign block_mem_image_io.out[i][j].r = block_mem_io[4*i+j].data_out[63:32];
         assign block_mem_image_io.out[i][j].i = block_mem_io[4*i+j].data_out[31:0];
       end
