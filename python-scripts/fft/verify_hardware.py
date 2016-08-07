@@ -9,7 +9,7 @@ from arithmetics_test.floating_point import hex_to_num
 
 def transformLine_input(line):
     assert len(line) == 16
-    data = np.array(line[12:16]).reshape((2, 2))
+    data = np.array(line[0:4]).reshape((2, 2))
     return data
 
 def transformLine_output(line):
