@@ -59,11 +59,25 @@ endinterface
 
 interface intf_block_mem_image (
   input clk
-  )
+  );
   logic we;
   logic [12:0] read_address;
   logic [12:0] write_address;
   complex_t in [0:3][0:3];
   complex_t out [0:3][0:3];
+
+endinterface
+
+interface intf_block_mem_kernel (
+  input clk
+  );
+  logic we;
+  logic [8:0] read_address;  // always 16 complex number
+  logic [8:0] write_address; // always 8 complex number a time to write
+  logic select;              // used to select which sub mem block
+  complex_t in [0:3][0:1];   // 4 * 2 complex number
+  complex_t out [0:3][0:3];
+
+endinterface
 
 `endif

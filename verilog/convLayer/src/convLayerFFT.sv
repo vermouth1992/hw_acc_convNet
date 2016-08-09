@@ -9,11 +9,12 @@
 module convLayerFFT (
   input clk,    // Clock
   input reset,  // Synchronous reset active high
-  input [31:0] ctx_length,
+  // data
+  input image_or_filter,   // 0 for image and 1 for filter
   input input_valid,   // the valid data is on the next cycle
   input [511:0] cacheline_in,  // cache line data
   output reg output_valid,
-  output [511:0] cacheline_out
+  output [511:0] cacheline_out,
 );
 
   // 4 fft4_2d_io
@@ -47,13 +48,13 @@ module convLayerFFT (
       assign fft4_2d_io[i].in[1][1].r = tile[i][3];
       assign fft4_2d_io[i].in[1][2].r = 0;
       assign fft4_2d_io[i].in[1][3].r = 0;
-      for (j=2; j<4; j=j+1) begin: zero_assign
-        for (k=0; k<4; k=k+1) begin: zero_assign_inner
+      for (j=2; j<4; j=j+1) begin: zero_assign_0_outer
+        for (k=0; k<4; k=k+1) begin: zero_assign_0_inner
           assign fft4_2d_io[i].in[j][k].r = 0;
         end
       end
-      for (j=0; j<4; j=j+1) begin: zero_assign
-        for (k=0; k<4; k=k+1) begin: zero_assign_inner
+      for (j=0; j<4; j=j+1) begin: zero_assign_1_outer
+        for (k=0; k<4; k=k+1) begin: zero_assign_1_inner
           assign fft4_2d_io[i].in[j][k].i = 0;
         end
       end
@@ -68,9 +69,9 @@ module convLayerFFT (
   endgenerate
 
   // instantiate 4 image mem block, connect all the control info together
-  reg [12:0] read_address;
-  reg [12:0] write_address;
-  reg we;
+  reg [12:0] image_read_address;
+  reg [12:0] image_write_address;
+  reg image_we;
   wire fft_next_out;
   assign fft_next_out = fft4_2d_io[0].next_out & fft4_2d_io[1].next_out & fft4_2d_io[2].next_out & fft4_2d_io[3].next_out;
 
@@ -80,46 +81,46 @@ module convLayerFFT (
     for (i=0; i<4; i=i+1) begin: image_block_array
       memBlockImage memBlockImage_inst(block_mem_image_io[i]);
       assign block_mem_image_io[i].in = fft4_2d_io[i].out;     // connect the output of 2dfft to mem block
-      assign block_mem_image_io[i].we = we;
-      assign block_mem_image_io[i].read_address = read_address;
-      assign block_mem_image_io[i].write_address = write_address;
+      assign block_mem_image_io[i].we = image_we;
+      assign block_mem_image_io[i].read_address = image_read_address;
+      assign block_mem_image_io[i].write_address = image_write_address;
     end
   endgenerate
 
-  // cacheline out based on the select signal
-  /* output first fft_2d real */
-  // reformat cacheline to vector
-  wire [31:0] tile_out [0:3][0:3];
+
+  reg kernel_we;
+  reg [8:0] kernel_read_address;
+  reg [8:0] kernel_write_address;
+
+  intf_block_mem_kernel block_mem_kernel_io [0:1] (clk);
+
   generate
-    for (i = 0; i < 4; i = i + 1) begin: tile_assignment
-      for (j = 0; j < 4; j = j + 1) begin: tile_assignment_inner
-        assign cacheline_out[128 * i + 32 * j + 31 : 128 * i + 32 * j] = tile_out[i][j];
-        assign tile_out[i][j] = block_mem_image_io[i].out[i][j].r;
-      end
-    end
-  endgenerate
+    for(i=0; i<2; i=i+1) begin: kernel_block_array
+      memBlockKernel memBlockKernel_inst(block_mem_kernel_io[i]);
+      
 
 
   // control signal, first write all the data to memory block, then read all the data out
+  enum {WRITE_IMAGE, WRITE_KERNEL_0, WRITE_KERNEL_1, WRITE_DONE} write_state;
 
-  // write logic
   always@(posedge clk) begin
     if (reset) begin
-      write_address <= 0;
-    end else if (we) begin
-      write_address <= write_address + 1;
-    end
-    we <= fft_next_out;
-  end
+      write_state <= WRITE_IMAGE;
+      image_write_address <= 0;
+    end else begin
+      image_we <= fft_next_out;
+      case (write_state)
+        WRITE_IMAGE: begin
+          if (image_we) begin
+            image_write_address <= image_write_address + 1;
+          end
+          if (image_or_filter == 1'b0) begin
+            write_state <= WRITE_KERNEL_0;
+          end
+        end
 
-  // read logic
-  always@(posedge clk) begin
-    if (reset) begin
-      read_address <= 0;
-    end else if (write_address == ctx_length && read_address != ctx_length) begin
-      output_valid <= 1;
-      read_address <= read_address + 1;
-    end
-  end
+        WRITE_KERNEL_0: begin
 
+
+  
 endmodule
