@@ -143,3 +143,66 @@ module memBlockKernel (
 
 
 endmodule // memBlockKernel
+
+
+// memBlockKernel testbench
+
+module memBlockKernel_tb(
+  intf_block_mem_kernel block_mem_kernel_io,
+  input reset
+  );
+
+  integer i, j;
+
+  initial begin
+    wait(reset);
+    block_mem_kernel_io.read_address = 0;
+    block_mem_kernel_io.write_address = 0;
+    block_mem_kernel_io.we = 0;
+    @(posedge block_mem_kernel_io.clk);
+    repeat(16) begin
+      @(posedge block_mem_kernel_io.clk);
+      block_mem_kernel_io.select = 1'b0;
+      block_mem_kernel_io.we = 1;
+      for (i=0; i<4; i=i+1) begin
+        for (j=0; j<2; j=j+1) begin
+          block_mem_kernel_io.in[i][j].r = $random();
+          block_mem_kernel_io.in[i][j].i = $random();
+        end
+      end
+      for (i=0; i<4; i=i+1) begin
+        for (j=0; j<2; j=j+1) begin
+          $display("%h + j%h", block_mem_kernel_io.in[i][j].r, block_mem_kernel_io.in[i][j].i);
+        end
+      end
+      @(posedge block_mem_kernel_io.clk);
+      block_mem_kernel_io.select = 1'b1;
+      block_mem_kernel_io.we = 1;
+      for (i=0; i<4; i=i+1) begin
+        for (j=0; j<2; j=j+1) begin
+          block_mem_kernel_io.in[i][j].r = $random();
+          block_mem_kernel_io.in[i][j].i = $random();
+        end
+      end
+      for (i=0; i<4; i=i+1) begin
+        for (j=0; j<2; j=j+1) begin
+          $display("%h + j%h", block_mem_kernel_io.in[i][j].r, block_mem_kernel_io.in[i][j].i);
+        end
+      end
+
+      block_mem_kernel_io.write_address = block_mem_kernel_io.write_address + 1;
+    end
+
+    repeat(16) begin
+      @(posedge block_mem_kernel_io.clk);
+      for (i=0; i<4; i=i+1) begin
+        for (j=0; j<4; j=j+1) begin
+          $display("%h + j%h", block_mem_kernel_io.out[i][j].r, block_mem_kernel_io.out[i][j].i);
+        end
+      end
+      block_mem_kernel_io.read_address = block_mem_kernel_io.read_address + 1;
+    end
+
+endmodule
+
+
