@@ -18,7 +18,7 @@ module convLayerFFT (
 );
 
   // 4 fft4_2d_io
-  intf_fft4_2d fft4_2d_io[0:3](clk, reset);
+  intf_fft_2d #(4) fft4_2d_io[0:3](clk, reset);
   // instantiate 4 fft4_2d
   genvar i, j, k;
   generate

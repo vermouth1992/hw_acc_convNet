@@ -5,7 +5,7 @@
 `include "common.vh"
 
 module fft4_wrapper (
-  intf_fft4 fft_io
+  intf_fft fft_io
 );
 
   dft4_top fft_inst (
@@ -35,7 +35,7 @@ endmodule
 
 
 module ifft4_wrapper (
-  intf_fft4 fft_io
+  intf_fft fft_io
 );
 
   idft4_top fft_inst (
@@ -65,7 +65,7 @@ endmodule
 
 
 module fft8_wrapper (
-  intf_fft8 fft_io
+  intf_fft fft_io
 );
 
   dft8_top fft_inst (
@@ -110,7 +110,7 @@ module fft8_wrapper (
 endmodule
 
 module ifft8_wrapper (
-  intf_fft8 fft_io
+  intf_fft fft_io
 );
 
   idft8_top fft_inst (
@@ -160,7 +160,7 @@ endmodule
 // testbench for SystemVerilog fft wrapper
 
 module fft8_wrapper_tb (
-  intf_fft8 fft_io
+  intf_fft fft_io
 );
 
   integer i;
@@ -205,7 +205,7 @@ module fft8_wrapper_tb_top;
 
   always # 10 clk = ~clk;
   
-  intf_fft8 io(clk, reset);
+  intf_fft io(clk, reset);
 
   fft8_wrapper fft_inst(io);
   fft8_wrapper_tb fft_inst_tb(io);
