@@ -77,8 +77,8 @@ module memBlockKernel (
   genvar i, j;
 
   // when assign the interface port, remember to split to two parts
-  intf_block_mem block_mem_io_0 [7:0] (block_mem_kernel_io.clk);
-  intf_block_mem block_mem_io_1 [7:0] (block_mem_kernel_io.clk);
+  intf_block_mem #(64, 9) block_mem_io_0 [7:0] (block_mem_kernel_io.clk);
+  intf_block_mem #(64, 9) block_mem_io_1 [7:0] (block_mem_kernel_io.clk);
 
   wire we_0, we_1;
 
@@ -95,22 +95,23 @@ module memBlockKernel (
 
   // connect data
   generate
-    for (i=0; i<4; i=i+1) begin: input_port_connection_data_outer
-      for (j=0; j<2; j=j+1) begin: input_port_connection_data_inner
-        assign block_mem_io_0[2*i+j].data_in[63:32] = block_mem_image_io.in[i][j].r;
-        assign block_mem_io_0[2*i+j].data_in[31:0] = block_mem_image_io.in[i][j].i;
-        assign block_mem_image_io.out[i][j].r = block_mem_io_0[2*i+j].data_out[63:32];
-        assign block_mem_image_io.out[i][j].i = block_mem_io_0[2*i+j].data_out[31:0];
+    for (i=0; i<4; i=i+1) begin: input_port_connection_data_outer_0
+      for (j=0; j<2; j=j+1) begin: input_port_connection_data_inner_0
+        assign block_mem_io_0[2*i+j].data_in[63:32] = block_mem_kernel_io.in[i][j].r;
+        assign block_mem_io_0[2*i+j].data_in[31:0] = block_mem_kernel_io.in[i][j].i;
+        assign block_mem_kernel_io.out[i][j].r = block_mem_io_0[2*i+j].data_out[63:32];
+        assign block_mem_kernel_io.out[i][j].i = block_mem_io_0[2*i+j].data_out[31:0];
       end
     end
-    for (i=0; i<4; i=i+1) begin: input_port_connection_data_outer
-      for (j=0; j<2; j=j+1) begin: input_port_connection_data_inner
-        assign block_mem_io_1[2*i+j].data_in[63:32] = block_mem_image_io.in[i][j].r;
-        assign block_mem_io_1[2*i+j].data_in[31:0] = block_mem_image_io.in[i][j].i;
-        assign block_mem_image_io.out[i][j+2].r = block_mem_io_1[2*i+j].data_out[63:32];
-        assign block_mem_image_io.out[i][j+2].i = block_mem_io_1[2*i+j].data_out[31:0];
+    for (i=0; i<4; i=i+1) begin: input_port_connection_data_outer_1
+      for (j=0; j<2; j=j+1) begin: input_port_connection_data_inner_1
+        assign block_mem_io_1[2*i+j].data_in[63:32] = block_mem_kernel_io.in[i][j].r;
+        assign block_mem_io_1[2*i+j].data_in[31:0] = block_mem_kernel_io.in[i][j].i;
+        assign block_mem_kernel_io.out[i][j+2].r = block_mem_io_1[2*i+j].data_out[63:32];
+        assign block_mem_kernel_io.out[i][j+2].i = block_mem_io_1[2*i+j].data_out[31:0];
       end
     end
+  endgenerate
 
   // instantiate
   generate
@@ -202,6 +203,7 @@ module memBlockKernel_tb(
       end
       block_mem_kernel_io.read_address = block_mem_kernel_io.read_address + 1;
     end
+  end
 
 endmodule
 
