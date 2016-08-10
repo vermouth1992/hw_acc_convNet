@@ -205,4 +205,24 @@ module memBlockKernel_tb(
 
 endmodule
 
+module memBlockKernel_tb_top;
+
+  reg clk;
+  reg reset;
+  initial begin
+    clk = 0;
+    reset = 1;
+    #15;
+    reset = 0;
+  end
+
+  always # 10 clk = ~clk;
+
+  intf_block_mem_kernel block_mem_kernel_io(clk);
+
+  memBlockKernel memBlockKernel_inst(block_mem_kernel_io);
+  memBlockKernel_tb memBlockKernel_tb_inst(block_mem_kernel_io, reset);
+
+endmodule
+
 
