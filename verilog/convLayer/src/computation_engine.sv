@@ -46,6 +46,7 @@ module complexAccumulatorArray (
   input clk,
   input reset,
   input clear,
+  
   );
 
 endmodule

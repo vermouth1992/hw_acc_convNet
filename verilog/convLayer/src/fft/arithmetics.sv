@@ -84,16 +84,94 @@ module complexAdd (
 endmodule
 
 
-module complexAccumulator (
+/* Complex accumulator using log-sum, must make sure each cycle, there is data fed in. */
+module delaySum # (
+  parameter DELAY = 1
+) (
   input clk,
   input reset,
-  input clear,
+  input complex_t in,
+  input complex_t out,
+  );
+
+  wire complex_t delayed_in;
+
+  shiftRegFIFO #(DELAY, 32) shiftFIFO_inst(.X(in), .Y(delayed_in), .clk(clk));
+
+  complexAdd complexAdd_inst(.clk(clk), .reset(reset), .in0(in), .in1(delayed_in), .out(out));
+
+endmodule
+
+module complexAccumulator # (
+  parameter LENGTH = 4
+) (
+  input clk,
+  input reset,
   // data
   input complex_t in,
-  output complex_t out,
-  // signal
-  output busy
+  output complex_t out
   );
+  genvar i;
+
+  wire complex_t in_array [0:LENGTH-1];
+  wire complex_t out_array [0:LENGTH-1];
+
+  generate
+    for (i=0; i<LENGTH; i=i+1) begin: accumulator
+      delaySum delaySum_inst(
+        .clk  (clk),
+        .reset(reset),
+        .in   (in_array[i]),
+        .out  (out_array[i])
+        );
+    end
+  endgenerate
+
+  assign in_array[0] = in;
+
+  assign out = out_array[LENGTH-1];
+
+endmodule
+
+
+module complexAccumulator_tb;
+  reg clk;
+  reg reset;
+  wire complex_t in;
+  wire complex_t out;
+  initial begin
+    clk = 0;
+    reset = 1;
+    #5;
+    reset = 0;
+  end
+
+  always # 10 clk = ~clk;
+
+  reg [31:0] real_index;
+  reg [31:0] imag_index;
+
+  wire complex_t out;
+
+  complexAccumulator #(4) uut (
+    .clk  (clk),
+    .reset(reset),
+    .in   (`{real_index, imag_index}),
+    .out  (out),
+    );
+
+  always@(posedge clk) begin
+    if (reset) begin
+      real_index <= 0;
+      imag_index <= 0;
+    end else begin
+      real_index <= real_index + 1;
+      imag_index <= imag_index + 1;
+    end
+  end
+
+endmodule
+
 
 
 
