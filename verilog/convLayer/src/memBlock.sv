@@ -231,3 +231,61 @@ module memBlockKernel_tb_top;
 endmodule
 
 
+/* The top module of 4 memBlockImage */
+
+module memBlockImage_top (
+  input clk,
+  input logic [12:0] read_address,
+  input logic [12:0] write_address,
+  input we,
+  input complex_t in [0:3][0:3][0:3],
+  output complex_t out [0:3][0:3][0:3]
+  );
+
+  intf_block_mem_image block_mem_image_io[0:3](clk);
+
+  generate
+    for (i=0; i<4; i=i+1) begin: image_block_array
+      memBlockImage memBlockImage_inst(block_mem_image_io[i]);
+      assign block_mem_image_io[i].in = in[i];     // connect the output of 2dfft to mem block
+      assign out[i] = block_mem_image_io[i].out;
+      assign block_mem_image_io[i].we = image_we;
+      assign block_mem_image_io[i].read_address = read_address;
+      assign block_mem_image_io[i].write_address = write_address;
+    end
+  endgenerate
+
+endmodule
+
+/* The top module of 2 memBlockKernel,  */
+
+module memBlockKernel_top (
+  input clk,
+  input logic we,
+  input [8:0] read_address,
+  input [8:0] write_address,
+  input select_block_rd,
+  input select_block_we,
+  input select_sub_block_we,
+  input complex_t in [0:1][0:3],   // one cacheline
+  output complex_t out [0:3][0:3]  // 16 kernel complex number
+  );
+
+  intf_block_mem_kernel block_mem_kernel_io [0:1] (clk);
+
+  generate
+    for(i=0; i<2; i=i+1) begin: kernel_block_array
+      memBlockKernel memBlockKernel_inst(block_mem_kernel_io[i]);
+      assign block_mem_kernel_io[i].we = (select_block_we == i) ? we : 1'b0;
+      assign block_mem_kernel_io[i].read_address = read_address;
+      assign block_mem_kernel_io[i].write_address = write_address;
+      assign block_mem_kernel_io[i].select = select_sub_block_we;
+      assign block_mem_kernel_io[i].in = in;
+    end
+  endgenerate
+
+  // select read block
+  assign out = (select_block_rd == 1'b0) ? block_mem_kernel_io[0].out : block_mem_kernel_io[1].out;
+
+endmodule
+

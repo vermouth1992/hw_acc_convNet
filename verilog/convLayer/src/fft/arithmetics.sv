@@ -84,6 +84,19 @@ module complexAdd (
 endmodule
 
 
+module complexAccumulator (
+  input clk,
+  input reset,
+  input clear,
+  // data
+  input complex_t in,
+  output complex_t out,
+  // signal
+  output busy
+  );
+
+
+
 module multfp32fp32(clk, enable, rst, a, b, out);
    input [31:0] a, b;
    output [31:0] out;

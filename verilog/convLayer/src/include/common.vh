@@ -46,6 +46,7 @@ interface intf_block_mem # (
 
 endinterface
 
+
 interface intf_block_mem_image (
   input clk
   );

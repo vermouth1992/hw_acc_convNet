@@ -10,20 +10,19 @@ module convLayerFFT (
   input clk,    // Clock
   input reset,  // Synchronous reset active high
   // data
-  input image_or_filter,   // 0 for image and 1 for filter
-  input input_valid,   // the valid data is on the next cycle
+  input next,   // the valid data is on the next cycle
+  output next_out,
   input [511:0] cacheline_in,  // cache line data
-  output reg output_valid,
-  output [511:0] cacheline_out,
+  output complex_t out [0:3][0:3][0:3]
 );
 
   // 4 fft4_2d_io
   intf_fft_2d #(4) fft4_2d_io[0:3](clk, reset);
-  // instantiate 4 fft4_2d
+  // instantiate 4 fft_2d
   genvar i, j, k;
   generate
     for (i=0; i<4; i=i+1) begin: fft4_2d_inst_gen
-      fft4_2d fft4_2d_inst(fft4_2d_io[i]);
+      fft_2d #(4) fft4_2d_inst(fft4_2d_io[i]);
     end
   endgenerate
 
@@ -64,63 +63,18 @@ module convLayerFFT (
   // assgin next signal
   generate
     for (i=0; i<4; i=i+1) begin: next_io
-      assign fft4_2d_io[i].next = input_valid;
+      assign fft4_2d_io[i].next = next;
     end
   endgenerate
 
-  // instantiate 4 image mem block, connect all the control info together
-  reg [12:0] image_read_address;
-  reg [12:0] image_write_address;
-  reg image_we;
-  wire fft_next_out;
-  assign fft_next_out = fft4_2d_io[0].next_out & fft4_2d_io[1].next_out & fft4_2d_io[2].next_out & fft4_2d_io[3].next_out;
+  // if it is not correct, then use AND gate
+  assign next_out = fft4_2d_io[0].next_out;
 
-  intf_block_mem_image block_mem_image_io[0:3](clk);
-
+  // assign output
   generate
-    for (i=0; i<4; i=i+1) begin: image_block_array
-      memBlockImage memBlockImage_inst(block_mem_image_io[i]);
-      assign block_mem_image_io[i].in = fft4_2d_io[i].out;     // connect the output of 2dfft to mem block
-      assign block_mem_image_io[i].we = image_we;
-      assign block_mem_image_io[i].read_address = image_read_address;
-      assign block_mem_image_io[i].write_address = image_write_address;
+    for (i=0; i<4; i=i+1) begin: out_i
+      assign out[i] = fft4_2d_io[i].out;
     end
   endgenerate
-
-
-  reg kernel_we;
-  reg [8:0] kernel_read_address;
-  reg [8:0] kernel_write_address;
-
-  intf_block_mem_kernel block_mem_kernel_io [0:1] (clk);
-
-  generate
-    for(i=0; i<2; i=i+1) begin: kernel_block_array
-      memBlockKernel memBlockKernel_inst(block_mem_kernel_io[i]);
-      
-
-
-  // control signal, first write all the data to memory block, then read all the data out
-  enum {WRITE_IMAGE, WRITE_KERNEL_0, WRITE_KERNEL_1, WRITE_DONE} write_state;
-
-  always@(posedge clk) begin
-    if (reset) begin
-      write_state <= WRITE_IMAGE;
-      image_write_address <= 0;
-    end else begin
-      image_we <= fft_next_out;
-      case (write_state)
-        WRITE_IMAGE: begin
-          if (image_we) begin
-            image_write_address <= image_write_address + 1;
-          end
-          if (image_or_filter == 1'b0) begin
-            write_state <= WRITE_KERNEL_0;
-          end
-        end
-
-        WRITE_KERNEL_0: begin
-
-
   
 endmodule
