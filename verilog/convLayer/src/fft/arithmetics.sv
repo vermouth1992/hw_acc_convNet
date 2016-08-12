@@ -94,7 +94,7 @@ module delaySum # (
   output complex_t out
   );
 
-  wire complex_t delayed_in;
+  complex_t delayed_in;
 
   shiftRegFIFO #(DELAY, 64) shiftFIFO_inst(.X(in), .Y(delayed_in), .clk(clk));
 
@@ -113,8 +113,8 @@ module complexAccumulator # (
   );
   genvar i;
 
-  wire complex_t in_array [0:LENGTH-1];
-  wire complex_t out_array [0:LENGTH-1];
+  complex_t in_array [0:LENGTH-1];
+  complex_t out_array [0:LENGTH-1];
 
   generate
     for (i=0; i<LENGTH; i=i+1) begin: accumulator
@@ -143,8 +143,8 @@ endmodule
 module complexAccumulator_tb;
   reg clk;
   reg reset;
-  wire complex_t in;
-  wire complex_t out;
+  complex_t in;
+  complex_t out;
   initial begin
     clk = 0;
     reset = 1;
@@ -153,12 +153,6 @@ module complexAccumulator_tb;
   end
 
   always # 10 clk = ~clk;
-
-  reg [31:0] real_index;
-  reg [31:0] imag_index;
-
-  assign in.r = real_index;
-  assign in.i = imag_index;
 
   complexAccumulator #(1) uut (
     .clk  (clk),
@@ -169,11 +163,11 @@ module complexAccumulator_tb;
 
   always@(posedge clk or posedge reset) begin
     if (reset) begin
-      real_index <= 0;
-      imag_index <= 0;
+      in.r <= 0;
+      in.i <= 0;
     end else begin
-      real_index <= real_index + 1;
-      imag_index <= imag_index + 1;
+      in.r <= $random();
+      in.i <= $random();
     end
   end
 
