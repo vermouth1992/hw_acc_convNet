@@ -91,14 +91,14 @@ module delaySum # (
   input clk,
   input reset,
   input complex_t in,
-  input complex_t out,
+  output complex_t out
   );
 
   wire complex_t delayed_in;
 
-  shiftRegFIFO #(DELAY, 32) shiftFIFO_inst(.X(in), .Y(delayed_in), .clk(clk));
+  shiftRegFIFO #(DELAY, 64) shiftFIFO_inst(.X(in), .Y(delayed_in), .clk(clk));
 
-  complexAdd complexAdd_inst(.clk(clk), .reset(reset), .in0(in), .in1(delayed_in), .out(out));
+  complexAdd complexAdd_inst(.clk(clk), .reset(reset), .in0(in), .in1(delayed_in), .out(out), .next(), .next_out());
 
 endmodule
 
@@ -118,13 +118,19 @@ module complexAccumulator # (
 
   generate
     for (i=0; i<LENGTH; i=i+1) begin: accumulator
-      delaySum delaySum_inst(
+      delaySum #(2**i) delaySum_inst(
         .clk  (clk),
         .reset(reset),
         .in   (in_array[i]),
         .out  (out_array[i])
         );
     end
+  endgenerate
+
+  generate
+    for (i=1; i<LENGTH; i=i+1) begin: inout_assign
+      assign in_array[i] = out_array[i-1];
+	end
   endgenerate
 
   assign in_array[0] = in;
@@ -151,16 +157,17 @@ module complexAccumulator_tb;
   reg [31:0] real_index;
   reg [31:0] imag_index;
 
-  wire complex_t out;
+  assign in.r = real_index;
+  assign in.i = imag_index;
 
-  complexAccumulator #(4) uut (
+  complexAccumulator #(1) uut (
     .clk  (clk),
     .reset(reset),
-    .in   (`{real_index, imag_index}),
-    .out  (out),
+    .in   (in),
+    .out  (out)
     );
 
-  always@(posedge clk) begin
+  always@(posedge clk or posedge reset) begin
     if (reset) begin
       real_index <= 0;
       imag_index <= 0;
