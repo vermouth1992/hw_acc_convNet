@@ -100,16 +100,16 @@ def AlexNetGOp():
     result += convLayerSizeOriginal((27, 27, 96), (5, 5, 96), 256, 2)
     result += convLayerSizeOriginal((13, 13, 256), (3, 3, 256), 384, 1) * 2
     result += convLayerSizeOriginal((13, 13, 256), (3, 3, 256), 256, 1)
-    result += (4096 ** 2 + 4096 * 1000) / 1e9
+    result += (4096 * (512 * 7 * 7 * 2) + 4096 * (4096 * 2) + 4096 * 2 * 1000) / 1e9
     return result
 
 
 def test():
-    imageSize = (224, 224, 64)
+    imageSize = (112, 112, 64)
     filterSize = (5, 5, 64)
-    numKernel = 64
-    padding = 1
-    print convLayerSizeOriginal(imageSize, filterSize, numKernel, padding)
+    numKernel = 128
+    padding = 3
+    print convLayerSizeOriginal(imageSize, filterSize, numKernel, padding, stride=1)
     unitSize = findUnitSize(filterSize)
     print convLayerSizeFFT(imageSize, filterSize, numKernel, padding, unitSize, 3, True, True)
     print "AlexNet GOps:", AlexNetGOp()

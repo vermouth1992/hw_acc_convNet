@@ -7,7 +7,7 @@ def hex_to_num(hexadecimal):
 
 
 def floating_to_hex(num):
-    return ''.join(bin(ord(c)).replace('0b', '').rjust(8, '0') for c in struct.pack('!f', num))
+    return ''.join(hex(ord(c)).replace('0x', '').rjust(2, '0') for c in struct.pack('!f', num))
 
 
 class FloatingPoint():

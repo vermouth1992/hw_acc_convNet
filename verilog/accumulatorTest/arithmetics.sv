@@ -1,4 +1,8 @@
-`include "common.vh"
+
+typedef struct packed {
+  logic [31:0] r;
+  logic [31:0] i;
+} complex_t;
 
 module complexMultConventionfp32fp32 (
   input clk,
@@ -82,63 +86,6 @@ module complexAdd (
   shiftRegFIFO #(11, 1) shiftFIFO_compplex_add(.X(next), .Y(next_out), .clk(clk));
 
 endmodule
-
-
-/* Complex accumulator using log-sum, must make sure each cycle, there is data fed in. */
-module delaySum # (
-  parameter DELAY = 1
-) (
-  input clk,
-  input reset,
-  input complex_t in,
-  output complex_t out
-  );
-
-  complex_t delayed_in;
-
-  shiftRegFIFO #(DELAY, 64) shiftFIFO_inst(.X(in), .Y(delayed_in), .clk(clk));
-
-  complexAdd complexAdd_inst(.clk(clk), .reset(reset), .in0(in), .in1(delayed_in), .out(out), .next(), .next_out());
-
-endmodule
-
-module complexAccumulator # (
-  parameter LENGTH = 4
-) (
-  input clk,
-  input reset,
-  // data
-  input complex_t in,
-  output complex_t out
-  );
-  genvar i;
-
-  complex_t in_array [0:LENGTH-1];
-  complex_t out_array [0:LENGTH-1];
-
-  generate
-    for (i=0; i<LENGTH; i=i+1) begin: accumulator
-      delaySum #(2**i) delaySum_inst(
-        .clk  (clk),
-        .reset(reset),
-        .in   (in_array[i]),
-        .out  (out_array[i])
-        );
-    end
-  endgenerate
-
-  generate
-    for (i=1; i<LENGTH; i=i+1) begin: inout_assign
-      assign in_array[i] = out_array[i-1];
-	end
-  endgenerate
-
-  assign in_array[0] = in;
-
-  assign out = out_array[LENGTH-1];
-
-endmodule
-
 
 module multfp32fp32(clk, enable, rst, a, b, out);
    input [31:0] a, b;
