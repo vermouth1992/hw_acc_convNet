@@ -1,8 +1,5 @@
 
-typedef struct packed {
-  logic [31:0] r;
-  logic [31:0] i;
-} complex_t;
+`include "common.vh"
 
 module complexMultConventionfp32fp32 (
   input clk,

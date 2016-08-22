@@ -1,4 +1,8 @@
 import struct
+import sys
+
+sys.path.append("../")
+
 from util.ucb import main
 
 

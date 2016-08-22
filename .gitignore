@@ -18,6 +18,7 @@ out/
 *.txt
 *.h5
 *.do
+*.vstf
 *.sublime-workspace
 *.sublime-project
 .ipynb_checkpoints/
