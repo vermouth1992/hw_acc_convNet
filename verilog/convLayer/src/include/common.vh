@@ -66,7 +66,7 @@ interface intf_block_mem_kernel (
   logic [8:0] write_address; // always 8 complex number a time to write
   logic select;              // used to select which sub mem block
   complex_t in [0:1][0:3];   // 4 * 2 complex number
-  complex_t out [0:3][0:3];
+  complex_t out [0:3][0:3];  // output is 16 complex number
 
 endinterface
 
