@@ -91,8 +91,9 @@ module accumulator_tb;
     stop = 1;
     @(posedge clk);
     stop = 0;
-    wait(output_valid == 1);
+    @(posedge output_valid);
     @(posedge clk);
+    #1;
     $display("output is %h + j * %h", out.r, out.i);
   end
 
@@ -100,7 +101,7 @@ module accumulator_tb;
     if (reset) begin
       in <= '{32'h43480000, 32'h43480000};
       counter <= 0;
-    end else if (counter != 11) begin
+    end else begin
       in.r <= in.r + 32'h00010000;
       in.i <= in.i + 32'h00010000;
       counter <= counter + 1;
