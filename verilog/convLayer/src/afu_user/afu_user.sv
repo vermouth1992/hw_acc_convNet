@@ -73,15 +73,16 @@ module afu_user #(ADDR_LMT = 20, MDATA = 14, CACHE_WIDTH = 512) (
   wire reset;
   assign reset = ~reset_n;
 
-
-
-  // data path
+  // datapath
 
   // FFT array
-  reg next_image_fft;
+  reg next_image_fft;  // set by FSM
+  // used by other modules
   wire next_out_image_fft;
-  wire [511:0] cacheline_in_fft;
   complex_t out_image_fft [0:3][0:3][0:3];
+
+  wire [511:0] cacheline_in_fft;
+  assign cacheline_in_fft = rd_rsp_data;
 
   convLayerFFT convLayerFFT_inst (
     .clk         (clk),
@@ -93,10 +94,26 @@ module afu_user #(ADDR_LMT = 20, MDATA = 14, CACHE_WIDTH = 512) (
     );
 
   // image mem array
-  reg [12:0] write_address_image_mem, read_address_image_mem;
-  reg we_image_mem;
-  complex_t in_image_mem [0:3][0:3][0:3];
+  reg [12:0] read_address_image_mem;   // set by FSM
+  // used by other modules
   complex_t out_image_mem [0:3][0:3][0:3];
+
+  reg we_image_mem;
+  always@(posedge clk) begin
+    we_image_mem <= next_out_image_fft;  // image write is one cycle delay of next_out_fft
+  end
+
+  reg [12:0] write_address_image_mem;
+  always@(posedge clk) begin
+    if (reset) begin
+      write_address_image_mem <= 0;
+    end else if (we_image_mem) begin
+      write_address_image_mem <= write_address_image_mem + 1;   // always write to the next location
+    end
+  end
+
+  complex_t in_image_mem [0:3][0:3][0:3];
+  assign in_image_mem = out_image_fft;   // input to image memory is fft output
 
   memBlockImage_top memBlockImage_top_inst (
     .clk          (clk),
@@ -108,10 +125,37 @@ module afu_user #(ADDR_LMT = 20, MDATA = 14, CACHE_WIDTH = 512) (
     );
 
   // kernel mem array
-  reg we_kernel_mem;
-  reg [8:0] read_address_kernel_mem, write_address_kernel_mem;
+  reg we_kernel_mem;   // set by FSM
+  reg [8:0] read_address_kernel_mem;  // set by FSM
+  
+  reg [8:0] write_address_kernel_mem;
+  always@(posedge clk) begin
+    if (reset) begin
+      write_address_kernel_mem <= 0;
+    end else if (we_kernel_mem) begin
+      write_address_kernel_mem <= write_address_kernel_mem + 1;
+    end
+  end
+
+  // set by FSM
   reg select_block_rd_kernel_mem, select_block_we_kernel_mem, select_sub_block_we_kernel_mem;
+  
   complex_t in_kernel_mem [0:1][0:3];  // one cacheline
+  // connect to cacheline_in
+  wire [511:0] cacheline_in_kernel;
+  assign cacheline_in_kernel = rd_rsp_data;
+
+  genvar i, j;
+  generate
+    for (i=0; i<2; i=i+1) begin: memBlockKernel_top_outer
+      for (j=0; j<4; j=j+1) begin: memBlockKernel_top_inner
+        assign in_kernel_mem[i][j].r = cacheline_in_kernel[256*i+64*j+31:256*i+64*j];
+        assign in_kernel_mem[i][j].i = cacheline_in_kernel[256*i+64*j+63:256*i+64*j+32];
+      end
+    end
+  endgenerate
+
+  // used by other modules
   complex_t out_kernel_mem [0:3][0:3];
 
   memBlockKernel_top memBlockKernel_top_inst (
@@ -128,9 +172,15 @@ module afu_user #(ADDR_LMT = 20, MDATA = 14, CACHE_WIDTH = 512) (
 
   // multiplier array
   complex_t in_multiplier_image [0:3][0:3][0:3];
+  assign in_multiplier_image = out_image_mem;
+
   complex_t in_multiplier_kernel [0:3][0:3];
-  complex_t out_multiplier [0:3][0:3][0:3];
+  assign in_multiplier_kernel = out_kernel_mem;
+
+  // set by FSM
   reg next_multiplier;
+  // used by other modules
+  complex_t out_multiplier [0:3][0:3][0:3];
   wire next_out_multiplier;
 
   complexMultArrayParallel complexMultArrayParallel_inst (
@@ -145,9 +195,23 @@ module afu_user #(ADDR_LMT = 20, MDATA = 14, CACHE_WIDTH = 512) (
 
   // accumulator array
   complex_t in_accumulator [0:3][0:3][0:3];
+  assign in_accumulator = out_multiplier;
+
+  // used by other modules
   complex_t out_accumulator [0:3][0:3][0:3];
-  reg start_accumulator, stop_accumulator;
   wire output_valid_accumulator;
+
+  // The output of multiplier should be in burst mode (consecutive next_out_multiplier be high)
+  reg start_accumulator, stop_accumulator;
+
+  // delay next_out_multiplier
+  reg next_out_multiplier_reg;
+  always@(posedge clk) begin
+    next_out_multiplier_reg <= next_out_multiplier;
+  end
+
+  assign start_accumulator = ~next_out_multiplier_reg & next_out_multiplier;
+  assign stop_accumulator = next_out_multiplier_reg & ~next_out_multiplier;
 
   complexAccumulatorArrayParallel complexAccumulatorArrayParallel_inst (
     .clk (clk),
@@ -161,8 +225,13 @@ module afu_user #(ADDR_LMT = 20, MDATA = 14, CACHE_WIDTH = 512) (
 
   // IFFT array
   reg next_ifft;
-  wire output_valid_ifft;
+  assign next_ifft = output_valid_accumulator;
+
   complex_t in_ifft [0:3][0:3][0:3];
+  assign in_ifft = out_accumulator;
+
+  // used by other modules
+  wire output_valid_ifft;
   wire [511:0] cacheline_out_ifft;
 
   convLayerIFFT convLayerIFFT_inst (
@@ -173,6 +242,9 @@ module afu_user #(ADDR_LMT = 20, MDATA = 14, CACHE_WIDTH = 512) (
     .in           (in_ifft),
     .cacheline_out(cacheline_out_ifft),
     );
+
+
+  /********* AFU USER FSM **************/
 
   // state for memory request, currently, it is a image oriented approach
   enum {TX_RD_STATE_IDLE, TX_RD_STATE_CONFIG, TX_RD_STATE_IMAGE, TX_RD_STATE_KERNEL, TX_RD_STATE_DONE} read_req_state;

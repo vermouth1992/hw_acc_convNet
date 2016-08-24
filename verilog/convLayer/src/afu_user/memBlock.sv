@@ -273,6 +273,7 @@ module memBlockKernel_top (
 
   intf_block_mem_kernel block_mem_kernel_io [0:1] (clk);
 
+  genvar i;
   generate
     for(i=0; i<2; i=i+1) begin: kernel_block_array
       memBlockKernel memBlockKernel_inst(block_mem_kernel_io[i]);
