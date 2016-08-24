@@ -28,6 +28,8 @@
  *
  */
 
+`include "common.vh"
+
 module afu_user #(ADDR_LMT = 20, MDATA = 14, CACHE_WIDTH = 512) (
   input 		    clk, 
   input 		    reset_n, 
@@ -70,6 +72,107 @@ module afu_user #(ADDR_LMT = 20, MDATA = 14, CACHE_WIDTH = 512) (
 
   wire reset;
   assign reset = ~reset_n;
+
+
+
+  // data path
+
+  // FFT array
+  reg next_image_fft;
+  wire next_out_image_fft;
+  wire [511:0] cacheline_in_fft;
+  complex_t out_image_fft [0:3][0:3][0:3];
+
+  convLayerFFT convLayerFFT_inst (
+    .clk         (clk),
+    .reset       (reset),
+    .next        (next_image_fft),
+    .next_out    (next_out_image_fft),
+    .cacheline_in(cacheline_in_fft),
+    .out         (out_image_fft)
+    );
+
+  // image mem array
+  reg [12:0] write_address_image_mem, read_address_image_mem;
+  reg we_image_mem;
+  complex_t in_image_mem [0:3][0:3][0:3];
+  complex_t out_image_mem [0:3][0:3][0:3];
+
+  memBlockImage_top memBlockImage_top_inst (
+    .clk          (clk),
+    .write_address(write_address_image_mem),
+    .read_address (read_address_image_mem),
+    .we           (we_image_mem),
+    .in           (in_image_mem),
+    .out          (out_image_mem)
+    );
+
+  // kernel mem array
+  reg we_kernel_mem;
+  reg [8:0] read_address_kernel_mem, write_address_kernel_mem;
+  reg select_block_rd_kernel_mem, select_block_we_kernel_mem, select_sub_block_we_kernel_mem;
+  complex_t in_kernel_mem [0:1][0:3];  // one cacheline
+  complex_t out_kernel_mem [0:3][0:3];
+
+  memBlockKernel_top memBlockKernel_top_inst (
+    .clk                (clk),
+    .we                 (we_kernel_mem),
+    .read_address       (read_address_kernel_mem),
+    .write_address      (write_address_kernel_mem),
+    .select_block_rd    (select_block_rd_kernel_mem),
+    .select_block_we    (select_block_we_kernel_mem),
+    .select_sub_block_we(select_sub_block_we_kernel_mem),
+    .in                 (in_kernel_mem),
+    .out                (out_kernel_mem)
+    );
+
+  // multiplier array
+  complex_t in_multiplier_image [0:3][0:3][0:3];
+  complex_t in_multiplier_kernel [0:3][0:3];
+  complex_t out_multiplier [0:3][0:3][0:3];
+  reg next_multiplier;
+  wire next_out_multiplier;
+
+  complexMultArrayParallel complexMultArrayParallel_inst (
+    .clk (clk),
+    .reset (reset),
+    .image (in_multiplier_image),
+    .kernel (in_multiplier_kernel),
+    .out (out_multiplier),
+    .next (next_multiplier),
+    .next_out (next_out_multiplier)
+    );
+
+  // accumulator array
+  complex_t in_accumulator [0:3][0:3][0:3];
+  complex_t out_accumulator [0:3][0:3][0:3];
+  reg start_accumulator, stop_accumulator;
+  wire output_valid_accumulator;
+
+  complexAccumulatorArrayParallel complexAccumulatorArrayParallel_inst (
+    .clk (clk),
+    .reset (reset),
+    .in (in_accumulator),
+    .out (out_accumulator),
+    .start (start_accumulator),
+    .stop (stop_accumulator),
+    .output_valid (output_valid_accumulator)
+    );
+
+  // IFFT array
+  reg next_ifft;
+  wire output_valid_ifft;
+  complex_t in_ifft [0:3][0:3][0:3];
+  wire [511:0] cacheline_out_ifft;
+
+  convLayerIFFT convLayerIFFT_inst (
+    .clk          (clk),
+    .reset        (reset),
+    .next         (next_ifft),
+    .output_valid (output_valid_ifft),
+    .in           (in_ifft),
+    .cacheline_out(cacheline_out_ifft),
+    );
 
   // state for memory request, currently, it is a image oriented approach
   enum {TX_RD_STATE_IDLE, TX_RD_STATE_CONFIG, TX_RD_STATE_IMAGE, TX_RD_STATE_KERNEL, TX_RD_STATE_DONE} read_req_state;
