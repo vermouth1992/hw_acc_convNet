@@ -256,11 +256,13 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
   enum {TX_RD_STATE_IDLE, TX_RD_STATE_IMAGE, TX_RD_STATE_KERNEL_0, TX_RD_STATE_KERNEL_1, TX_RD_STATE_DONE} read_req_state;
 
   // afu_context info extraction
-  reg [64-1:0] filter_offset_addr;
+  reg [57:0] filter_offset_addr;
   reg [31:0] num_input_feature_maps;
-  reg [64-1:0] current_read_image_addr, current_read_filter_addr;  // read address from shared memory
+  reg [57:0] current_read_image_addr;
+  reg [57:0] current_read_filter_addr;  // read address from shared memory
+  reg [57:0] current_write_addr;
   reg [31:0] num_cl_output_buffer;
-  reg [63:0] end_output_addr;
+  reg [57:0] end_output_addr;
   
   reg [31:0] current_cycle_already_read_cl_image;
   // read request FSM
@@ -281,6 +283,7 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
             $display("end of output buffer = %d", afu_context[320+64-1:320]);   // D1, used for accumulate
             $display("num input feature map = %d", afu_context[415:384]);  // D2
             // synthesis translate_on
+            current_write_addr <= 0;
             filter_offset_addr <= afu_context[256+64-1:256+6];    // has to be cacheline aligned
             end_output_addr <= afu_context[320+64-1:320+6];
             num_input_feature_maps <= afu_context[415:384];
@@ -329,14 +332,15 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
 
 
   // read response FSM, forward data to FFT or kernel memory
-  enum {RX_RD_STATE_IDLE, RX_RD_STATE_IMAGE, RX_RD_STATE_KERNEL0, RX_RD_STATE_KERNEL1} read_rsp_state;
+  enum {RX_RD_STATE_IDLE, RX_RD_STATE_RUN} read_rsp_state;
 
   reg image_valid, kernel0_valid, kernel1_valid;
-  reg 
 
   always@(posedge clk) begin 
     if (reset) begin
       read_rsp_state <= RX_RD_STATE_IDLE;
+      select_block_we_kernel_mem <= 0;
+      select_sub_block_we_kernel_mem <= 0;
     end else begin
       case (read_rsp_state)
         RX_RD_STATE_IDLE: begin
@@ -345,19 +349,14 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
           end
         end
 
-        RX_RD_STATE_IMAGE: begin
-          if (rd_rsp_mdata[0] == 1'b1) begin
-            read_rsp_state <= RX_RD_STATE_KERNEL0;
-            image_valid <= 1'b1;
-            select_block_we_kernel_mem <= 0;
-            select_sub_block_we_kernel_mem <= 0;
-          end
-        end
-
-        RX_RD_STATE_KERNEL0: begin
-          select_block_we_kernel_mem <= 0;
+        RX_RD_STATE_RUN: begin
+          // select sub_block
           if (we_kernel_mem) begin
             select_sub_block_we_kernel_mem <= ~select_sub_block_we_kernel_mem;
+          end
+          // select block
+          if (we_kernel_mem && write_address_kernel_mem == '1) begin
+            select_block_we_kernel_mem <= ~select_block_we_kernel_mem;
           end
         end
 
@@ -368,11 +367,60 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
   // if valid and mdata is 0, forward to FFT array
   assign next_image_fft = (rd_rsp_valid == 1'b1 && rd_rsp_mdata[0] == 1'b0) ? 1'b1 : 1'b0;
   // if valid and mdata is 1, forward to kernel memory
-  assign we_kernel_mem = (rd_rsp_valid == 1'b1 && rd_rsp_mdata[1] == 1'b1) ? 1'b1 : 1'b0;
-  // select kernel memory block and sub block according to the current status
+  assign we_kernel_mem = (rd_rsp_valid == 1'b1 && rd_rsp_mdata[0] == 1'b1) ? 1'b1 : 1'b0;
 
+  // create a syn fifo as buffer
+  wire [511:0] output_fifo_din;
+  reg output_fifo_we;
+
+  // used by write request fsm
+  wire output_fifo_re;
+  wire [511:0] output_fifo_dout;
+  wire output_fifo_empty;
+
+  syn_read_fifo #(.FIFO_WIDTH(512),
+                  .FIFO_DEPTH_BITS(3),       // transfer size 1 -> 32 entries
+                  .FIFO_ALMOSTFULL_THRESHOLD(2**(3)-4),
+                  .FIFO_ALMOSTEMPTY_THRESHOLD(2)
+                 ) output_fifo (
+                .clk                (clk),
+                .reset              (reset),
+                .din                (output_fifo_din),
+                .we                 (output_fifo_we),
+                .re                 (output_fifo_re),
+                .dout               (output_fifo_dout),
+                .empty              (output_fifo_empty),
+                .almostempty        (),
+                .full               (),
+                .count              (),
+                .almostfull         ()
+            );
+
+  assign output_fifo_din = cacheline_out_ifft;
+  always@(posedge clk) begin
+    output_fifo_we <= output_valid_ifft;
+  end
 
   // write request FSM
+
+  assign output_fifo_re = (wr_req_almostfull == 1'b0 && output_fifo_empty == 1'b0) ? 1'b1 : 1'b0;
+
+  assign wr_req_data = output_fifo_dout;
+
+  always@(posedge clk) begin
+    wr_req_en <= output_fifo_re;
+    if (wr_req_en) begin
+      current_write_addr <= current_write_addr + 1;
+    end
+    wr_req_addr <= current_write_addr;
+    if (current_write_addr == end_output_addr) begin
+      done <= 1;
+    end else begin
+      done <= 0;
+    end
+  end
+
+
 
   // write response FSM (maybe used for synchronization)
 
