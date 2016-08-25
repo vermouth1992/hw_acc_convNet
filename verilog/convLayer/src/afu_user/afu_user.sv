@@ -30,7 +30,7 @@
 
 `include "common.vh"
 
-module afu_user #(ADDR_LMT = 20, MDATA = 14, CACHE_WIDTH = 512) (
+module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
   input 		    clk, 
   input 		    reset_n, 
 
@@ -75,6 +75,12 @@ module afu_user #(ADDR_LMT = 20, MDATA = 14, CACHE_WIDTH = 512) (
 
   // datapath
 
+  // create a registered rd_rsp_data
+  reg [511:0] rd_rsp_data_reg;
+  always@(posedge clk) begin
+    rd_rsp_data_reg <= rd_rsp_data;
+  end
+
   // FFT array
   reg next_image_fft;  // set by FSM
   // used by other modules
@@ -82,7 +88,7 @@ module afu_user #(ADDR_LMT = 20, MDATA = 14, CACHE_WIDTH = 512) (
   complex_t out_image_fft [0:3][0:3][0:3];
 
   wire [511:0] cacheline_in_fft;
-  assign cacheline_in_fft = rd_rsp_data;
+  assign cacheline_in_fft = rd_rsp_data_reg;
 
   convLayerFFT convLayerFFT_inst (
     .clk         (clk),
@@ -250,11 +256,11 @@ module afu_user #(ADDR_LMT = 20, MDATA = 14, CACHE_WIDTH = 512) (
   enum {TX_RD_STATE_IDLE, TX_RD_STATE_IMAGE, TX_RD_STATE_KERNEL_0, TX_RD_STATE_KERNEL_1, TX_RD_STATE_DONE} read_req_state;
 
   // afu_context info extraction
-  reg [ADDR_LMT-1:0] filter_offset_addr;
-  reg [31:0] num_input_feature_maps, num_output_feature_maps;
-  reg [ADDR_LMT-1:0] current_read_image_addr, current_read_filter_addr;  // read address from shared memory
+  reg [64-1:0] filter_offset_addr;
+  reg [31:0] num_input_feature_maps;
+  reg [64-1:0] current_read_image_addr, current_read_filter_addr;  // read address from shared memory
   reg [31:0] num_cl_output_buffer;
-  reg [31:0] num_cl_filter;
+  reg [63:0] end_output_addr;
   
   reg [31:0] current_cycle_already_read_cl_image;
   // read request FSM
@@ -270,17 +276,14 @@ module afu_user #(ADDR_LMT = 20, MDATA = 14, CACHE_WIDTH = 512) (
             // synthesis translate_off
             $display("src = %h", afu_context[127:64]);
             $display("dest = %h", afu_context[191:128]);
-            $display("num of cacheline in output buffer = %d", afu_context[223:192]);  // in order to track the filter read
+            $display("num of cacheline in total = %d", afu_context[223:192]);  // in order to track the filter read
             $display("filter offset address = %h", afu_context[256+64-1:256]);   // filter address # of cacheline
-            $display("num input feature map = %d", afu_context[351:320]);   // D1, used for accumulate
-            $display("num output feature map = %d", afu_context[415:384]);  // D2
-            $display("num of cacheline in filter region = %d", afu_context[479:448]);
+            $display("end of output buffer = %d", afu_context[320+64-1:320]);   // D1, used for accumulate
+            $display("num input feature map = %d", afu_context[415:384]);  // D2
             // synthesis translate_on
-            filter_offset_addr <= afu_context[256+ADDR_LMT-1+6:256+6];    // has to be cacheline aligned
-            num_input_feature_maps <= afu_context[351:320];
-            num_output_feature_maps <= afu_context[415:384];
-            num_cl_output_buffer <= afu_context[223:192];
-            num_cl_filter <= afu_context[479:448];
+            filter_offset_addr <= afu_context[256+64-1:256+6];    // has to be cacheline aligned
+            end_output_addr <= afu_context[320+64-1:320+6];
+            num_input_feature_maps <= afu_context[415:384];
             read_req_state <= TX_RD_STATE_CONFIG;
             current_cycle_already_read_cl_image <= 0;
           end
@@ -326,7 +329,11 @@ module afu_user #(ADDR_LMT = 20, MDATA = 14, CACHE_WIDTH = 512) (
 
 
   // read response FSM, forward data to FFT or kernel memory
-  enum {RX_RD_STATE_IDLE, RX_RD_STATE_RUN} read_rsp_state;
+  enum {RX_RD_STATE_IDLE, RX_RD_STATE_IMAGE, RX_RD_STATE_KERNEL0, RX_RD_STATE_KERNEL1} read_rsp_state;
+
+  reg image_valid, kernel0_valid, kernel1_valid;
+  reg 
+
   always@(posedge clk) begin 
     if (reset) begin
       read_rsp_state <= RX_RD_STATE_IDLE;
@@ -334,21 +341,38 @@ module afu_user #(ADDR_LMT = 20, MDATA = 14, CACHE_WIDTH = 512) (
       case (read_rsp_state)
         RX_RD_STATE_IDLE: begin
           if (start) begin
-            read_rsp_state <= RX_RD_STATE_RUN;
+            read_rsp_state <= RX_RD_STATE_IMAGE;
           end
         end
 
-        RX_RD_STATE_RUN: begin
-          if (rd_rsp_valid) begin
-            // forware data and last bit of meta data to convLayerFFT unit
+        RX_RD_STATE_IMAGE: begin
+          if (rd_rsp_mdata[0] == 1'b1) begin
+            read_rsp_state <= RX_RD_STATE_KERNEL0;
+            image_valid <= 1'b1;
+            select_block_we_kernel_mem <= 0;
+            select_sub_block_we_kernel_mem <= 0;
           end
         end
+
+        RX_RD_STATE_KERNEL0: begin
+          select_block_we_kernel_mem <= 0;
+          if (we_kernel_mem) begin
+            select_sub_block_we_kernel_mem <= ~select_sub_block_we_kernel_mem;
+          end
+        end
+
       endcase
     end
   end
 
-  // write request FSM
+  // if valid and mdata is 0, forward to FFT array
+  assign next_image_fft = (rd_rsp_valid == 1'b1 && rd_rsp_mdata[0] == 1'b0) ? 1'b1 : 1'b0;
+  // if valid and mdata is 1, forward to kernel memory
+  assign we_kernel_mem = (rd_rsp_valid == 1'b1 && rd_rsp_mdata[1] == 1'b1) ? 1'b1 : 1'b0;
+  // select kernel memory block and sub block according to the current status
 
+
+  // write request FSM
 
   // write response FSM (maybe used for synchronization)
 
