@@ -334,8 +334,6 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
   // read response FSM, forward data to FFT or kernel memory
   enum {RX_RD_STATE_IDLE, RX_RD_STATE_RUN} read_rsp_state;
 
-  reg image_valid, kernel0_valid, kernel1_valid;
-
   always@(posedge clk) begin 
     if (reset) begin
       read_rsp_state <= RX_RD_STATE_IDLE;
@@ -421,6 +419,52 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
   end
 
 
+  reg kernel0_valid, kernel1_valid;
+  // we need a fsm to indicate each kernel memory's status
+  enum {KERNEL_VACANT, KERNEL_FILL, KERNEL_FULL, KERNEL_DRAIN} kernel_status_0, kernel_status_1;
+
+  always@(posedge clk) begin
+    if (reset) begin
+      kernel_status_0 <= KERNEL_VACANT;
+    end else begin
+      case (kernel_status_0)
+        KERNEL_VACANT: begin
+          if (select_block_we_kernel_mem == 0 && write_address_kernel_mem != 0) begin
+            kernel_status_0 <= KERNEL_FILL;
+          end
+        end
+
+        KERNEL_FILL: begin
+          
+        end
+      
+        default : /* default */;
+      endcase
+  end
+
+
+  // run fsm, consume data from image memory and kernel memory and send to multiplier array
+  enum {EXEC_IDLE, EXEC_WAIT, EXEC_RUN} exec_state;
+  always@(posedge clk) begin
+    if (reset) begin
+
+    end else begin
+      case (exec_state)
+        EXEC_IDLE: begin
+        
+        end
+      
+        EXEC_WAIT: begin
+
+        end
+
+        EXEC_RUN: begin
+          read_address_kernel_mem <= read_address_kernel_mem + 1;
+          read_address_image_mem <= read_address_image_mem + 1;
+        end
+
+        default : begin end/* default */;
+      endcase
 
   // write response FSM (maybe used for synchronization)
 
