@@ -25,8 +25,6 @@ module fft_2d #(
         end else if (WIDTH == 16) begin
           fft16_wrapper fft_inst_first_array(fft_1d_io_first[i]);
           fft16_wrapper fft_inst_second_array(fft_1d_io_second[i]);
-        end else begin
-          $fatal("Unsupported fft size.");
         end
       end else if (IS_INVERSE == 1) begin
         if (WIDTH == 4) begin
@@ -38,11 +36,7 @@ module fft_2d #(
         end else if (WIDTH == 16) begin
           ifft16_wrapper fft_inst_first_array(fft_1d_io_first[i]);
           ifft16_wrapper fft_inst_second_array(fft_1d_io_second[i]);
-        end else begin
-          $fatal("Unsupported fft size.");
         end
-      end else begin
-        $fatal("Must specify fft or ifft.");
       end
     end
   endgenerate

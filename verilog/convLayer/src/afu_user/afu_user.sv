@@ -284,8 +284,9 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
           end
         end
 
-        default: begin end;   // not gonna happen
+        default: begin end   // not gonna happen
       endcase
+    end
   end
 
   // kernel 1 mem block
@@ -318,8 +319,9 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
           end
         end
 
-        default: begin end;   // not gonna happen
+        default: begin end   // not gonna happen
       endcase
+    end
   end
 
   // image mem fsm
@@ -352,12 +354,13 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
           end
         end
 
-        default : /* default */;
+        default: begin end
       endcase
+    end
+  end
 
   // state for memory request, currently, it is a image oriented approach
-  enum {TX_RD_STATE_IDLE, TX_RD_STATE_IMAGE_PREPARE, TX_RD_STATE_IMAGE, 
-        TX_RD_STATE_KERNEL_PREPARE, TX_RD_STATE_KERNEL} read_req_state;
+  enum {TX_RD_STATE_IDLE, TX_RD_STATE_IMAGE_PREPARE, TX_RD_STATE_IMAGE, TX_RD_STATE_KERNEL_PREPARE, TX_RD_STATE_KERNEL} read_req_state;
 
   // afu_context info extraction
   // constant
@@ -407,14 +410,14 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
           if (image_status == VACANT) begin
             read_req_state <= TX_RD_STATE_IMAGE;
           end
-
+        end
         TX_RD_STATE_IMAGE: begin
           if (~rd_req_almostfull) begin
             if (current_read_image_addr < filter_offset_addr && current_cycle_already_read_cl_image < NUM_CACHELINE_IMAGE_MOST) begin
               rd_req_addr <= current_read_image_addr;
               current_read_image_addr <= current_read_image_addr + 1;
               rd_req_en <= 1'b1;
-              rd_rsp_mdata[0] <= 1'b0;   // 0 represents image
+              rd_req_mdata[0] <= 1'b0;   // 0 represents image
               current_cycle_already_read_cl_image <= current_cycle_already_read_cl_image + 1;
             end else begin
               rd_req_en <= 1'b0;
@@ -442,7 +445,7 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
               current_read_filter_addr <= current_read_filter_addr + 1;
               rd_req_addr <= current_read_filter_addr;
               rd_req_en <= 1'b1;
-              rd_rsp_mdata[0] <= 1'b1;
+              rd_req_mdata[0] <= 1'b1;
               current_cycle_already_read_cl_kernel <= current_cycle_already_read_cl_kernel + 1;
             end else if (current_read_filter_addr == dest_offset_addr) begin // if all the kernel is read
               rd_req_en <= 1'b0;
@@ -456,7 +459,7 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
           end
         end
 
-        default: begin end;
+        default: begin end
       endcase
     end
   end
@@ -466,7 +469,6 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
 
   always@(posedge clk) begin 
     if (reset) begin
-      read_rsp_state <= RX_RD_STATE_IDLE;
       select_block_we_kernel_mem <= 0;
       select_sub_block_we_kernel_mem <= 0;
     end else begin
@@ -540,7 +542,7 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
 
 
   // run fsm, consume data from image memory and kernel memory and send to multiplier array
-  enum {EXEC_IDLE, EXEC_RUN} exec_state;
+  enum {EXEC_IDLE, EXEC_PREPARE, EXEC_RUN} exec_state;
 
   // used for select_rd from kernel memory
   reg current_kernel_exec;
@@ -572,6 +574,7 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
         EXEC_PREPARE: begin
           current_read_address_kernel_mem <= current_read_address_kernel_mem_start;
           current_read_address_image_mem <= 0;
+        end
 
         EXEC_RUN: begin
           // for each kernel, multiply with all the image
@@ -595,7 +598,7 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
 
         end
 
-        default : begin end/* default */;
+        default : begin end
       endcase
     end
   end
