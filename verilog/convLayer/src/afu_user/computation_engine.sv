@@ -31,7 +31,7 @@ module complexMultArray (
           .in1     (kernel[i][j]),
           .out     (out[i][j]),
           .next    (next),
-          .next_out(next_out_inst[i][j]),
+          .next_out(next_out_inst[i][j])
           );
       end // mult_inst_inner
     end // mult_inst_outer
