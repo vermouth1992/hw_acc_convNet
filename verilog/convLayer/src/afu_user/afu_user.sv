@@ -384,6 +384,7 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
       read_req_state <= TX_RD_STATE_IDLE;
       rd_req_en <= 0;
       current_read_image_addr <= 0;
+      rd_req_mdata <= 0;
     end else begin
       case (read_req_state)
         TX_RD_STATE_IDLE: begin
@@ -418,7 +419,7 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
               rd_req_addr <= current_read_image_addr;
               current_read_image_addr <= current_read_image_addr + 1;
               rd_req_en <= 1'b1;
-              rd_req_mdata[0] <= 1'b0;   // 0 represents image
+              rd_req_mdata[0] <= 0;   // 0 represents image
               current_cycle_already_read_cl_image <= current_cycle_already_read_cl_image + 1;
             end else begin
               rd_req_en <= 1'b0;
@@ -446,7 +447,7 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
               current_read_filter_addr <= current_read_filter_addr + 1;
               rd_req_addr <= current_read_filter_addr;
               rd_req_en <= 1'b1;
-              rd_req_mdata[0] <= 1'b1;
+              rd_req_mdata[0] <= 1;   // 1 represent kernel
               current_cycle_already_read_cl_kernel <= current_cycle_already_read_cl_kernel + 1;
             end else if (current_read_filter_addr == dest_offset_addr) begin // if all the kernel is read
               rd_req_en <= 1'b0;
@@ -528,6 +529,9 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
   assign wr_req_data = output_fifo_dout;
 
   always@(posedge clk) begin
+    if (reset) begin
+      wr_req_mdata <= 0;
+    end
     wr_req_en <= output_fifo_re;
     if (wr_req_en) begin
       current_write_addr <= current_write_addr + 1;

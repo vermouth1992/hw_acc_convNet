@@ -360,7 +360,7 @@ int ConvLayer::run() {
         // pEndAddr is the offset from pDest
         btUnsigned64bitInt pEndAddr = testLayer.getOutputBufferSizeInBytes();
 
-        assert(testLayer.getImageSizeInBytes() * 2 + testLayer.getFilterSizeInBytes() == a_num_bytes);
+        assert(testLayer.getImageSizeInBytes() + testLayer.getFilterSizeInBytes() + testLayer.getOutputBufferSizeInBytes() == a_num_bytes);
 
         // Note: the usage of the VAFU2_CNTXT structure here is specific to the underlying bitstream
         // implementation. The bitstream targeted for use with this sample application must implement
@@ -418,7 +418,7 @@ int ConvLayer::run() {
 
         // Wait for SPL VAFU to finish code
         volatile bt32bitInt done = pVAFU2_cntxt->Status & VAFU2_CNTXT_STATUS_DONE;
-        while (!done && --count) {
+        while (!done) {
             // SleepMilli(delay);
             done = pVAFU2_cntxt->Status & VAFU2_CNTXT_STATUS_DONE;
             if (done) MSG("AFU has signaled done.");
