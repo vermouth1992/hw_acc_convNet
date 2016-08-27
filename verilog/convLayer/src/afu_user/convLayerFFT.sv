@@ -149,7 +149,7 @@ module convLayerIFFT (
     for (i=0; i<4; i=i+1) begin: cacheline_index
       for (j=0; j<4; j=j+1) begin: reformat_outer
         for (k=0; k<4; k=k+1) begin: reformat_inner
-          assign out_wire[i][128*k+32*k+31:128*j+32*k] = out_real[i][j][k];
+          assign out_wire[i][128*j+32*k+31:128*j+32*k] = out_real[i][j][k];
         end
       end
     end
