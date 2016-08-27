@@ -23,8 +23,13 @@ private:
 public:
     convLayerConfig(btUnsigned32bitInt i, btUnsigned32bitInt f, btUnsigned32bitInt d1, btUnsigned32bitInt d2,
                     btUnsigned32bitInt z, btUnsigned32bitInt s, btUnsigned32bitInt p);
+
+    // calculate configurations functions
     btUnsigned32bitInt getImageSizeInBytes();
     btUnsigned32bitInt getFilterSizeInBytes();
+    btUnsigned32bitInt getOutputBufferSizeInBytes();
+
+    // get private value interface
     btUnsigned32bitInt getImageSize() {
         return imageSize;
     }
@@ -57,14 +62,23 @@ convLayerConfig::convLayerConfig(btUnsigned32bitInt i, btUnsigned32bitInt f, btU
 
 btUnsigned32bitInt convLayerConfig::getImageSizeInBytes() {
     btUnsigned32bitInt numTile = (btUnsigned32bitInt) ceil(float(imageSize + 2 * zeroPadding) / float(tileSize));
-    btUnsigned32bitInt remappingSize = numTile * fftSize;
-    btUnsigned32bitInt numPoint = remappingSize * remappingSize * numInputFeatureMap;
+    // zero padding is done on FPGA
+    btUnsigned32bitInt originalSize = numTile * tileSize;
+    btUnsigned32bitInt numPoint = originalSize * originalSize * numInputFeatureMap;
     return numPoint * 4;
 }
 
 btUnsigned32bitInt convLayerConfig::getFilterSizeInBytes() {
     btUnsigned32bitInt numPoint = fftSize * fftSize * numInputFeatureMap * numOutputFeatureMap;
     return numPoint * 8;   // complex floating point
+}
+
+// The output buffer is the raw size without overlap
+btUnsigned32bitInt convLayerConfig::getOutputBufferSizeInBytes() {
+    btUnsigned32bitInt numTile = (btUnsigned32bitInt) ceil(float(imageSize + 2 * zeroPadding) / float(tileSize));
+    btUnsigned32bitInt remappingSize = numTile * fftSize;
+    btUnsigned32bitInt numPoint = remappingSize * remappingSize * numOutputFeatureMap;
+    return numPoint * 4;
 }
 
 #endif //APP_CONVLAYER_H

@@ -349,9 +349,16 @@ int ConvLayer::run() {
         // The source buffer is right after the VAFU Context
         btVirtAddr pImage = pWSUsrVirt + sizeof(VAFU2_CNTXT);
 
-        btVirtAddr pFilter = pImage + testLayer.getImageSizeInBytes();
+        // pFilter offset is just the image size
+        btUnsigned64bitInt pFilter = testLayer.getImageSizeInBytes();
         // The destination buffer is right after the source buffer
-        btVirtAddr pDestImage = pFilter + testLayer.getFilterSizeInBytes();
+        btVirtAddr pDestImage = pImage + testLayer.getImageSizeInBytes() + testLayer.getFilterSizeInBytes();
+
+        // pDestOffsetToSource
+        btUnsigned64bitInt pDestImageOffset = testLayer.getImageSizeInBytes() + testLayer.getFilterSizeInBytes();
+
+        // pEndAddr is the offset from pDest
+        btUnsigned64bitInt pEndAddr = testLayer.getOutputBufferSizeInBytes();
 
         assert(testLayer.getImageSizeInBytes() * 2 + testLayer.getFilterSizeInBytes() == a_num_bytes);
 
@@ -360,15 +367,15 @@ int ConvLayer::run() {
         // the Validation AFU 2 interface and abide by the contract that a VAFU2_CNTXT structure will
         // appear at byte offset 0 within the supplied AFU Context workspace.
 
-        btUnsigned32bitInt a_num_cl_image = (btUnsigned32bitInt) testLayer.getImageSizeInBytes() / CL(1);
         // Initialize the command buffer
         ::memset(pVAFU2_cntxt, 0, sizeof(VAFU2_CNTXT));
         pVAFU2_cntxt->num_cl = a_num_cl;   // note that it is number of cache line in total
         pVAFU2_cntxt->pSource = pImage;
         pVAFU2_cntxt->pDest = pDestImage;
         pVAFU2_cntxt->qword0[4] = (btUnsigned64bitInt) pFilter;  // cat address to 64 unsigned int
-        pVAFU2_cntxt->qword0[5] = testLayer.getNumInputFeatureMap();
-        pVAFU2_cntxt->qword0[6] = testLayer.getNumOutputFeatureMap();
+        pVAFU2_cntxt->qword0[5] = (btUnsigned64bitInt) pEndAddr; // cat address to 64 unsigned int
+        pVAFU2_cntxt->qword0[6] = testLayer.getNumInputFeatureMap();
+        pVAFU2_cntxt->qword0[7] = (btUnsigned64bitInt) pDestImageOffset;
 
         MSG("VAFU2 Context=" << std::hex << (void *) pVAFU2_cntxt <<
                               " Src=" << std::hex << (void *) pVAFU2_cntxt->pSource <<
@@ -377,6 +384,8 @@ int ConvLayer::run() {
                                            " (bytes=" << std::dec << pVAFU2_cntxt->num_cl * CL(1) <<
                                            " 0x" << std::hex << pVAFU2_cntxt->num_cl * CL(1) << std::dec << ")");
         MSG("pFilter=" << std::hex << (void*) pFilter);
+        MSG("pEndAddr=" << std::hex << (void*) pEndAddr);
+        MSG("pDestImageOffset=" << std::hex << (void*) pDestImageOffset);
 
         // Buffers have been initialized
         ////////////////////////////////////////////////////////////////////////////
@@ -404,14 +413,15 @@ int ConvLayer::run() {
         // Wait for the AFU to be done. This is AFU-specific, we have chosen to poll ...
 
         // Set timeout increment based on hardware, software, or simulation
-        bt32bitInt count(500);  // 5 seconds with 10 millisecond sleep
+        bt32bitInt count(5000);  // 5 seconds with 10 millisecond sleep
         bt32bitInt delay(1000);   // 10 milliseconds is the default
 
         // Wait for SPL VAFU to finish code
         volatile bt32bitInt done = pVAFU2_cntxt->Status & VAFU2_CNTXT_STATUS_DONE;
         while (!done && --count) {
-            SleepMilli(delay);
+            // SleepMilli(delay);
             done = pVAFU2_cntxt->Status & VAFU2_CNTXT_STATUS_DONE;
+            if (done) MSG("AFU has signaled done.");
         }
         if (!done) {
             // must have dropped out of loop due to count -- never saw update
@@ -461,10 +471,11 @@ void ConvLayer::serviceAllocated(IBase *pServiceBase,
 
     int imageSize = testLayer.getImageSizeInBytes();
     int filterSize = testLayer.getFilterSizeInBytes();
+    int outputBufferSize = testLayer.getOutputBufferSizeInBytes();
     int sourceBufferSize = imageSize + filterSize;
     int destinationBufferSize = imageSize;
     // Allocate Workspaces needed.
-    m_SPLService->WorkspaceAllocate(sizeof(VAFU2_CNTXT) + sourceBufferSize + destinationBufferSize,
+    m_SPLService->WorkspaceAllocate(sizeof(VAFU2_CNTXT) + sourceBufferSize + outputBufferSize,
                                     TransactionID());
 
 }
