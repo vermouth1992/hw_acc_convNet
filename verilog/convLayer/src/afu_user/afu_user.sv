@@ -389,13 +389,14 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
             $display("src = %h", afu_context[127:64]);
             $display("dest = %h", afu_context[191:128]);
             $display("num of cacheline in total = %d", afu_context[223:192]);  // in order to track the filter read
-            $display("filter offset address = %h", afu_context[256+64-1:256]);   // filter address # of cacheline
+            $display("filter address = %h", afu_context[256+64-1:256]);   // filter address # of cacheline
             $display("end of output buffer = %d", afu_context[320+64-1:320]);   // D1, used for accumulate
             $display("num input feature map = %d", afu_context[415:384]);  // D2
+            $display("dest offset = %h", afu_context[511:448]);
             // synthesis translate_on
             current_write_addr <= 0;
             filter_offset_addr <= afu_context[256+64-1:256+6];    // has to be cacheline aligned
-            dest_offset_addr <= afu_context[191:128+6];
+            dest_offset_addr <= afu_context[511:448+6];
             end_output_addr <= afu_context[320+64-1:320+6];
             num_input_feature_maps <= afu_context[415:384];
             read_req_state <= TX_RD_STATE_IMAGE_PREPARE;
