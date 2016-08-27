@@ -82,7 +82,7 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
   end
 
   // FFT array
-  reg next_image_fft;  // set by FSM
+  wire next_image_fft;  // set by FSM
   // used by other modules
   wire next_out_image_fft;
   complex_t out_image_fft [0:3][0:3][0:3];
@@ -540,27 +540,70 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
 
 
   // run fsm, consume data from image memory and kernel memory and send to multiplier array
-  enum {EXEC_IDLE, EXEC_WAIT, EXEC_RUN} exec_state;
+  enum {EXEC_IDLE, EXEC_RUN} exec_state;
+
+  // used for select_rd from kernel memory
+  reg current_kernel_exec;
+  // these two used for boundary, increase 1 bit for easy comparison
+  reg [9:0] current_read_address_kernel_mem_start;
+  reg [9:0] current_read_address_kernel_mem_end;
+  // these two is the current address
+  reg [9:0] current_read_address_kernel_mem;
+  reg [12:0] current_read_address_image_mem;
+
   always@(posedge clk) begin
     if (reset) begin
-
+      exec_state <= EXEC_IDLE;
+      current_kernel_exec <= 0;
     end else begin
       case (exec_state)
         EXEC_IDLE: begin
-        
+          if ((current_kernel_exec == 0 && kernel_status_0 == FULL) || (current_kernel_exec == 1 && kernel_status_1 == FULL)) begin
+            exec_state <= EXEC_RUN;
+            current_read_address_kernel_mem <= 0;
+            current_read_address_kernel_mem_start <= 0;
+            current_read_address_kernel_mem_end <= num_input_feature_maps[9:0];
+            select_block_rd_kernel_mem <= current_kernel_exec;
+            current_read_address_image_mem <= 0;
+          end
         end
-      
-        EXEC_WAIT: begin
 
-        end
+        // prepare for next kernel cycle
+        EXEC_PREPARE: begin
+          current_read_address_kernel_mem <= current_read_address_kernel_mem_start;
+          current_read_address_image_mem <= 0;
 
         EXEC_RUN: begin
-          read_address_kernel_mem <= read_address_kernel_mem + 1;
-          read_address_image_mem <= read_address_image_mem + 1;
+          // for each kernel, multiply with all the image
+          if (current_read_address_kernel_mem < current_read_address_kernel_mem_end) begin
+            next_multiplier <= 1'b1;
+            current_read_address_kernel_mem <= current_read_address_kernel_mem + 1;
+            current_read_address_image_mem <= current_read_address_image_mem + 1;
+          end else if (current_read_address_image_mem == write_address_image_mem) begin // this iteration, image finished
+            if (current_read_address_kernel_mem == 0) begin
+              exec_state <= EXEC_IDLE;
+            end else begin
+              exec_state <= EXEC_PREPARE;
+            end
+            next_multiplier <= 1'b0;
+            current_read_address_kernel_mem_start <= current_read_address_kernel_mem_start + num_input_feature_maps[8:0];
+            current_read_address_kernel_mem_end <= current_read_address_kernel_mem_end + num_input_feature_maps[8:0];
+          end else begin
+            next_multiplier <= 1'b0;
+            current_read_address_kernel_mem <= current_read_address_kernel_mem_start;
+          end
+
         end
 
         default : begin end/* default */;
       endcase
+    end
+  end
+
+  always@(posedge clk) begin
+    read_address_image_mem <= current_read_address_image_mem[8:0];
+    read_address_kernel_mem <= current_read_address_kernel_mem[8:0];
+  end
 
   // write response FSM (maybe used for synchronization)
 
