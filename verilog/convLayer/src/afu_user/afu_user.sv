@@ -251,6 +251,76 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
 
 
   /********* AFU USER FSM **************/
+  // we need a fsm to indicate each kernel memory's status
+  enum {KERNEL_VACANT, KERNEL_FILL, KERNEL_FULL, KERNEL_DRAIN} kernel_status_0, kernel_status_1;
+
+  // kernel 0 mem block
+  always@(posedge clk) begin
+    if (reset) begin
+      kernel_status_0 <= KERNEL_VACANT;
+    end else begin
+      case (kernel_status_0)
+        KERNEL_VACANT: begin
+          if (select_block_we_kernel_mem == 0 && write_address_kernel_mem != 0) begin
+            kernel_status_0 <= KERNEL_FILL;
+          end
+        end
+
+        KERNEL_FILL: begin
+          if (select_block_we_kernel_mem == 1) begin
+            kernel_status_0 <= KERNEL_FULL;
+          end
+        end
+
+        KERNEL_FULL: begin
+          if (select_block_rd_kernel_mem == 0 && read_address_kernel_mem != 0) begin
+            kernel_status_0 <= KERNEL_DRAIN;
+          end
+        end
+
+        KERNEL_DRAIN: begin
+          if (read_address_kernel_mem == '1) begin
+            kernel_status_0 <= KERNEL_VACANT;
+          end
+        end
+
+        default: begin end;   // not gonna happen
+      endcase
+  end
+
+  // kernel 0 mem block
+  always@(posedge clk) begin
+    if (reset) begin
+      kernel_status_1 <= KERNEL_VACANT;
+    end else begin
+      case (kernel_status_1)
+        KERNEL_VACANT: begin
+          if (select_block_we_kernel_mem == 1 && write_address_kernel_mem != 0) begin
+            kernel_status_1 <= KERNEL_FILL;
+          end
+        end
+
+        KERNEL_FILL: begin
+          if (select_block_we_kernel_mem == 0) begin
+            kernel_status_1 <= KERNEL_FULL;
+          end
+        end
+
+        KERNEL_FULL: begin
+          if (select_block_rd_kernel_mem == 1 && read_address_kernel_mem != 0) begin
+            kernel_status_1 <= KERNEL_DRAIN;
+          end
+        end
+
+        KERNEL_DRAIN: begin
+          if (read_address_kernel_mem == '1) begin
+            kernel_status_1 <= KERNEL_VACANT;
+          end
+        end
+
+        default: begin end;   // not gonna happen
+      endcase
+  end
 
   // state for memory request, currently, it is a image oriented approach
   enum {TX_RD_STATE_IDLE, TX_RD_STATE_IMAGE, TX_RD_STATE_KERNEL_0, TX_RD_STATE_KERNEL_1, TX_RD_STATE_DONE} read_req_state;
@@ -418,29 +488,6 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
     end
   end
 
-
-  reg kernel0_valid, kernel1_valid;
-  // we need a fsm to indicate each kernel memory's status
-  enum {KERNEL_VACANT, KERNEL_FILL, KERNEL_FULL, KERNEL_DRAIN} kernel_status_0, kernel_status_1;
-
-  always@(posedge clk) begin
-    if (reset) begin
-      kernel_status_0 <= KERNEL_VACANT;
-    end else begin
-      case (kernel_status_0)
-        KERNEL_VACANT: begin
-          if (select_block_we_kernel_mem == 0 && write_address_kernel_mem != 0) begin
-            kernel_status_0 <= KERNEL_FILL;
-          end
-        end
-
-        KERNEL_FILL: begin
-          
-        end
-      
-        default : /* default */;
-      endcase
-  end
 
 
   // run fsm, consume data from image memory and kernel memory and send to multiplier array
