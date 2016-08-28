@@ -134,6 +134,9 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
     .out          (out_image_mem)
     );
 
+  // set by FSM
+  reg select_block_rd_kernel_mem, select_block_we_kernel_mem, select_sub_block_we_kernel_mem;
+
   // kernel mem array
   wire we_kernel_mem;   // set by FSM
   reg [8:0] read_address_kernel_mem;  // set by FSM
@@ -142,13 +145,10 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
   always@(posedge clk) begin
     if (reset) begin
       write_address_kernel_mem <= 0;
-    end else if (we_kernel_mem) begin
+    end else if (we_kernel_mem && select_sub_block_we_kernel_mem == 1'b1) begin
       write_address_kernel_mem <= write_address_kernel_mem + 1;
     end
   end
-
-  // set by FSM
-  reg select_block_rd_kernel_mem, select_block_we_kernel_mem, select_sub_block_we_kernel_mem;
   
   complex_t in_kernel_mem [0:1][0:3];  // one cacheline
   // connect to cacheline_in
