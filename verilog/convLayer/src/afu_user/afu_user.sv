@@ -106,7 +106,11 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
 
   reg we_image_mem;
   always@(posedge clk) begin
-    we_image_mem <= next_out_image_fft;  // image write is one cycle delay of next_out_fft
+    if (reset) begin
+      we_image_mem <= 0;
+    end else begin
+      we_image_mem <= next_out_image_fft;  // image write is one cycle delay of next_out_fft
+    end
   end
 
   reg [12:0] write_address_image_mem;
@@ -131,7 +135,7 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
     );
 
   // kernel mem array
-  reg we_kernel_mem;   // set by FSM
+  wire we_kernel_mem;   // set by FSM
   reg [8:0] read_address_kernel_mem;  // set by FSM
   
   reg [8:0] write_address_kernel_mem;
@@ -208,7 +212,7 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
   wire output_valid_accumulator;
 
   // The output of multiplier should be in burst mode (consecutive next_out_multiplier be high)
-  reg start_accumulator, stop_accumulator;
+  wire start_accumulator, stop_accumulator;
 
   // delay next_out_multiplier
   reg next_out_multiplier_reg;
@@ -230,7 +234,7 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
     );
 
   // IFFT array
-  reg next_ifft;
+  wire next_ifft;
   assign next_ifft = output_valid_accumulator;
 
   complex_t in_ifft [0:3][0:3][0:3];
@@ -562,6 +566,7 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
     if (reset) begin
       exec_state <= EXEC_IDLE;
       current_kernel_exec <= 0;
+      next_multiplier <= 0;
     end else begin
       case (exec_state)
         EXEC_IDLE: begin
@@ -579,6 +584,7 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
         EXEC_PREPARE: begin
           current_read_address_kernel_mem <= current_read_address_kernel_mem_start;
           current_read_address_image_mem <= 0;
+          exec_state <= EXEC_RUN;
         end
 
         EXEC_RUN: begin
