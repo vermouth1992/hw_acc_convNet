@@ -27,8 +27,8 @@
 #ifdef ASEAFU
 #define N 14   // image size N*N*D1
 #define n 3     // filter size  n*n*D1*D2
-#define D1 512   // input feature maps
-#define D2 4   // output feature maps
+#define D1 64   // input feature maps
+#define D2 16   // output feature maps
 #define padding 1  // zero padding
 #define stride 1   // stride
 #endif

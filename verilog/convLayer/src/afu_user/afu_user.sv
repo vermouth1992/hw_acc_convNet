@@ -486,9 +486,9 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
   end
 
   // if valid and mdata is 0, forward to FFT array
-  assign next_image_fft = (rd_rsp_valid == 1'b1 && rd_rsp_mdata[0] == 1'b0) ? 1'b1 : 1'b0;
+  assign next_image_fft = (start == 1'b1 && rd_rsp_valid == 1'b1 && rd_rsp_mdata[0] == 1'b0) ? 1'b1 : 1'b0;
   // if valid and mdata is 1, forward to kernel memory
-  assign we_kernel_mem = (rd_rsp_valid == 1'b1 && rd_rsp_mdata[0] == 1'b1) ? 1'b1 : 1'b0;
+  assign we_kernel_mem = (start == 1'b1 && rd_rsp_valid == 1'b1 && rd_rsp_mdata[0] == 1'b1) ? 1'b1 : 1'b0;
 
   // create a syn fifo as buffer
   wire [511:0] output_fifo_din;
