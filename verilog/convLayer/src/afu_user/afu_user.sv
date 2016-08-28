@@ -381,7 +381,7 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
   reg [31:0] num_cl_output_buffer;
   reg [31:0] num_input_feature_maps;
   reg [31:0] current_cycle_already_read_cl_image;
-  reg [31:0] current_cycle_already_read_cl_kernel;  // 512 a time
+  reg [31:0] current_cycle_already_read_cl_kernel;  // 1024 a time
   // read request FSM
   always@(posedge clk) begin
     if (reset) begin
@@ -446,7 +446,7 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
         TX_RD_STATE_KERNEL: begin
           // TODO: filter_buffer_almost_full is to be set
           if (~rd_req_almostfull) begin
-            if (current_cycle_already_read_cl_kernel < 512) begin
+            if (current_cycle_already_read_cl_kernel < 1024) begin
               // get the next read address
               current_read_filter_addr <= current_read_filter_addr + 1;
               rd_req_addr <= current_read_filter_addr;
@@ -594,7 +594,7 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
             current_read_address_kernel_mem <= current_read_address_kernel_mem + 1;
             current_read_address_image_mem <= current_read_address_image_mem + 1;
           end else if (current_read_address_image_mem == write_address_image_mem) begin // this iteration, image finished
-            if (current_read_address_kernel_mem == 0) begin
+            if (current_read_address_kernel_mem[8:0] == 0) begin
               exec_state <= EXEC_IDLE;
               current_kernel_exec <= ~current_kernel_exec;
             end else begin
