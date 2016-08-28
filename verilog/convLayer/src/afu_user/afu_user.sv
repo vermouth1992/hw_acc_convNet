@@ -402,7 +402,6 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
             $display("num input feature map = %d", afu_context[415:384]);  // D2
             $display("dest offset = %h", afu_context[511:448]);
             // synthesis translate_on
-            current_write_addr <= 0;
             filter_offset_addr <= afu_context[256+64-1:256+6];    // has to be cacheline aligned
             dest_offset_addr <= afu_context[511:448+6];
             end_output_addr <= afu_context[320+64-1:320+6];
@@ -540,6 +539,7 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
   always@(posedge clk) begin
     if (reset) begin
       wr_req_mdata <= 0;
+      current_write_addr <= 0;
     end
     wr_req_en <= output_fifo_re;
     if (wr_req_en) begin
