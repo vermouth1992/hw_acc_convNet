@@ -364,7 +364,7 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
   end
 
   // state for memory request, currently, it is a image oriented approach
-  enum {TX_RD_STATE_IDLE, TX_RD_STATE_IMAGE_PREPARE, TX_RD_STATE_IMAGE, TX_RD_STATE_KERNEL_PREPARE, TX_RD_STATE_KERNEL} read_req_state;
+  enum {TX_RD_STATE_IDLE, TX_RD_STATE_IMAGE_PREPARE, TX_RD_STATE_IMAGE, TX_RD_STATE_KERNEL_PREPARE, TX_RD_STATE_KERNEL, TX_RD_STATE_DONE} read_req_state;
 
   // afu_context info extraction
   // constant
@@ -413,7 +413,9 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
         end
 
         TX_RD_STATE_IMAGE_PREPARE: begin
-          if (image_status == VACANT) begin
+          if (current_read_image_addr == filter_offset_addr) begin
+            read_req_state <= TX_RD_STATE_DONE;
+          end else if (image_status == VACANT) begin
             read_req_state <= TX_RD_STATE_IMAGE;
           end
         end
@@ -464,6 +466,9 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
             rd_req_en <= 1'b0;
           end
         end
+
+        // if done, do nothing
+        TX_RD_STATE_DONE: begin end
 
         default: begin end
       endcase
