@@ -136,7 +136,8 @@ module delay_accumulator (
 
   complex_t in0_wire;
 
-  assign in0_wire = (counter == 4'b1011) ? '{0, 0} : in;
+  assign in0_wire.r = (counter == 4'b1011) ? 32'h0 : in.r;
+  assign in0_wire.i = (counter == 4'b1011) ? 32'h0 : in.i;
 
   complexAdd adder0 (
     .clk     (clk),
