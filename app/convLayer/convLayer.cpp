@@ -349,8 +349,9 @@ int ConvLayer::run() {
         // The source buffer is right after the VAFU Context
         btVirtAddr pImage = pWSUsrVirt + sizeof(VAFU2_CNTXT);
 
-        // pFilter offset is just the image size
-        btUnsigned64bitInt pFilter = testLayer.getImageSizeInBytes();
+        btVirtAddr pFilter = pImage + testLayer.getImageSizeInBytes();
+        // pFilterOffset offset is just the image size
+        btUnsigned64bitInt pFilterOffset = testLayer.getImageSizeInBytes();
         // The destination buffer is right after the source buffer
         btVirtAddr pDestImage = pImage + testLayer.getImageSizeInBytes() + testLayer.getFilterSizeInBytes();
 
@@ -372,7 +373,7 @@ int ConvLayer::run() {
         pVAFU2_cntxt->num_cl = a_num_cl;   // note that it is number of cache line in total
         pVAFU2_cntxt->pSource = pImage;
         pVAFU2_cntxt->pDest = pDestImage;
-        pVAFU2_cntxt->qword0[4] = (btUnsigned64bitInt) pFilter;  // cat address to 64 unsigned int
+        pVAFU2_cntxt->qword0[4] = (btUnsigned64bitInt) pFilterOffset;  // cat address to 64 unsigned int
         pVAFU2_cntxt->qword0[5] = (btUnsigned64bitInt) pEndAddr; // cat address to 64 unsigned int
         pVAFU2_cntxt->qword0[6] = testLayer.getNumInputFeatureMap();
         pVAFU2_cntxt->qword0[7] = (btUnsigned64bitInt) pDestImageOffset;
@@ -383,9 +384,35 @@ int ConvLayer::run() {
         MSG("Cache lines in each buffer=" << std::dec << pVAFU2_cntxt->num_cl <<
                                            " (bytes=" << std::dec << pVAFU2_cntxt->num_cl * CL(1) <<
                                            " 0x" << std::hex << pVAFU2_cntxt->num_cl * CL(1) << std::dec << ")");
-        MSG("pFilter=" << std::hex << (void*) pFilter);
+        MSG("pFilterOffset=" << std::hex << (void*) pFilterOffset);
         MSG("pEndAddr=" << std::hex << (void*) pEndAddr);
         MSG("pDestImageOffset=" << std::hex << (void*) pDestImageOffset);
+
+
+        // initialize the buffer, image is random from 0 to 1, kernel is random from 0 to 1
+        MSG("Initialize the image buffer.");
+        std::srand((uint) std::time(0));
+        struct OneCLSingle* pImageCLSingle = reinterpret_cast<struct OneCLSingle *>(pImage);
+        int num_cl_image = testLayer.getImageSizeInBytes() / CL(1);
+        for (int i = 0; i < num_cl_image; i++) {
+            for (int j = 0; j < 16; j++) {
+                float r = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+                (pImageCLSingle + i)->dw[j] = r;
+            }
+        }
+
+        MSG("Initialize the kernel buffer.");
+        struct OneCLSingle* pFilterSingle = reinterpret_cast<struct OneCLSingle *>(pFilter);
+        int num_cl_filter = testLayer.getFilterSizeInBytes() / CL(1);
+        for (int i = 0; i < num_cl_filter; i++) {
+            for (int j = 0; j < 16; j++) {
+                float r = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+                (pFilterSingle + i)->dw[j] = r;
+            }
+        }
+
+        MSG("Initialize the output buffer as 0xBE");
+        ::memset(pDestImage, 0xBE, testLayer.getOutputBufferSizeInBytes());
 
         // Buffers have been initialized
         ////////////////////////////////////////////////////////////////////////////
