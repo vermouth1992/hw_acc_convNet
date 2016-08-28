@@ -27,7 +27,8 @@ module accumulator (
 
   complex_t in_feedback, out_feedback;
 
-  assign in_feedback = (counter == 4'b1011) ? out_feedback : '{32'h0, 32'h0};
+  assign in_feedback.r = (counter == 4'b1011) ? out_feedback.r : 0;
+  assign in_feedback.i = (counter == 4'b1011) ? out_feedback.i : 0;
 
 
   // instantiate first adder
