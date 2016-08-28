@@ -609,7 +609,7 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
   end
 
   always@(posedge clk) begin
-    read_address_image_mem <= current_read_address_image_mem[8:0];
+    read_address_image_mem <= current_read_address_image_mem;
     read_address_kernel_mem <= current_read_address_kernel_mem[8:0];
   end
 
