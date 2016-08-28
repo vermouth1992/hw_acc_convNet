@@ -23,7 +23,7 @@ module complexMultArray (
   genvar i, j;
   generate
     for (i=0; i<4; i=i+1) begin: mult_inst_outer
-      for (j=0; j<4; j=j+4) begin: mult_inst_inner
+      for (j=0; j<4; j=j+1) begin: mult_inst_inner
         complexMultConventionfp32fp32 complexMultConventionfp32fp32_inst (
           .clk     (clk),
           .reset   (reset),
