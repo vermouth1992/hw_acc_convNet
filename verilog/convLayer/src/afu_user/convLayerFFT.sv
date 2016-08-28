@@ -38,7 +38,7 @@ module convLayerFFT (
   generate
     for (j=0; j<4; j=j+1) begin: zero_assign_0_outer
       for (k=0; k<4; k=k+1) begin: zero_assign_0_inner
-        assign fft4_2d_io.in[j][k].r = tile[i][j];
+        assign fft4_2d_io.in[j][k].r = tile[j][k];
       end
     end
     for (j=0; j<4; j=j+1) begin: zero_assign_1_outer
@@ -55,7 +55,7 @@ module convLayerFFT (
   assign next_out = fft4_2d_io.next_out;
 
   // assign output
-  assign out[i] = fft4_2d_io[i].out;
+  assign out = fft4_2d_io.out;
   
 endmodule
 
@@ -79,7 +79,7 @@ module convLayerIFFT (
   // instantiate 4 fft_2d
   genvar i, j, k;
   
-  fft_2d #(4, 1) fft4_2d_inst(fft4_2d_io[i]);
+  fft_2d #(4, 1) fft4_2d_inst(fft4_2d_io);
 
   // assign input signal
   assign fft4_2d_io.in = in;
