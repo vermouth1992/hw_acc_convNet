@@ -45,31 +45,26 @@ endmodule // complexMultArray
 module complexMultArrayParallel (
   input clk,
   input reset,
-  input complex_t image [0:3][0:3][0:3],
+  input complex_t image [0:3][0:3],
   input complex_t kernel [0:3][0:3],
-  output complex_t out [0:3][0:3][0:3],
+  output complex_t out [0:3][0:3],
   input next,
   output next_out
   );
 
-  wire next_out_inst [0:3];
+  wire next_out_inst;
 
-  genvar i;
-  generate
-    for(i=0; i<4; i=i+1) begin: parallel_inst
-      complexMultArray complexMultArray_inst (
-        .clk     (clk),
-        .reset   (reset),
-        .image   (image[i]),
-        .kernel  (kernel),    // multiply with the same kernel
-        .out     (out[i]),
-        .next    (next),
-        .next_out(next_out_inst[i])
-        );
-    end
-  endgenerate
+  complexMultArray complexMultArray_inst (
+    .clk     (clk),
+    .reset   (reset),
+    .image   (image),
+    .kernel  (kernel),    // multiply with the same kernel
+    .out     (out),
+    .next    (next),
+    .next_out(next_out_inst)
+    );
 
-  assign next_out = next_out_inst[0];
+  assign next_out = next_out_inst;
 
 endmodule
 
@@ -112,31 +107,26 @@ endmodule
 module complexAccumulatorArrayParallel (
   input clk,
   input reset,
-  input complex_t in [0:3][0:3][0:3],
-  output complex_t out [0:3][0:3][0:3],
+  input complex_t in [0:3][0:3],
+  output complex_t out [0:3][0:3],
   // control
   input start,
   input stop,
   output output_valid
   );
 
-  wire output_valid_inst [0:3];
+  wire output_valid_inst;
 
-  genvar i;
-  generate
-    for (i=0; i<4; i=i+1) begin: parallel_accumulator_inst
-      complexAccumulatorArray complexAccumulatorArray_inst (
-        .clk(clk),
-        .reset(reset),
-        .in(in[i]),
-        .out(out[i]),
-        .start(start),
-        .stop(stop),
-        .output_valid(output_valid_inst[i])
-        );
-    end
-  endgenerate
+  complexAccumulatorArray complexAccumulatorArray_inst (
+    .clk(clk),
+    .reset(reset),
+    .in(in),
+    .out(out),
+    .start(start),
+    .stop(stop),
+    .output_valid(output_valid_inst)
+    );
 
-  assign output_valid = output_valid_inst[0];
+  assign output_valid = output_valid_inst;
 
 endmodule

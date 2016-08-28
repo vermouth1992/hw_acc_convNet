@@ -85,7 +85,7 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
   wire next_image_fft;  // set by FSM
   // used by other modules
   wire next_out_image_fft;
-  complex_t out_image_fft [0:3][0:3][0:3];
+  complex_t out_image_fft [0:3][0:3];
 
   wire [511:0] cacheline_in_fft;
   assign cacheline_in_fft = rd_rsp_data_reg;
@@ -102,7 +102,7 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
   // image mem array
   reg [12:0] read_address_image_mem;   // set by FSM
   // used by other modules
-  complex_t out_image_mem [0:3][0:3][0:3];
+  complex_t out_image_mem [0:3][0:3];
 
   reg we_image_mem;
   always@(posedge clk) begin
@@ -122,7 +122,7 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
     end
   end
 
-  complex_t in_image_mem [0:3][0:3][0:3];
+  complex_t in_image_mem [0:3][0:3];
   assign in_image_mem = out_image_fft;   // input to image memory is fft output
 
   memBlockImage_top memBlockImage_top_inst (
@@ -181,16 +181,16 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
     );
 
   // multiplier array
-  complex_t in_multiplier_image [0:3][0:3][0:3];
+  complex_t in_multiplier_image [0:3][0:3];
   assign in_multiplier_image = out_image_mem;
 
-  complex_t in_multiplier_kernel [0:3][0:3];
+  complex_t in_multiplier_kernel [0:3];
   assign in_multiplier_kernel = out_kernel_mem;
 
   // set by FSM
   reg next_multiplier;
   // used by other modules
-  complex_t out_multiplier [0:3][0:3][0:3];
+  complex_t out_multiplier [0:3][0:3];
   wire next_out_multiplier;
 
   complexMultArrayParallel complexMultArrayParallel_inst (
@@ -204,11 +204,11 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
     );
 
   // accumulator array
-  complex_t in_accumulator [0:3][0:3][0:3];
+  complex_t in_accumulator [0:3][0:3];
   assign in_accumulator = out_multiplier;
 
   // used by other modules
-  complex_t out_accumulator [0:3][0:3][0:3];
+  complex_t out_accumulator [0:3][0:3];
   wire output_valid_accumulator;
 
   // The output of multiplier should be in burst mode (consecutive next_out_multiplier be high)
@@ -237,7 +237,7 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
   wire next_ifft;
   assign next_ifft = output_valid_accumulator;
 
-  complex_t in_ifft [0:3][0:3][0:3];
+  complex_t in_ifft [0:3][0:3];
   assign in_ifft = out_accumulator;
 
   // used by other modules

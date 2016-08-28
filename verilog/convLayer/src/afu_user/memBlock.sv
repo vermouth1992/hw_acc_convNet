@@ -238,23 +238,18 @@ module memBlockImage_top (
   input logic [12:0] read_address,
   input logic [12:0] write_address,
   input we,
-  input complex_t in [0:3][0:3][0:3],
-  output complex_t out [0:3][0:3][0:3]
+  input complex_t in [0:3][0:3],
+  output complex_t out [0:3][0:3]
   );
 
-  intf_block_mem_image block_mem_image_io[0:3](clk);
+  intf_block_mem_image block_mem_image_io(clk);
 
-  genvar i;
-  generate
-    for (i=0; i<4; i=i+1) begin: image_block_array
-      memBlockImage memBlockImage_inst(block_mem_image_io[i]);
-      assign block_mem_image_io[i].in = in[i];     // connect the output of 2dfft to mem block
-      assign out[i] = block_mem_image_io[i].out;
-      assign block_mem_image_io[i].we = we;
-      assign block_mem_image_io[i].read_address = read_address;
-      assign block_mem_image_io[i].write_address = write_address;
-    end
-  endgenerate
+  memBlockImage memBlockImage_inst(block_mem_image_io);
+  assign block_mem_image_io.in = in;     // connect the output of 2dfft to mem block
+  assign out = block_mem_image_io.out;
+  assign block_mem_image_io.we = we;
+  assign block_mem_image_io.read_address = read_address;
+  assign block_mem_image_io.write_address = write_address;
 
 endmodule
 
