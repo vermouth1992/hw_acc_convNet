@@ -63,7 +63,7 @@ convLayerConfig::convLayerConfig(btUnsigned32bitInt i, btUnsigned32bitInt f, btU
 btUnsigned32bitInt convLayerConfig::getImageSizeInBytes() {
     btUnsigned32bitInt numTile = (btUnsigned32bitInt) ceil(float(imageSize + 2 * zeroPadding) / float(tileSize));
     // zero padding is done on FPGA
-    btUnsigned32bitInt originalSize = numTile * tileSize;
+    btUnsigned32bitInt originalSize = numTile * fftSize;
     btUnsigned32bitInt numPoint = originalSize * originalSize * numInputFeatureMap;
     return numPoint * 4;
 }
