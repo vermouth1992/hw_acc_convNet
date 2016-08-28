@@ -483,7 +483,7 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
         select_sub_block_we_kernel_mem <= ~select_sub_block_we_kernel_mem;
       end
       // select block
-      if (we_kernel_mem && write_address_kernel_mem == '1) begin
+      if (we_kernel_mem && write_address_kernel_mem == '1 && select_sub_block_we_kernel_mem == 1'b1) begin
         select_block_we_kernel_mem <= ~select_block_we_kernel_mem;
       end
     end
@@ -596,6 +596,7 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
           end else if (current_read_address_image_mem == write_address_image_mem) begin // this iteration, image finished
             if (current_read_address_kernel_mem == 0) begin
               exec_state <= EXEC_IDLE;
+              current_kernel_exec <= ~current_kernel_exec;
             end else begin
               exec_state <= EXEC_PREPARE;
             end
