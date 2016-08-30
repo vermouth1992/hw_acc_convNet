@@ -25,7 +25,7 @@
 
 // ASE tests using small image size and kernel
 #ifdef ASEAFU
-#define N 14   // image size N*N*D1
+#define N 6   // image size N*N*D1
 #define n 3     // filter size  n*n*D1*D2
 #define D1 32   // input feature maps
 #define D2 8   // output feature maps

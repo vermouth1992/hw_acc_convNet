@@ -391,7 +391,7 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
         end
 
         DRAIN: begin
-          if (select_block_rd_image_mem == 0 && read_address_kernel_mem == 0 && read_address_image_mem == write_address_image_mem[0] && current_cycle_already_process_num_kernel == num_output_feature_maps) begin
+          if (select_block_rd_image_mem == 0 && read_address_kernel_mem == 0 && read_address_image_mem == write_address_image_mem[0] && current_cycle_already_process_num_kernel == num_output_feature_maps - 1) begin
             image_status_0 <= VACANT;
           end
         end
@@ -401,7 +401,7 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
     end
   end
 
-  // image 0 mem fsm
+  // image 1 mem fsm
   always@(posedge clk) begin
     if (reset) begin
       image_status_1 <= VACANT;
@@ -427,7 +427,7 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
         end
 
         DRAIN: begin
-          if (select_block_rd_image_mem == 1 && read_address_kernel_mem == 0 && read_address_image_mem == write_address_image_mem[0] && current_cycle_already_process_num_kernel == num_output_feature_maps) begin
+          if (select_block_rd_image_mem == 1 && read_address_kernel_mem == 0 && read_address_image_mem == write_address_image_mem[0] && current_cycle_already_process_num_kernel == num_output_feature_maps - 1) begin
             image_status_1 <= VACANT;
           end
         end
