@@ -68,8 +68,8 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
   input [511:0] 	    afu_context
   );
 
-  localparam IMAGE_MEM_DEPTH_BITS = 10;   // this is for test purpose, must be greater or equal to 9 (512)
-  localparam KERNEL_MEM_DEPTH_BITS = 9;
+  localparam IMAGE_MEM_DEPTH_BITS = 7;   // this is for test purpose, must be greater or equal to 9 (512)
+  localparam KERNEL_MEM_DEPTH_BITS = 6;
 
   localparam NUM_CACHELINE_IMAGE_MOST = 2 ** IMAGE_MEM_DEPTH_BITS;   // 8192
   localparam NUM_CACHELINE_KERNEL_MOST = 2 ** (KERNEL_MEM_DEPTH_BITS + 1); // 512
@@ -349,9 +349,9 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
         DRAIN: begin
           if (read_address_kernel_mem == 0) begin
             if (select_block_rd_image_mem == 1'b0 && read_address_image_mem == write_address_image_mem[0]) begin
-              kernel_status_0 <= VACANT;
+              kernel_status_1 <= VACANT;
             end else if (select_block_rd_image_mem == 1'b1 && read_address_image_mem == write_address_image_mem[1]) begin
-              kernel_status_0 <= VACANT;
+              kernel_status_1 <= VACANT;
             end
           end
         end
@@ -691,25 +691,25 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
 
           case ({current_image_exec, current_kernel_exec})
             2'b00: begin
-              if (image_status_0 == FULL && kernel_status_0 == FULL) begin
+              if ((image_status_0 == FULL || image_status_0 == DRAIN) && kernel_status_0 == FULL) begin
                 exec_state <= EXEC_RUN;
               end
             end
 
             2'b01: begin
-              if (image_status_0 == FULL && kernel_status_1 == FULL) begin
+              if ((image_status_0 == FULL || image_status_0 == DRAIN) && kernel_status_1 == FULL) begin
                 exec_state <= EXEC_RUN;
               end
             end
 
             2'b10: begin
-              if (image_status_1 == FULL && kernel_status_0 == FULL) begin
+              if ((image_status_1 == FULL || image_status_1 == DRAIN)  && kernel_status_0 == FULL) begin
                 exec_state <= EXEC_RUN;
               end
             end
 
             2'b11: begin
-              if (image_status_1 == FULL && kernel_status_1 == FULL) begin
+              if ((image_status_1 == FULL || image_status_1) && kernel_status_1 == FULL) begin
                 exec_state <= EXEC_RUN;
               end
             end

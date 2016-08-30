@@ -375,7 +375,7 @@ int ConvLayer::run() {
         pVAFU2_cntxt->pDest = pDestImage;
         pVAFU2_cntxt->qword0[4] = (btUnsigned64bitInt) pFilterOffset;  // cat address to 64 unsigned int
         pVAFU2_cntxt->qword0[5] = (btUnsigned64bitInt) pEndAddr; // cat address to 64 unsigned int
-        pVAFU2_cntxt->qword0[6] = (btUnsigned64bitInt) testLayer.getNumInputFeatureMap() + ((btUnsigned64bitInt) testLayer.getNumOutputFeatureMap())<< 32;
+        pVAFU2_cntxt->qword0[6] = (btUnsigned64bitInt) testLayer.getNumInputFeatureMap() + (((btUnsigned64bitInt) testLayer.getNumOutputFeatureMap()) << 32);
         pVAFU2_cntxt->qword0[7] = (btUnsigned64bitInt) pDestImageOffset;
 
         MSG("VAFU2 Context=" << std::hex << (void *) pVAFU2_cntxt <<
