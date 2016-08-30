@@ -29,7 +29,9 @@ endmodule
 /*
  * Each memory block for image is 16 complex width * 512 * 16
  */
-module memBlockImage (
+module memBlockImage # (
+  parameter IMAGE_MEM_DEPTH_BITS = 13
+) (
   intf_block_mem_image block_mem_image_io
 );
   
@@ -39,7 +41,7 @@ module memBlockImage (
 
   generate
     for (i=0; i<16; i=i+1) begin: dual_port_ram_loop
-      dual_port_ram #(64, 13) dual_port_ram_inst (
+      dual_port_ram #(64, IMAGE_MEM_DEPTH_BITS) dual_port_ram_inst (
         .clk           (block_mem_io[i].clk),
         .we            (block_mem_io[i].we),
         .data_in       (block_mem_io[i].data_in),
@@ -70,15 +72,17 @@ endmodule
  * internally, it is split into two memory blocks and can be activated separated
  */
 
-module memBlockKernel (
+module memBlockKernel # (
+  parameter KERNEL_MEM_DEPTH_BITS = 9
+) (
   intf_block_mem_kernel block_mem_kernel_io
 );
 
   genvar i, j;
 
   // when assign the interface port, remember to split to two parts
-  intf_block_mem #(64, 9) block_mem_io_0 [7:0] (block_mem_kernel_io.clk);
-  intf_block_mem #(64, 9) block_mem_io_1 [7:0] (block_mem_kernel_io.clk);
+  intf_block_mem #(64, KERNEL_MEM_DEPTH_BITS) block_mem_io_0 [7:0] (block_mem_kernel_io.clk);
+  intf_block_mem #(64, KERNEL_MEM_DEPTH_BITS) block_mem_io_1 [7:0] (block_mem_kernel_io.clk);
 
   wire we_0, we_1;
 
@@ -116,7 +120,7 @@ module memBlockKernel (
   // instantiate
   generate
     for (i=0; i<8; i=i+1) begin: dual_port_ram_loop
-      dual_port_ram #(64, 9) dual_port_ram_inst_0 (
+      dual_port_ram #(64, KERNEL_MEM_DEPTH_BITS) dual_port_ram_inst_0 (
         .clk           (block_mem_io_0[i].clk),
         .we            (block_mem_io_0[i].we),
         .data_in       (block_mem_io_0[i].data_in),
@@ -128,7 +132,7 @@ module memBlockKernel (
       assign block_mem_io_0[i].read_address = block_mem_kernel_io.read_address;
       assign block_mem_io_0[i].write_address = block_mem_kernel_io.write_address;
       
-      dual_port_ram #(64, 9) dual_port_ram_inst_1 (
+      dual_port_ram #(64, KERNEL_MEM_DEPTH_BITS) dual_port_ram_inst_1 (
         .clk           (block_mem_io_1[i].clk),
         .we            (block_mem_io_1[i].we),
         .data_in       (block_mem_io_1[i].data_in),
@@ -146,120 +150,47 @@ module memBlockKernel (
 endmodule // memBlockKernel
 
 
-// memBlockKernel testbench
+/* The top module of memBlockImage, which contains two sets of memory block */
 
-module memBlockKernel_tb(
-  intf_block_mem_kernel block_mem_kernel_io,
-  input reset
-  );
-
-  integer i, j;
-
-  initial begin
-    wait(reset);
-    block_mem_kernel_io.read_address = 0;
-    block_mem_kernel_io.write_address = 0;
-    block_mem_kernel_io.we = 0;
-    @(posedge block_mem_kernel_io.clk);
-    $display("--- begin input ---");
-    repeat(2) begin
-      block_mem_kernel_io.select = 1'b0;
-      block_mem_kernel_io.we = 1;
-      for (i=0; i<2; i=i+1) begin
-        for (j=0; j<4; j=j+1) begin
-          block_mem_kernel_io.in[i][j].r = $random();
-          block_mem_kernel_io.in[i][j].i = $random();
-        end
-      end
-      for (i=0; i<2; i=i+1) begin
-        for (j=0; j<4; j=j+1) begin
-          $display("%h + j%h", block_mem_kernel_io.in[i][j].r, block_mem_kernel_io.in[i][j].i);
-        end
-      end
-      @(posedge block_mem_kernel_io.clk);
-      block_mem_kernel_io.select = 1'b1;
-      block_mem_kernel_io.we = 1;
-      for (i=0; i<2; i=i+1) begin
-        for (j=0; j<4; j=j+1) begin
-          block_mem_kernel_io.in[i][j].r = $random();
-          block_mem_kernel_io.in[i][j].i = $random();
-        end
-      end
-      for (i=0; i<2; i=i+1) begin
-        for (j=0; j<4; j=j+1) begin
-          $display("%h + j%h", block_mem_kernel_io.in[i][j].r, block_mem_kernel_io.in[i][j].i);
-        end
-      end
-
-      @(posedge block_mem_kernel_io.clk);
-      block_mem_kernel_io.write_address = block_mem_kernel_io.write_address + 1;
-    end
-
-    block_mem_kernel_io.we = 0;
-    $display("--- begin output ---");
-    repeat(2) begin
-      @(posedge block_mem_kernel_io.clk);
-      for (i=0; i<4; i=i+1) begin
-        for (j=0; j<4; j=j+1) begin
-          $display("%h + j%h", block_mem_kernel_io.out[i][j].r, block_mem_kernel_io.out[i][j].i);
-        end
-      end
-      block_mem_kernel_io.read_address <= block_mem_kernel_io.read_address + 1;
-    end
-  end
-
-endmodule
-
-module memBlockKernel_tb_top;
-
-  reg clk;
-  reg reset;
-  initial begin
-    clk = 0;
-    reset = 1;
-    #15;
-    reset = 0;
-  end
-
-  always # 10 clk = ~clk;
-
-  intf_block_mem_kernel block_mem_kernel_io(clk);
-
-  memBlockKernel memBlockKernel_inst(block_mem_kernel_io);
-  memBlockKernel_tb memBlockKernel_tb_inst(block_mem_kernel_io, reset);
-
-endmodule
-
-
-/* The top module of 4 memBlockImage */
-
-module memBlockImage_top (
+module memBlockImage_top # (
+  parameter IMAGE_MEM_DEPTH_BITS = 13
+) (
   input clk,
-  input logic [12:0] read_address,
-  input logic [12:0] write_address,
+  input logic [IMAGE_MEM_DEPTH_BITS-1:0] read_address,
+  input logic [IMAGE_MEM_DEPTH_BITS-1:0] write_address,
   input we,
+  input select_block_we,
+  input select_block_rd,
   input complex_t in [0:3][0:3],
   output complex_t out [0:3][0:3]
   );
 
-  intf_block_mem_image block_mem_image_io(clk);
+  intf_block_mem_image #(IMAGE_MEM_DEPTH_BITS) block_mem_image_io [0:1] (clk);
 
-  memBlockImage memBlockImage_inst(block_mem_image_io);
-  assign block_mem_image_io.in = in;     // connect the output of 2dfft to mem block
-  assign out = block_mem_image_io.out;
-  assign block_mem_image_io.we = we;
-  assign block_mem_image_io.read_address = read_address;
-  assign block_mem_image_io.write_address = write_address;
+  genvar i;
+  generate
+    for (i=0; i<2; i=i+1) begin: image_block_array
+      memBlockImage #(IMAGE_MEM_DEPTH_BITS) memBlockImage_inst(block_mem_image_io[i]);
+      assign block_mem_image_io[i].in = in;     // connect the output of 2dfft to mem block
+      assign block_mem_image_io[i].we = (select_block_we == i) ? we : 1'b0;
+      assign block_mem_image_io[i].read_address = read_address;
+      assign block_mem_image_io[i].write_address = write_address;
+    end
+  endgenerate
+
+  assign out = (select_block_rd == 1'b0) ? block_mem_image_io[0].out : block_mem_image_io[1].out;
 
 endmodule
 
 /* The top module of 2 memBlockKernel,  */
 
-module memBlockKernel_top (
+module memBlockKernel_top # (
+  parameter KERNEL_MEM_DEPTH_BITS = 9
+) (
   input clk,
   input logic we,
-  input [8:0] read_address,
-  input [8:0] write_address,
+  input [KERNEL_MEM_DEPTH_BITS-1:0] read_address,
+  input [KERNEL_MEM_DEPTH_BITS-1:0] write_address,
   input select_block_rd,
   input select_block_we,
   input select_sub_block_we,
@@ -272,7 +203,7 @@ module memBlockKernel_top (
   genvar i;
   generate
     for(i=0; i<2; i=i+1) begin: kernel_block_array
-      memBlockKernel memBlockKernel_inst(block_mem_kernel_io[i]);
+      memBlockKernel #(KERNEL_MEM_DEPTH_BITS) memBlockKernel_inst(block_mem_kernel_io[i]);
       assign block_mem_kernel_io[i].we = (select_block_we == i) ? we : 1'b0;
       assign block_mem_kernel_io[i].read_address = read_address;
       assign block_mem_kernel_io[i].write_address = write_address;

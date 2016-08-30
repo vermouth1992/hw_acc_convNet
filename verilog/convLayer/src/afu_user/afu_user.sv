@@ -68,7 +68,10 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
   input [511:0] 	    afu_context
   );
 
-  localparam NUM_CACHELINE_IMAGE_MOST = 2 ** 13;   // 8192
+  localparam IMAGE_MEM_DEPTH_BITS = 10;   // this is for test purpose, must be greater or equal to 9 (512)
+  localparam KERNEL_MEM_DEPTH_BITS = 9;
+
+  localparam NUM_CACHELINE_IMAGE_MOST = 2 ** IMAGE_MEM_DEPTH_BITS;   // 8192
 
   wire reset;
   assign reset = ~reset_n;
@@ -100,7 +103,8 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
     );
 
   // image mem array
-  reg [12:0] read_address_image_mem;   // set by FSM
+  reg [IMAGE_MEM_DEPTH_BITS-1:0] read_address_image_mem;   // set by FSM
+  reg select_block_we_image_mem, select_block_rd_image_mem; // set by FSM
   // used by other modules
   complex_t out_image_mem [0:3][0:3];
 
@@ -113,7 +117,7 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
     end
   end
 
-  reg [12:0] write_address_image_mem;
+  reg [IMAGE_MEM_DEPTH_BITS-1:0] write_address_image_mem;
   always@(posedge clk) begin
     if (reset) begin
       write_address_image_mem <= 0;
@@ -126,12 +130,14 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
   assign in_image_mem = out_image_fft;   // input to image memory is fft output
 
   memBlockImage_top memBlockImage_top_inst (
-    .clk          (clk),
-    .write_address(write_address_image_mem),
-    .read_address (read_address_image_mem),
-    .we           (we_image_mem),
-    .in           (in_image_mem),
-    .out          (out_image_mem)
+    .clk            (clk),
+    .write_address  (write_address_image_mem),
+    .read_address   (read_address_image_mem),
+    .select_block_we(select_block_we_image_mem),
+    .select_block_rd(select_block_rd_image_mem),
+    .we             (we_image_mem),
+    .in             (in_image_mem),
+    .out            (out_image_mem)
     );
 
   // set by FSM
@@ -139,9 +145,9 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
 
   // kernel mem array
   wire we_kernel_mem;   // set by FSM
-  reg [8:0] read_address_kernel_mem;  // set by FSM
+  reg [KERNEL_MEM_DEPTH_BITS-1:0] read_address_kernel_mem;  // set by FSM
   
-  reg [8:0] write_address_kernel_mem;
+  reg [KERNEL_MEM_DEPTH_BITS-1:0] write_address_kernel_mem;
   always@(posedge clk) begin
     if (reset) begin
       write_address_kernel_mem <= 0;
@@ -561,11 +567,11 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
   // used for select_rd from kernel memory
   reg current_kernel_exec;
   // these two used for boundary, increase 1 bit for easy comparison
-  reg [9:0] current_read_address_kernel_mem_start;
-  reg [9:0] current_read_address_kernel_mem_end;
+  reg [KERNEL_MEM_DEPTH_BITS:0] current_read_address_kernel_mem_start;
+  reg [KERNEL_MEM_DEPTH_BITS:0] current_read_address_kernel_mem_end;
   // these two is the current address
-  reg [9:0] current_read_address_kernel_mem;
-  reg [12:0] current_read_address_image_mem;
+  reg [KERNEL_MEM_DEPTH_BITS:0] current_read_address_kernel_mem;
+  reg [IMAGE_MEM_DEPTH_BITS-1:0] current_read_address_image_mem;
 
   always@(posedge clk) begin
     if (reset) begin
@@ -622,7 +628,7 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
 
   always@(posedge clk) begin
     read_address_image_mem <= current_read_address_image_mem;
-    read_address_kernel_mem <= current_read_address_kernel_mem[8:0];
+    read_address_kernel_mem <= current_read_address_kernel_mem[KERNEL_MEM_DEPTH_BITS-1:0];
   end
 
   // write response FSM (maybe used for synchronization)
