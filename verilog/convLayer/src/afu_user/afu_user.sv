@@ -168,7 +168,7 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
   wire [511:0] cacheline_in_kernel;
   assign cacheline_in_kernel = rd_rsp_data;
 
-  genvar i, j;
+  genvar j;
   generate
     for (i=0; i<2; i=i+1) begin: memBlockKernel_top_outer
       for (j=0; j<4; j=j+1) begin: memBlockKernel_top_inner
@@ -268,6 +268,7 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
 
 
   reg [57:0] current_commited_image_addr;
+  reg [57:0] filter_offset_addr;
 
   always@(posedge clk) begin
     if (reset) begin
@@ -362,6 +363,7 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
 
   // indicate the already read kernel
   reg [31:0] current_cycle_already_process_num_kernel;
+  reg [31:0] num_output_feature_maps;
 
   // image 0 mem fsm
   always@(posedge clk) begin
@@ -441,7 +443,6 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
 
   // afu_context info extraction
   // constant
-  reg [57:0] filter_offset_addr;
   reg [57:0] dest_offset_addr;
   reg [57:0] end_output_addr;
 
@@ -453,7 +454,6 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
   // status number
   reg [31:0] num_cl_output_buffer;
   reg [31:0] num_input_feature_maps;
-  reg [31:0] num_output_feature_maps;
   reg [31:0] current_cycle_already_read_cl_image;
   reg [31:0] current_cycle_already_read_cl_kernel;  // 1024 a time
 
