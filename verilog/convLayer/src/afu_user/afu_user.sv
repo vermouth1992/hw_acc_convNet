@@ -584,8 +584,10 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
         select_block_we_kernel_mem <= ~select_block_we_kernel_mem;
       end
       // select image block
-      if (we_image_mem && write_address_image_mem == '1) begin
-        select_block_we_image_mem <= ~select_block_we_image_mem;
+      if (we_image_mem) begin
+        if ((select_block_we_image_mem == 0 && write_address_image_mem[0] == '1) || (select_block_we_image_mem == 1 && write_address_image_mem[1] == '1)) begin
+          select_block_we_image_mem <= ~select_block_we_image_mem;
+        end
       end
     end
   end
@@ -671,17 +673,49 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
       current_kernel_exec <= 0;
       current_image_exec <= 0;
       next_multiplier <= 0;
+      current_cycle_already_process_num_kernel <= 0;   // D2
     end else begin
       case (exec_state)
         EXEC_IDLE: begin
-          if ((current_kernel_exec == 0 && kernel_status_0 == FULL) || (current_kernel_exec == 1 && kernel_status_1 == FULL)) begin
-            exec_state <= EXEC_RUN;
-            current_read_address_kernel_mem <= 0;
-            current_read_address_kernel_mem_start <= 0;
-            current_read_address_kernel_mem_end <= num_input_feature_maps[9:0];
-            select_block_rd_kernel_mem <= current_kernel_exec;
-            current_read_address_image_mem <= 0;
+          current_read_address_kernel_mem <= 0;
+          current_read_address_image_mem <= 0;
+          current_read_address_kernel_mem_start <= 0;
+          current_read_address_kernel_mem_end <= num_input_feature_maps[9:0];
+          select_block_rd_kernel_mem <= current_kernel_exec;
+          select_block_rd_image_mem <= current_image_exec;
+
+          if (current_cycle_already_process_num_kernel == num_output_feature_maps) begin
+            current_cycle_already_process_num_kernel <= 0;   // D2
+            select_block_rd_image_mem <= ~select_block_rd_image_mem;
           end
+
+          case ({current_image_exec, current_kernel_exec})
+            2'b00: begin
+              if (image_status_0 == FULL && kernel_status_0 == FULL) begin
+                exec_state <= EXEC_RUN;
+              end
+            end
+
+            2'b01: begin
+              if (image_status_0 == FULL && kernel_status_1 == FULL) begin
+                exec_state <= EXEC_RUN;
+              end
+            end
+
+            2'b10: begin
+              if (image_status_1 == FULL && kernel_status_0 == FULL) begin
+                exec_state <= EXEC_RUN;
+              end
+            end
+
+            2'b11: begin
+              if (image_status_1 == FULL && kernel_status_1 == FULL) begin
+                exec_state <= EXEC_RUN;
+              end
+            end
+          
+            default: begin end
+          endcase
         end
 
         // prepare for next kernel cycle
@@ -697,14 +731,16 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
             next_multiplier <= 1'b1;
             current_read_address_kernel_mem <= current_read_address_kernel_mem + 1;
             current_read_address_image_mem <= current_read_address_image_mem + 1;
-          end else if (current_read_address_image_mem == write_address_image_mem) begin // this iteration, image finished
-            if (current_read_address_kernel_mem[8:0] == 0) begin
+          end else if ((select_block_rd_image_mem == 0 && current_read_address_image_mem == write_address_image_mem[0]) || (select_block_rd_image_mem == 1 && current_read_address_image_mem == write_address_image_mem[1])) begin // this iteration, image finished
+            if (current_read_address_kernel_mem[KERNEL_MEM_DEPTH_BITS-1:0] == 0) begin   // if this kernel mem is all consumed
               exec_state <= EXEC_IDLE;
               current_kernel_exec <= ~current_kernel_exec;
-            end else begin
+            end else begin    // prepare for the next kernel tile inside the same kernel mem
               exec_state <= EXEC_PREPARE;
             end
             next_multiplier <= 1'b0;
+            // this kernel tile is processed for this image mem
+            current_cycle_already_process_num_kernel <= current_cycle_already_process_num_kernel + 1;
             current_read_address_kernel_mem_start <= current_read_address_kernel_mem_start + num_input_feature_maps[8:0];
             current_read_address_kernel_mem_end <= current_read_address_kernel_mem_end + num_input_feature_maps[8:0];
           end else begin
