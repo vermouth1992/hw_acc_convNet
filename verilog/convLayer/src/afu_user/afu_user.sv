@@ -72,6 +72,7 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
   localparam KERNEL_MEM_DEPTH_BITS = 9;
 
   localparam NUM_CACHELINE_IMAGE_MOST = 2 ** IMAGE_MEM_DEPTH_BITS;   // 8192
+  localparam NUM_CACHELINE_KERNEL_MOST = 2 ** KERNEL_MEM_DEPTH_BITS; // 512
 
   wire reset;
   assign reset = ~reset_n;
@@ -262,7 +263,7 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
 
   /********* AFU USER FSM **************/
   // we need a fsm to indicate each kernel memory's status
-  enum {VACANT, FILL, FULL, DRAIN} kernel_status_0, kernel_status_1, image_status;
+  enum {VACANT, FILL, FULL, DRAIN} kernel_status_0, kernel_status_1, image_status_0, image_status_1;
 
   // kernel 0 mem block
   always@(posedge clk) begin
@@ -334,33 +335,37 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
     end
   end
 
-  // image mem fsm
+  // indicate the already read kernel
+  reg [31:0] current_cycle_already_read_num_kernel;
+
+  // image 0 mem fsm
   always@(posedge clk) begin
     if (reset) begin
-      image_status <= VACANT;
+      image_status_0 <= VACANT;
     end else begin
-      case (image_status)
+      case (image_status_0)
         VACANT: begin
-          if (write_address_image_mem != 0) begin
-            image_status <= FILL;
+          if (select_block_we_image_mem == 0 && write_address_image_mem != 0) begin
+            image_status_0 <= FILL;
           end
         end
         
+        // the mem status may stuck at FILL status
         FILL: begin
-          if (write_address_image_mem == 0) begin
-            image_status <= FULL;
+          if (select_block_we_image_mem == 1) begin
+            image_status_0 <= FULL;
           end
         end
 
         FULL: begin
-          if (read_address_image_mem != 0) begin
-            image_status <= DRAIN;
+          if (select_block_rd_kernel_mem == 0 && read_address_image_mem != 0) begin
+            image_status_0 <= DRAIN;
           end
         end
 
         DRAIN: begin
-          if (read_address_kernel_mem == 0 && read_address_image_mem == write_address_image_mem) begin
-            image_status <= VACANT;
+          if (select_block_rd_image_mem == 0 && read_address_kernel_mem == 0 && read_address_image_mem == write_address_image_mem && current_cycle_already_read_num_kernel == num_output_feature_maps) begin
+            image_status_0 <= VACANT;
           end
         end
 
@@ -370,7 +375,7 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
   end
 
   // state for memory request, currently, it is a image oriented approach
-  enum {TX_RD_STATE_IDLE, TX_RD_STATE_IMAGE_PREPARE, TX_RD_STATE_IMAGE, TX_RD_STATE_KERNEL_PREPARE, TX_RD_STATE_KERNEL, TX_RD_STATE_DONE} read_req_state;
+  enum {TX_RD_STATE_IDLE, TX_RD_STATE_IMAGE_PREPARE, TX_RD_STATE_IMAGE, TX_RD_STATE_KERNEL_PREPARE, TX_RD_STATE_KERNEL} read_req_state;
 
   // afu_context info extraction
   // constant
@@ -386,8 +391,10 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
   // status number
   reg [31:0] num_cl_output_buffer;
   reg [31:0] num_input_feature_maps;
+  reg [31:0] num_output_feature_maps;
   reg [31:0] current_cycle_already_read_cl_image;
   reg [31:0] current_cycle_already_read_cl_kernel;  // 1024 a time
+
   // read request FSM
   always@(posedge clk) begin
     if (reset) begin
@@ -404,14 +411,16 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
             $display("dest = %h", afu_context[191:128]);
             $display("num of cacheline in total = %d", afu_context[223:192]);  // in order to track the filter read
             $display("filter address = %h", afu_context[256+64-1:256]);   // filter address # of cacheline
-            $display("end of output buffer = %d", afu_context[320+64-1:320]);   // D1, used for accumulate
-            $display("num input feature map = %d", afu_context[415:384]);  // D2
+            $display("end of output buffer = %d", afu_context[320+64-1:320]);   
+            $display("num input feature map = %d", afu_context[415:384]);  // D1, used for accumulate
+            $display("num output feature map = %d", afu_context[447:416]); // D2
             $display("dest offset = %h", afu_context[511:448]);
             // synthesis translate_on
             filter_offset_addr <= afu_context[256+64-1:256+6];    // has to be cacheline aligned
-            dest_offset_addr <= afu_context[511:448+6];
             end_output_addr <= afu_context[320+64-1:320+6];
             num_input_feature_maps <= afu_context[415:384];
+            num_output_feature_maps <= afu_context[447:416];
+            dest_offset_addr <= afu_context[511:448+6];
             read_req_state <= TX_RD_STATE_IMAGE_PREPARE;
             current_cycle_already_read_cl_image <= 0;
           end
@@ -453,7 +462,7 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
         TX_RD_STATE_KERNEL: begin
           // TODO: filter_buffer_almost_full is to be set
           if (~rd_req_almostfull) begin
-            if (current_cycle_already_read_cl_kernel < 1024) begin
+            if (current_cycle_already_read_cl_kernel < NUM_CACHELINE_KERNEL_MOST * 2) begin
               // get the next read address
               current_read_filter_addr <= current_read_filter_addr + 1;
               rd_req_addr <= current_read_filter_addr;
@@ -472,9 +481,6 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
           end
         end
 
-        // if done, do nothing
-        TX_RD_STATE_DONE: begin end
-
         default: begin end
       endcase
     end
@@ -487,14 +493,19 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
     if (reset) begin
       select_block_we_kernel_mem <= 0;
       select_sub_block_we_kernel_mem <= 0;
+      select_block_we_image_mem <= 0;
     end else begin
       // select sub_block
       if (we_kernel_mem) begin
         select_sub_block_we_kernel_mem <= ~select_sub_block_we_kernel_mem;
       end
-      // select block
+      // select kernel block
       if (we_kernel_mem && write_address_kernel_mem == '1 && select_sub_block_we_kernel_mem == 1'b1) begin
         select_block_we_kernel_mem <= ~select_block_we_kernel_mem;
+      end
+      // select image block
+      if (we_image_mem && write_address_image_mem == '1) begin
+        select_block_we_image_mem <= ~select_block_we_image_mem;
       end
     end
   end
