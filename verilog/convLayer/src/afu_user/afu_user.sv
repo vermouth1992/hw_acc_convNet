@@ -538,7 +538,7 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
             end else if (current_read_filter_addr == dest_offset_addr) begin // if all the kernel is read
               rd_req_en <= 1'b0;
               current_read_filter_addr <= filter_offset_addr;
-              if (current_read_image_addr == filter_offset_addr) begin
+              if (current_read_image_addr == filter_offset_addr && image_status_0 == VACANT && image_status_1 == VACANT) begin
                 read_req_state <= TX_RD_STATE_DONE;
               end else begin
                 read_req_state <= TX_RD_STATE_KERNEL_PREPARE;
