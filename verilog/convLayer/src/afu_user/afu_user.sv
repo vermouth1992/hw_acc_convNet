@@ -296,7 +296,7 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
         end
 
         FILL: begin
-          if (select_block_we_kernel_mem == 1 || current_commited_image_addr == filter_offset_addr) begin
+          if (select_block_we_kernel_mem == 1) begin
             kernel_status_0 <= FULL;
           end
         end
@@ -335,7 +335,7 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
         end
 
         FILL: begin
-          if (select_block_we_kernel_mem == 0 || current_commited_image_addr == filter_offset_addr) begin
+          if (select_block_we_kernel_mem == 0) begin
             kernel_status_1 <= FULL;
           end
         end
@@ -379,7 +379,7 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
         
         // the mem status may stuck at FILL status
         FILL: begin
-          if (select_block_we_image_mem == 1) begin
+          if (select_block_we_image_mem == 1 || current_commited_image_addr == filter_offset_addr) begin
             image_status_0 <= FULL;
           end
         end
@@ -415,7 +415,7 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
         
         // the mem status may stuck at FILL status
         FILL: begin
-          if (select_block_we_image_mem == 0) begin
+          if (select_block_we_image_mem == 0 || current_commited_image_addr == filter_offset_addr) begin
             image_status_1 <= FULL;
           end
         end
@@ -704,7 +704,7 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
             end
 
             2'b11: begin
-              if ((image_status_1 == FULL || image_status_1) && kernel_status_1 == FULL) begin
+              if ((image_status_1 == FULL || image_status_1 == DRAIN) && kernel_status_1 == FULL) begin
                 exec_state <= EXEC_RUN;
               end
             end
