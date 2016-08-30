@@ -136,7 +136,7 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
   complex_t in_image_mem [0:3][0:3];
   assign in_image_mem = out_image_fft;   // input to image memory is fft output
 
-  memBlockImage_top memBlockImage_top_inst (
+  memBlockImage_top #(IMAGE_MEM_DEPTH_BITS) memBlockImage_top_inst (
     .clk            (clk),
     .write_address  (write_address_image_mem),
     .read_address   (read_address_image_mem),
@@ -181,7 +181,7 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
   // used by other modules
   complex_t out_kernel_mem [0:3][0:3];
 
-  memBlockKernel_top memBlockKernel_top_inst (
+  memBlockKernel_top #(KERNEL_MEM_DEPTH_BITS) memBlockKernel_top_inst (
     .clk                (clk),
     .we                 (we_kernel_mem),
     .read_address       (read_address_kernel_mem),
