@@ -72,7 +72,7 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
   localparam KERNEL_MEM_DEPTH_BITS = 9;
 
   localparam NUM_CACHELINE_IMAGE_MOST = 2 ** IMAGE_MEM_DEPTH_BITS;   // 8192
-  localparam NUM_CACHELINE_KERNEL_MOST = 2 ** KERNEL_MEM_DEPTH_BITS; // 512
+  localparam NUM_CACHELINE_KERNEL_MOST = 2 ** (KERNEL_MEM_DEPTH_BITS + 1); // 512
 
   wire reset;
   assign reset = ~reset_n;
@@ -118,14 +118,20 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
     end
   end
 
-  reg [IMAGE_MEM_DEPTH_BITS-1:0] write_address_image_mem;
-  always@(posedge clk) begin
-    if (reset) begin
-      write_address_image_mem <= 0;
-    end else if (we_image_mem) begin
-      write_address_image_mem <= write_address_image_mem + 1;   // always write to the next location
+  // the write address must be separate for FSM
+  reg [IMAGE_MEM_DEPTH_BITS-1:0] write_address_image_mem [0:1];
+  genvar i;
+  generate
+    for (i=0; i<2; i=i+1) begin: image_mem_wr_addr
+      always@(posedge clk) begin
+        if (reset) begin
+          write_address_image_mem[i] <= 0;
+        end else if (we_image_mem && select_block_we_image_mem == i) begin
+          write_address_image_mem[i] <= write_address_image_mem[i] + 1;   // always write to the next location
+        end
+      end
     end
-  end
+  endgenerate
 
   complex_t in_image_mem [0:3][0:3];
   assign in_image_mem = out_image_fft;   // input to image memory is fft output
@@ -261,6 +267,17 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
     );
 
 
+  reg [57:0] current_commited_image_addr;
+
+  always@(posedge clk) begin
+    if (reset) begin
+      current_commited_image_addr <= 0;
+    end else if (we_image_mem) begin
+      current_commited_image_addr <= current_commited_image_addr + 1;
+    end
+  end
+
+
   /********* AFU USER FSM **************/
   // we need a fsm to indicate each kernel memory's status
   enum {VACANT, FILL, FULL, DRAIN} kernel_status_0, kernel_status_1, image_status_0, image_status_1;
@@ -278,7 +295,7 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
         end
 
         FILL: begin
-          if (select_block_we_kernel_mem == 1) begin
+          if (select_block_we_kernel_mem == 1 || current_commited_image_addr == filter_offset_addr) begin
             kernel_status_0 <= FULL;
           end
         end
@@ -290,8 +307,12 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
         end
 
         DRAIN: begin
-          if (read_address_kernel_mem == 0 && read_address_image_mem == write_address_image_mem) begin
-            kernel_status_0 <= VACANT;
+          if (read_address_kernel_mem == 0) begin
+            if (select_block_rd_image_mem == 1'b0 && read_address_image_mem == write_address_image_mem[0]) begin
+              kernel_status_0 <= VACANT;
+            end else if (select_block_rd_image_mem == 1'b1 && read_address_image_mem == write_address_image_mem[1]) begin
+              kernel_status_0 <= VACANT;
+            end
           end
         end
 
@@ -313,7 +334,7 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
         end
 
         FILL: begin
-          if (select_block_we_kernel_mem == 0) begin
+          if (select_block_we_kernel_mem == 0 || current_commited_image_addr == filter_offset_addr) begin
             kernel_status_1 <= FULL;
           end
         end
@@ -325,8 +346,12 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
         end
 
         DRAIN: begin
-          if (read_address_kernel_mem == 0 && read_address_image_mem == write_address_image_mem) begin
-            kernel_status_1 <= VACANT;
+          if (read_address_kernel_mem == 0) begin
+            if (select_block_rd_image_mem == 1'b0 && read_address_image_mem == write_address_image_mem[0]) begin
+              kernel_status_0 <= VACANT;
+            end else if (select_block_rd_image_mem == 1'b1 && read_address_image_mem == write_address_image_mem[1]) begin
+              kernel_status_0 <= VACANT;
+            end
           end
         end
 
@@ -336,7 +361,7 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
   end
 
   // indicate the already read kernel
-  reg [31:0] current_cycle_already_read_num_kernel;
+  reg [31:0] current_cycle_already_process_num_kernel;
 
   // image 0 mem fsm
   always@(posedge clk) begin
@@ -345,7 +370,7 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
     end else begin
       case (image_status_0)
         VACANT: begin
-          if (select_block_we_image_mem == 0 && write_address_image_mem != 0) begin
+          if (select_block_we_image_mem == 0 && write_address_image_mem[0] != 0) begin
             image_status_0 <= FILL;
           end
         end
@@ -364,7 +389,7 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
         end
 
         DRAIN: begin
-          if (select_block_rd_image_mem == 0 && read_address_kernel_mem == 0 && read_address_image_mem == write_address_image_mem && current_cycle_already_read_num_kernel == num_output_feature_maps) begin
+          if (select_block_rd_image_mem == 0 && read_address_kernel_mem == 0 && read_address_image_mem == write_address_image_mem[0] && current_cycle_already_process_num_kernel == num_output_feature_maps) begin
             image_status_0 <= VACANT;
           end
         end
@@ -374,8 +399,45 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
     end
   end
 
+  // image 0 mem fsm
+  always@(posedge clk) begin
+    if (reset) begin
+      image_status_1 <= VACANT;
+    end else begin
+      case (image_status_1)
+        VACANT: begin
+          if (select_block_we_image_mem == 1 && write_address_image_mem != 0) begin
+            image_status_1 <= FILL;
+          end
+        end
+        
+        // the mem status may stuck at FILL status
+        FILL: begin
+          if (select_block_we_image_mem == 0) begin
+            image_status_1 <= FULL;
+          end
+        end
+
+        FULL: begin
+          if (select_block_rd_kernel_mem == 1 && read_address_image_mem != 0) begin
+            image_status_1 <= DRAIN;
+          end
+        end
+
+        DRAIN: begin
+          if (select_block_rd_image_mem == 1 && read_address_kernel_mem == 0 && read_address_image_mem == write_address_image_mem[0] && current_cycle_already_process_num_kernel == num_output_feature_maps) begin
+            image_status_1 <= VACANT;
+          end
+        end
+
+        default: begin end
+      endcase
+    end
+  end
+
   // state for memory request, currently, it is a image oriented approach
-  enum {TX_RD_STATE_IDLE, TX_RD_STATE_IMAGE_PREPARE, TX_RD_STATE_IMAGE, TX_RD_STATE_KERNEL_PREPARE, TX_RD_STATE_KERNEL} read_req_state;
+  enum {TX_RD_STATE_IDLE, TX_RD_STATE_IMAGE_PREPARE, TX_RD_STATE_IMAGE, 
+        TX_RD_STATE_KERNEL_PREPARE, TX_RD_STATE_KERNEL, TX_RD_STATE_DONE} read_req_state;
 
   // afu_context info extraction
   // constant
@@ -395,6 +457,9 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
   reg [31:0] current_cycle_already_read_cl_image;
   reg [31:0] current_cycle_already_read_cl_kernel;  // 1024 a time
 
+  // helper logic
+  reg [1:0] first_two_kernel_counter;
+
   // read request FSM
   always@(posedge clk) begin
     if (reset) begin
@@ -402,6 +467,7 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
       rd_req_en <= 0;
       current_read_image_addr <= 0;
       rd_req_mdata <= 0;
+      first_two_kernel_counter <= 0;
     end else begin
       case (read_req_state)
         TX_RD_STATE_IDLE: begin
@@ -423,14 +489,15 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
             dest_offset_addr <= afu_context[511:448+6];
             read_req_state <= TX_RD_STATE_IMAGE_PREPARE;
             current_cycle_already_read_cl_image <= 0;
+            current_read_filter_addr <= afu_context[256+64-1:256+6];
           end
         end
 
         TX_RD_STATE_IMAGE_PREPARE: begin
-          if (current_read_image_addr == filter_offset_addr) begin
-            read_req_state <= TX_RD_STATE_DONE;
-          end else if (image_status == VACANT) begin
+          if (image_status_0 == VACANT || image_status_1 == VACANT) begin
             read_req_state <= TX_RD_STATE_IMAGE;
+          end else begin
+            read_req_state <= TX_RD_STATE_KERNEL_PREPARE;
           end
         end
         TX_RD_STATE_IMAGE: begin
@@ -444,7 +511,6 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
             end else begin
               rd_req_en <= 1'b0;
               current_cycle_already_read_cl_image <= 0;
-              current_read_filter_addr <= filter_offset_addr;
               read_req_state <= TX_RD_STATE_KERNEL_PREPARE;
             end
           end else begin    // QPI read request almost full
@@ -462,7 +528,7 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
         TX_RD_STATE_KERNEL: begin
           // TODO: filter_buffer_almost_full is to be set
           if (~rd_req_almostfull) begin
-            if (current_cycle_already_read_cl_kernel < NUM_CACHELINE_KERNEL_MOST * 2) begin
+            if (current_cycle_already_read_cl_kernel < NUM_CACHELINE_KERNEL_MOST) begin
               // get the next read address
               current_read_filter_addr <= current_read_filter_addr + 1;
               rd_req_addr <= current_read_filter_addr;
@@ -471,15 +537,29 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
               current_cycle_already_read_cl_kernel <= current_cycle_already_read_cl_kernel + 1;
             end else if (current_read_filter_addr == dest_offset_addr) begin // if all the kernel is read
               rd_req_en <= 1'b0;
-              read_req_state <= TX_RD_STATE_IMAGE_PREPARE;
+              current_read_filter_addr <= filter_offset_addr;
+              if (current_read_image_addr == filter_offset_addr) begin
+                read_req_state <= TX_RD_STATE_DONE;
+              end else begin
+                read_req_state <= TX_RD_STATE_KERNEL_PREPARE;
+              end
             end else begin      // there are still kernel to be read
               rd_req_en <= 1'b0;
-              read_req_state <= TX_RD_STATE_KERNEL_PREPARE;
+              if (first_two_kernel_counter == 2'b01) begin
+                read_req_state <= TX_RD_STATE_IMAGE_PREPARE;  // only when K1 is fill can image be empty
+                first_two_kernel_counter <= 0;
+              end else begin
+                read_req_state <= TX_RD_STATE_KERNEL_PREPARE;
+                first_two_kernel_counter <= first_two_kernel_counter + 1;
+              end
             end
           end else begin  // QPI read request almost full
             rd_req_en <= 1'b0;
           end
         end
+
+        /* finish all the read */
+        TX_RD_STATE_DONE: begin end
 
         default: begin end
       endcase
@@ -577,6 +657,7 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
 
   // used for select_rd from kernel memory
   reg current_kernel_exec;
+  reg current_image_exec;
   // these two used for boundary, increase 1 bit for easy comparison
   reg [KERNEL_MEM_DEPTH_BITS:0] current_read_address_kernel_mem_start;
   reg [KERNEL_MEM_DEPTH_BITS:0] current_read_address_kernel_mem_end;
@@ -588,6 +669,7 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
     if (reset) begin
       exec_state <= EXEC_IDLE;
       current_kernel_exec <= 0;
+      current_image_exec <= 0;
       next_multiplier <= 0;
     end else begin
       case (exec_state)

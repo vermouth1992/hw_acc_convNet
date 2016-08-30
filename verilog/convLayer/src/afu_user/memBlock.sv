@@ -157,7 +157,7 @@ module memBlockImage_top # (
 ) (
   input clk,
   input logic [IMAGE_MEM_DEPTH_BITS-1:0] read_address,
-  input logic [IMAGE_MEM_DEPTH_BITS-1:0] write_address,
+  input logic [IMAGE_MEM_DEPTH_BITS-1:0] write_address [0:1],
   input we,
   input select_block_we,
   input select_block_rd,
@@ -174,7 +174,7 @@ module memBlockImage_top # (
       assign block_mem_image_io[i].in = in;     // connect the output of 2dfft to mem block
       assign block_mem_image_io[i].we = (select_block_we == i) ? we : 1'b0;
       assign block_mem_image_io[i].read_address = read_address;
-      assign block_mem_image_io[i].write_address = write_address;
+      assign block_mem_image_io[i].write_address = write_address[i];
     end
   endgenerate
 
