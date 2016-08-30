@@ -408,7 +408,7 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
     end else begin
       case (image_status_1)
         VACANT: begin
-          if (select_block_we_image_mem == 1 && write_address_image_mem != 0) begin
+          if (select_block_we_image_mem == 1 && write_address_image_mem[1] != 0) begin
             image_status_1 <= FILL;
           end
         end

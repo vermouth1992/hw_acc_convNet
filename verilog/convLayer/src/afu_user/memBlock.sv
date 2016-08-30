@@ -37,7 +37,7 @@ module memBlockImage # (
   
   genvar i, j;
 
-  intf_block_mem block_mem_io [15:0] (block_mem_image_io.clk);
+  intf_block_mem #(64, IMAGE_MEM_DEPTH_BITS) block_mem_io [15:0] (block_mem_image_io.clk);
 
   generate
     for (i=0; i<16; i=i+1) begin: dual_port_ram_loop
