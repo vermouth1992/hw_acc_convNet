@@ -684,11 +684,6 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
           select_block_rd_kernel_mem <= current_kernel_exec;
           select_block_rd_image_mem <= current_image_exec;
 
-          if (current_cycle_already_process_num_kernel == num_output_feature_maps) begin
-            current_cycle_already_process_num_kernel <= 0;   // D2
-            select_block_rd_image_mem <= ~select_block_rd_image_mem;
-          end
-
           case ({current_image_exec, current_kernel_exec})
             2'b00: begin
               if (image_status_0 == FULL && kernel_status_0 == FULL) begin
@@ -734,13 +729,21 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
           end else if ((select_block_rd_image_mem == 0 && current_read_address_image_mem == write_address_image_mem[0]) || (select_block_rd_image_mem == 1 && current_read_address_image_mem == write_address_image_mem[1])) begin // this iteration, image finished
             if (current_read_address_kernel_mem[KERNEL_MEM_DEPTH_BITS-1:0] == 0) begin   // if this kernel mem is all consumed
               exec_state <= EXEC_IDLE;
-              current_kernel_exec <= ~current_kernel_exec;
+              current_kernel_exec <= ~current_kernel_exec; // switch kernel mem
+              // switch image mem if necessary
+              if (current_cycle_already_process_num_kernel == num_output_feature_maps - 1) begin
+                current_cycle_already_process_num_kernel <= 0;   // D2
+                current_image_exec <= ~current_image_exec;
+              end else begin  // this kernel mem is finished, but remains kernel to be processed
+                current_cycle_already_process_num_kernel <= current_cycle_already_process_num_kernel + 1;
+              end
             end else begin    // prepare for the next kernel tile inside the same kernel mem
               exec_state <= EXEC_PREPARE;
+              current_cycle_already_process_num_kernel <= current_cycle_already_process_num_kernel + 1;
             end
             next_multiplier <= 1'b0;
             // this kernel tile is processed for this image mem
-            current_cycle_already_process_num_kernel <= current_cycle_already_process_num_kernel + 1;
+            
             current_read_address_kernel_mem_start <= current_read_address_kernel_mem_start + num_input_feature_maps[8:0];
             current_read_address_kernel_mem_end <= current_read_address_kernel_mem_end + num_input_feature_maps[8:0];
           end else begin
