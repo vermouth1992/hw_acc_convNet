@@ -544,7 +544,7 @@ void ConvLayer::OnWorkspaceAllocateFailed(const IEvent &rEvent) {
 }
 
 void ConvLayer::OnWorkspaceFreed(TransactionID const &TranID) {
-    ERR("OnWorkspaceFreed");
+    MSG("OnWorkspaceFreed");
     // Freed so now Release() the Service through the Services IAALService::Release() method
     (dynamic_ptr<IAALService>(iidService, m_pAALService))->Release(TransactionID());
 }

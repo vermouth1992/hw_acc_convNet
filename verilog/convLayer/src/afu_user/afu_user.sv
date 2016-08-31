@@ -68,8 +68,8 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
   input [511:0] 	    afu_context
   );
 
-  localparam IMAGE_MEM_DEPTH_BITS = 7;   // this is for test purpose, must be greater or equal to 9 (512)
-  localparam KERNEL_MEM_DEPTH_BITS = 6;
+  localparam IMAGE_MEM_DEPTH_BITS = 13;   // this is for test purpose, must be greater or equal to 9 (512)
+  localparam KERNEL_MEM_DEPTH_BITS = 13;
 
   localparam NUM_CACHELINE_IMAGE_MOST = 2 ** IMAGE_MEM_DEPTH_BITS;   // 8192
   localparam NUM_CACHELINE_KERNEL_MOST = 2 ** (KERNEL_MEM_DEPTH_BITS + 1); // 512
