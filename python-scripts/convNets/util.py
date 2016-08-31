@@ -93,6 +93,13 @@ def findUnitSize(filterSize):
     return unitSize, unitSize
 
 
+def predict_convLayer_harp(N, n, D1, D2, padding, stride, fft_size):
+    assert fft_size > n, "fft size must be greater than n"
+    tile_size = fft_size + 1 - n
+    total_image_tile = int(math.ceil(float(N + padding * 2) / float(tile_size)))
+    return total_image_tile * total_image_tile * D1 * D2 * 5e-6
+
+
 def AlexNetGOp():
     # first layer
     result = 0

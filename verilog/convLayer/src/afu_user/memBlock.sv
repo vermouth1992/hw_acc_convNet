@@ -198,7 +198,7 @@ module memBlockKernel_top # (
   output complex_t out [0:3][0:3]  // 16 kernel complex number
   );
 
-  intf_block_mem_kernel block_mem_kernel_io [0:1] (clk);
+  intf_block_mem_kernel #(KERNEL_MEM_DEPTH_BITS) block_mem_kernel_io [0:1] (clk);
 
   genvar i;
   generate
