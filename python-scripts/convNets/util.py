@@ -100,6 +100,16 @@ def predict_convLayer_harp(N, n, D1, D2, padding, stride, fft_size):
     return total_image_tile * total_image_tile * D1 * D2 * 5e-6
 
 
+def estimated_cycles_execution_read_cycle(num_image_mem_bits, num_kernel_mem_bits, D1, fft_size):
+    execution_cycles = 2 ** (num_image_mem_bits + num_kernel_mem_bits) / float(D1)
+    fill_kernel_mem_cycles = 2 ** num_kernel_mem_bits * fft_size * fft_size * 8 / 32
+    fill_image_mem_cycles = 2 ** num_image_mem_bits * fft_size * fft_size * 8 / 32
+    memory_utilization = (2 ** num_kernel_mem_bits + 2 ** num_image_mem_bits) * fft_size * fft_size * 8 * 2 \
+                         / 1024.0 / 1024.0
+    print "execution cycles:", execution_cycles, "\nfill kernel:", fill_kernel_mem_cycles, \
+        "\nfill image:", fill_image_mem_cycles, "\nmemory consumption(MB):", memory_utilization
+
+
 def AlexNetGOp():
     # first layer
     result = 0
