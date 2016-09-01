@@ -454,6 +454,28 @@ int ConvLayer::run() {
             // must have dropped out of loop due to count -- never saw update
             ERR("AFU never signaled it was done. Timing out anyway. Results may be strange.\n");
         }
+        MSG("Overlap and Add to get the final results");
+        // directly write the results to source buffer
+        if (isPooling) {
+
+        } else {
+            // the overlap destination is the pImage
+            struct OneConvLayerTile* overlapDest = reinterpret_cast<struct OneConvLayerTile*>(pImage);
+            // the overlap source is the pDest
+            struct OneConvLayerTile* overlapSrc = reinterpret_cast<struct OneConvLayerTile*>(pDestImage);
+            int numTile = (N + 2 * padding) / 2;   // tile size for 4 point FFT is 2
+            for (int k = 0; k < D2; k++) {
+                for (int i = 0; i < numTile * numTile; i++) {
+                    for (int j = 0; j < numPointFFT * numPointFFT; j++) {
+                        // some sort of mapping, takes constant time
+                        overlapDest->data[j] = overlapSrc->data[j] + overlapSrc->data[j];
+                    }
+                    overlapSrc += 1;
+                    overlapDest += 1;
+                }
+            }
+        }
+
         ////////////////////////////////////////////////////////////////////////////
         // set the end time
         clock_gettime(CLOCK_REALTIME, &end);

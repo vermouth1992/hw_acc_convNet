@@ -33,7 +33,13 @@
 #define stride 1   // stride
 #endif
 
+bool isPooling = false;
+
 #define numPointFFT 4  // fft size
+
+struct OneConvLayerTile {
+    float data[numPointFFT * numPointFFT];
+};
 
 convLayerConfig testLayer = convLayerConfig(N, n, D1, D2, padding, stride, numPointFFT);
 
