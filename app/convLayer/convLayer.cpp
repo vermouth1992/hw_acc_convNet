@@ -501,10 +501,16 @@ int ConvLayer::run() {
 
         // Wait for SPL VAFU to finish code
         volatile bt32bitInt done = pVAFU2_cntxt->Status & VAFU2_CNTXT_STATUS_DONE;
+        int oldValue = pFirstDestinatonCacheline->dw[0];
         while (!done) {
             // SleepMilli(delay);
             done = pVAFU2_cntxt->Status & VAFU2_CNTXT_STATUS_DONE;
-            cout << pFirstDestinatonCacheline->dw[0] << endl;
+            int newValue = pFirstDestinatonCacheline->dw[0];
+            if (newValue != oldValue) {
+                cout << pFirstDestinatonCacheline->dw[0] << endl;
+                oldValue = pFirstDestinatonCacheline->dw[0];
+            }
+
             if (done) MSG("AFU has signaled done.");
         }
         if (!done) {

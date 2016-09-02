@@ -10,8 +10,8 @@
 // UN-COMMENT appropriate #define in order to enable either Hardware or ASE.
 //    DEFAULT is to use Software Simulation.
 //****************************************************************************
-#define  HWAFU
-//#define  ASEAFU
+//#define  HWAFU
+#define  ASEAFU
 
 // convLayer configuration
 #ifdef HWAFU
@@ -27,15 +27,15 @@
 #ifdef ASEAFU
 #define N 6   // image size N*N*D1
 #define n 3     // filter size  n*n*D1*D2
-#define D1 32   // input feature maps
+#define D1 16   // input feature maps
 #define D2 8   // output feature maps
 #define padding 1  // zero padding
 #define stride 1   // stride
 #endif
 
 bool isPooling = false;
-bool isOverlap = true;
-bool isFullyConnected = true;
+bool isOverlap = false;
+bool isFullyConnected = false;
 
 
 #define numPointFFT 4  // fft size
