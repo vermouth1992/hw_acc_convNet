@@ -34,8 +34,8 @@
 #endif
 
 bool isPooling = false;
-
-bool isFullyConnected = false;
+bool isOverlap = false;
+bool isFullyConnected = true;
 
 
 #define numPointFFT 4  // fft size
