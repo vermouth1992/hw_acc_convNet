@@ -507,7 +507,7 @@ int ConvLayer::run() {
             done = pVAFU2_cntxt->Status & VAFU2_CNTXT_STATUS_DONE;
             int newValue = pFirstDestinatonCacheline->dw[0];
             if (newValue != oldValue) {
-                cout << pFirstDestinatonCacheline->dw[0] << endl;
+                cout << std:: dec << pFirstDestinatonCacheline->dw[0] << endl;
                 oldValue = pFirstDestinatonCacheline->dw[0];
             }
 
