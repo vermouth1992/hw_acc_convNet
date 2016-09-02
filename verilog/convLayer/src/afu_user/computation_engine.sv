@@ -24,7 +24,7 @@ module complexMultArray (
   generate
     for (i=0; i<4; i=i+1) begin: mult_inst_outer
       for (j=0; j<4; j=j+1) begin: mult_inst_inner
-        complexMultConventionfp32fp32 complexMultConventionfp32fp32_inst (
+        complexMultCanonicalfp32fp32 complexMultConventionfp32fp32_inst (
           .clk     (clk),
           .reset   (reset),
           .in0     (image[i][j]),
