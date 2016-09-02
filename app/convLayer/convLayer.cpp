@@ -55,6 +55,30 @@ using namespace AAL;
 /// @{
 
 
+// matrix multiplication
+void matrixVectorMultiplication_v1(float m[4096][25088], float v[25088], float (&result)[4096]) {
+    for (int row = 0; row < 4096; row++) {
+        for (int column = 0; column < 25088; column++) {
+            result[row] += m[row][column] * v[column];
+        }
+    }
+}
+
+void matrixVectorMultiplication_v2(float m[4096][4096], float v[4096], float (&result)[4096]) {
+    for (int row = 0; row < 4096; row++) {
+        for (int column = 0; column < 4096; column++) {
+            result[row] += m[row][column] * v[column];
+        }
+    }
+}
+
+void matrixVectorMultiplication_v3(float m[1000][4096], float v[4096], float (&result)[1000]) {
+    for (int row = 0; row < 1000; row++) {
+        for (int column = 0; column < 4096; column++) {
+            result[row] += m[row][column] * v[column];
+        }
+    }
+}
 
 /// @brief   Define our Runtime client class so that we can receive the runtime started/stopped notifications.
 ///
@@ -456,19 +480,37 @@ int ConvLayer::run() {
         }
         MSG("Overlap and Add to get the final results");
         // directly write the results to source buffer
+        // the overlap destination is the pImage
+        struct OneConvLayerTile* overlapDest = reinterpret_cast<struct OneConvLayerTile*>(pImage);
+        // the overlap source is the pDest
+        struct OneConvLayerTile* overlapSrc = reinterpret_cast<struct OneConvLayerTile*>(pDestImage);
         if (isPooling) {
-
+            int numTile = (N / 2 + 2 * padding) / 2;
+            for (int k = 0; k < D2; k++) {
+                for (int i = 0; i < numTile * numTile; i++) {
+                    for (int j = 0; j < numPointFFT * numPointFFT; j++) {
+                        // some sort of mapping, takes constant time
+                        float r0 = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+                        float r1 = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+                        float r2 = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+                        float r3 = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+                        overlapDest->data[j] = r0 + r1 + r2+ r3;
+                    }
+                    overlapSrc += 1;
+                    overlapDest += 1;
+                }
+            }
         } else {
-            // the overlap destination is the pImage
-            struct OneConvLayerTile* overlapDest = reinterpret_cast<struct OneConvLayerTile*>(pImage);
-            // the overlap source is the pDest
-            struct OneConvLayerTile* overlapSrc = reinterpret_cast<struct OneConvLayerTile*>(pDestImage);
             int numTile = (N + 2 * padding) / 2;   // tile size for 4 point FFT is 2
             for (int k = 0; k < D2; k++) {
                 for (int i = 0; i < numTile * numTile; i++) {
                     for (int j = 0; j < numPointFFT * numPointFFT; j++) {
                         // some sort of mapping, takes constant time
-                        overlapDest->data[j] = overlapSrc->data[j] + overlapSrc->data[j];
+                        float r0 = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+                        float r1 = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+                        float r2 = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+                        float r3 = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+                        overlapDest->data[j] = r0 + r1 + r2+ r3;
                     }
                     overlapSrc += 1;
                     overlapDest += 1;
@@ -481,13 +523,54 @@ int ConvLayer::run() {
         clock_gettime(CLOCK_REALTIME, &end);
 
         string precision = "ms";
-        MSG("The processing time is " << calculate_time_interval(end, start, precision) << precision);
+        MSG("The convLayer processing time is "
+                    << calculate_time_interval(end, start, precision) << precision);
 
         // Issue Stop Transaction and wait for OnTransactionStopped
         MSG("Stopping SPL Transaction");
         m_SPLService->StopTransactionContext(TransactionID());
         m_Sem.Wait();
         MSG("SPL Transaction complete");
+
+        if (isFullyConnected) {
+            MSG("Start to test fully connected layer separated.");
+            MSG("Initialize final result from last pooling layer.");
+            float start_vector[25088];
+            for (int i = 0; i < 25088; i++) {
+                float r = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+                start_vector[i] = r;
+            }
+            float firstMatrix[4096][25088];
+            for (int i = 0; i < 4096; i++) {
+                for (int j = 0; j < 25088; j++) {
+                    firstMatrix[i][j] = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+                }
+            }
+            float secondMatrix[4096][4096];
+            for (int i = 0; i < 4096; i++) {
+                for (int j = 0; j < 4096; j++) {
+                    secondMatrix[i][j] = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+                }
+            }
+            float thirdMatrix[1000][4096];
+            for (int i = 0; i < 1000; i++) {
+                for (int j = 0; j < 4096; j++) {
+                    thirdMatrix[i][j] = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+                }
+            }
+            float firstResult[4096] = {};
+            float secondResult[4096] = {};
+            float finalResult[1000] = {};
+
+            MSG("Start fully connected layer computing");
+            clock_gettime(CLOCK_REALTIME, &start);
+            matrixVectorMultiplication_v1(firstMatrix, start_vector, firstResult);
+            matrixVectorMultiplication_v2(secondMatrix, firstResult, secondResult);
+            matrixVectorMultiplication_v3(thirdMatrix, secondResult, finalResult);
+            clock_gettime(CLOCK_REALTIME, &end);
+            MSG("The fully connected layer processing time is "
+                        << calculate_time_interval(end, start, precision) << precision);
+        }
     }
 
     ////////////////////////////////////////////////////////////////////////////

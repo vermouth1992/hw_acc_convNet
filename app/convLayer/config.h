@@ -35,6 +35,9 @@
 
 bool isPooling = false;
 
+bool isFullyConnected = false;
+
+
 #define numPointFFT 4  // fft size
 
 struct OneConvLayerTile {
