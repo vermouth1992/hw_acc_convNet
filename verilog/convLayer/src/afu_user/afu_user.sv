@@ -48,7 +48,7 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
   // Write Request 
   output reg [ADDR_LMT-1:0]    wr_req_addr, 
   output reg [MDATA-1:0] 	    wr_req_mdata, 
-  output reg [CACHE_WIDTH-1:0] wr_req_data, 
+  output [CACHE_WIDTH-1:0] wr_req_data, 
   output reg		    wr_req_en, 
   input 		    wr_req_almostfull, 
 
@@ -66,7 +66,6 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
 
   // Control info from software
   input [511:0] 	    afu_context,
-  input [57:0]        status_addr,
 
   output reg uafu_wr_fence_valid
   );
@@ -642,7 +641,7 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
       output_fifo_re <= 1'b0;
       wr_req_en <= 1'b0;
       wr_req_mdata <= 0;
-      current_write_addr <= 0;
+      current_write_addr <= 1;
       uafu_wr_fence_valid <= 0;
     end else begin
       case (write_req_state)
@@ -676,14 +675,13 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
         TX_WR_FLAG: begin
           wr_req_en <= 1'b1;
           uafu_wr_fence_valid <= 1'b0;
-          wr_req_addr <= status_addr;
-          wr_req_data[63:1] <= current_write_addr;  // current write address indicate the cacheline number
+          wr_req_addr <= 0;    // the first destination cacheline is used for synchronization
         end
-
+      endcase
     end
   end
 
-  assign wr_req_data = output_fifo_dout;
+  assign wr_req_data = (wr_req_addr == 0) ? current_write_addr : output_fifo_dout;
 
 
   // run fsm, consume data from image memory and kernel memory and send to multiplier array

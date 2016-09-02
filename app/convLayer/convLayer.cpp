@@ -414,9 +414,9 @@ int ConvLayer::run() {
         btUnsigned64bitInt pDestImageOffset = testLayer.getImageSizeInBytes() + testLayer.getFilterSizeInBytes();
 
         // pEndAddr is the offset from pDest
-        btUnsigned64bitInt pEndAddr = testLayer.getOutputBufferSizeInBytes();
+        btUnsigned64bitInt pEndAddr = testLayer.getOutputBufferSizeInBytes() + 64;
 
-        assert(testLayer.getImageSizeInBytes() + testLayer.getFilterSizeInBytes() + testLayer.getOutputBufferSizeInBytes() == a_num_bytes);
+        assert(testLayer.getImageSizeInBytes() + testLayer.getFilterSizeInBytes() + testLayer.getOutputBufferSizeInBytes() + 64 == a_num_bytes);
 
         // Note: the usage of the VAFU2_CNTXT structure here is specific to the underlying bitstream
         // implementation. The bitstream targeted for use with this sample application must implement
@@ -467,6 +467,7 @@ int ConvLayer::run() {
         }
 
         MSG("Initialize the output buffer as 0xBE");
+        struct OneCL* pFirstDestinatonCacheline = reinterpret_cast<struct OneCL *>(pDestImage);
         ::memset(pDestImage, 0xBE, testLayer.getOutputBufferSizeInBytes());
 
         // Buffers have been initialized
@@ -503,7 +504,7 @@ int ConvLayer::run() {
         while (!done) {
             // SleepMilli(delay);
             done = pVAFU2_cntxt->Status & VAFU2_CNTXT_STATUS_DONE;
-            std::cout << pVAFU2_cntxt->Status << std::endl;
+            cout << pFirstDestinatonCacheline->dw[0] << endl;
             if (done) MSG("AFU has signaled done.");
         }
         if (!done) {
@@ -673,8 +674,9 @@ void ConvLayer::serviceAllocated(IBase *pServiceBase,
     int outputBufferSize = testLayer.getOutputBufferSizeInBytes();
     int sourceBufferSize = imageSize + filterSize;
     int destinationBufferSize = imageSize;
+    int synchronizationBufferSize = 64;
     // Allocate Workspaces needed.
-    m_SPLService->WorkspaceAllocate(sizeof(VAFU2_CNTXT) + sourceBufferSize + outputBufferSize,
+    m_SPLService->WorkspaceAllocate(sizeof(VAFU2_CNTXT) + sourceBufferSize + outputBufferSize + synchronizationBufferSize,
                                     TransactionID());
 
 }

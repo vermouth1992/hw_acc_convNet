@@ -235,7 +235,6 @@ module afu_core #(MDATA = 14)
        (tx_wr_state==TX_WR_STATE_RUN) ),
       .done        (uafu_done),
       .afu_context (ctx_word),
-      .status_addr (status_addr),
       .uafu_wr_fence_valid(uafu_wr_fence_valid)
       );
 
