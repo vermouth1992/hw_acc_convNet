@@ -630,6 +630,8 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
   end
 
   // write request FSM
+  // TODO: add concurrent processing and ReLU layer (zero threshold)
+  
 
   assign output_fifo_re = (wr_req_almostfull == 1'b0 && output_fifo_empty == 1'b0) ? 1'b1 : 1'b0;
 
