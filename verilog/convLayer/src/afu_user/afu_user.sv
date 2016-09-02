@@ -667,15 +667,25 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
         end
 
         TX_WR_FENCE: begin
-          wr_req_en <= 1'b1;
-          uafu_wr_fence_valid <= 1'b1;
-          write_req_state <= TX_WR_FLAG;
+          if (wr_req_almostfull == 1'b0) begin
+            wr_req_en <= 1'b1;
+            uafu_wr_fence_valid <= 1'b1;
+            write_req_state <= TX_WR_FLAG;
+          end else begin
+            wr_req_en <= 1'b0;
+            uafu_wr_fence_valid <= 1'b0;
+          end
         end
 
         TX_WR_FLAG: begin
-          wr_req_en <= 1'b1;
           uafu_wr_fence_valid <= 1'b0;
           wr_req_addr <= 0;    // the first destination cacheline is used for synchronization
+          if (~wr_req_almostfull) begin
+            wr_req_en <= 1'b1;
+            write_req_state <= TX_WR_DATA;
+          end else begin
+            wr_req_en <= 1'b0;
+          end
         end
       endcase
     end
