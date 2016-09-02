@@ -503,6 +503,7 @@ int ConvLayer::run() {
         while (!done) {
             // SleepMilli(delay);
             done = pVAFU2_cntxt->Status & VAFU2_CNTXT_STATUS_DONE;
+            std::cout << pVAFU2_cntxt->Status << std::endl;
             if (done) MSG("AFU has signaled done.");
         }
         if (!done) {

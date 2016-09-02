@@ -65,7 +65,10 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
   output reg 		    done, 
 
   // Control info from software
-  input [511:0] 	    afu_context
+  input [511:0] 	    afu_context,
+  input [57:0]        status_addr,
+
+  output reg uafu_wr_fence_valid
   );
 
   localparam IMAGE_MEM_DEPTH_BITS = 11;   // this is for test purpose, must be greater or equal to 9 (512)
@@ -602,7 +605,7 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
   reg output_fifo_we;
 
   // used by write request fsm
-  wire output_fifo_re;
+  reg output_fifo_re;
   wire [511:0] output_fifo_dout;
   wire output_fifo_empty;
 
@@ -631,29 +634,56 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
 
   // write request FSM
   // TODO: add concurrent processing and ReLU layer (zero threshold)
-  
-
-  assign output_fifo_re = (wr_req_almostfull == 1'b0 && output_fifo_empty == 1'b0) ? 1'b1 : 1'b0;
-
-  assign wr_req_data = output_fifo_dout;
+  enum {TX_WR_DATA, TX_WR_WAIT, TX_WR_FENCE, TX_WR_FLAG} write_req_state;
 
   always@(posedge clk) begin
     if (reset) begin
+      write_req_state <= TX_WR_DATA;
+      output_fifo_re <= 1'b0;
+      wr_req_en <= 1'b0;
       wr_req_mdata <= 0;
       current_write_addr <= 0;
-    end
-    wr_req_en <= output_fifo_re;
-    if (wr_req_en) begin
-      current_write_addr <= current_write_addr + 1;
-    end
-    wr_req_addr <= current_write_addr;
-    if (current_write_addr == end_output_addr) begin
-      done <= 1;
+      uafu_wr_fence_valid <= 0;
     end else begin
-      done <= 0;
+      case (write_req_state)
+        TX_WR_DATA: begin
+          if (wr_req_almostfull == 1'b0 && output_fifo_empty == 1'b0) begin
+            output_fifo_re <= 1'b1;
+            write_req_state <= TX_WR_WAIT;
+          end
+          wr_req_en <= 0;
+          if (current_write_addr == end_output_addr) begin
+            done <= 1;
+          end else begin
+            done <= 0;
+          end
+        end
+
+        TX_WR_WAIT: begin
+          output_fifo_re <= 1'b0;
+          wr_req_en <= 1'b1;
+          wr_req_addr <= current_write_addr;
+          current_write_addr <= current_write_addr + 1;
+          write_req_state <= TX_WR_FENCE;
+        end
+
+        TX_WR_FENCE: begin
+          wr_req_en <= 1'b1;
+          uafu_wr_fence_valid <= 1'b1;
+          write_req_state <= TX_WR_FLAG;
+        end
+
+        TX_WR_FLAG: begin
+          wr_req_en <= 1'b1;
+          uafu_wr_fence_valid <= 1'b0;
+          wr_req_addr <= status_addr;
+          wr_req_data[63:1] <= current_write_addr;  // current write address indicate the cacheline number
+        end
+
     end
   end
 
+  assign wr_req_data = output_fifo_dout;
 
 
   // run fsm, consume data from image memory and kernel memory and send to multiplier array

@@ -186,6 +186,8 @@ module afu_core #(MDATA = 14)
 
    wire 		  uafu_done; 
 
+   wire uafu_wr_fence_valid;
+
    //-----------------------------------------------------------
    // AFU user module.   
    // - Its 'start' input is asserted after initialization steps are done. 
@@ -232,7 +234,9 @@ module afu_core #(MDATA = 14)
       .start ( (tx_rd_state==TX_RD_STATE_RUN)&&
        (tx_wr_state==TX_WR_STATE_RUN) ),
       .done        (uafu_done),
-      .afu_context (ctx_word)
+      .afu_context (ctx_word),
+      .status_addr (status_addr),
+      .uafu_wr_fence_valid(uafu_wr_fence_valid)
       );
 
    //-----------------------------------------------------------
@@ -281,6 +285,7 @@ module afu_core #(MDATA = 14)
                cor_tx_wr_addr  <= ctx_dst_ptr + uafu_wr_req_addr;
                cor_tx_wr_data  <= uafu_wr_req_data;
                cor_tx_wr_mdata <= uafu_wr_req_mdata;
+               cor_tx_fence_valid <= uafu_wr_fence_valid;
              end else begin
               // afu_user done executing
               if (~spl_tx_wr_almostfull) begin
