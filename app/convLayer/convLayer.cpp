@@ -88,9 +88,9 @@ void matrixVectorMultiplication_v4(float m[500][25088], float v[25088], float (&
     }
 }
 
-void matrixVectorMultiplication_v5(float m[500][4096], float v[500], float (&result)[4096]) {
-    for (int row = 0; row < 500; row++) {
-        for (int column = 0; column < 4096; column++) {
+void matrixVectorMultiplication_v5(float m[4096][500], float v[500], float (&result)[4096]) {
+    for (int row = 0; row < 4096; row++) {
+        for (int column = 0; column < 500; column++) {
             result[row] += m[row][column] * v[column];
         }
     }
@@ -549,11 +549,6 @@ int ConvLayer::run() {
                 start_vector[i] = r;
             }
 
-            static float firstMatrixSVD[500][25088];
-            for (int i = 0; i < 500; i++) {
-                for (int j = 0; j < 25088; j++) {
-                    
-
 
             static float firstMatrix[4096][25088];
             for (int i = 0; i < 4096; i++) {
@@ -595,6 +590,37 @@ int ConvLayer::run() {
             clock_gettime(CLOCK_REALTIME, &end);
             MSG("The last fully connected layer processing time is "
                         << calculate_time_interval(end, start, precision) << precision);
+
+            MSG("Test first fully-connected layer using SVD");
+            static float firstMatrixSVD[500][25088];
+            for (int i = 0; i < 500; i++) {
+                for (int j = 0; j < 25088; j++) {
+                    firstMatrixSVD[i][j] = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+                }
+            }
+
+            static float secondMatrixSVD[4096][500];
+            for (int i = 0; i < 4096; i++) {
+                for (int j = 0; j < 500; j++) {
+                    secondMatrixSVD[i][j] = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+                }
+            }
+
+            static float firstResultSVD[500] = {};
+
+            clock_gettime(CLOCK_REALTIME, &start);
+            matrixVectorMultiplication_v4(firstMatrixSVD, start_vector, firstResultSVD);
+            clock_gettime(CLOCK_REALTIME, &end);
+            MSG("The first SVD fully connected layer processing time is "
+                        << calculate_time_interval(end, start, precision) << precision);
+
+            clock_gettime(CLOCK_REALTIME, &start);
+            matrixVectorMultiplication_v5(secondMatrixSVD, firstResultSVD, firstResult);
+            clock_gettime(CLOCK_REALTIME, &end);
+            MSG("The second SVD fully connected layer processing time is "
+                        << calculate_time_interval(end, start, precision) << precision);
+
+
         }
     }
 
