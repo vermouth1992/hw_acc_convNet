@@ -61,6 +61,9 @@ void matrixVectorMultiplication_v1(float m[4096][25088], float v[25088], float (
         for (int column = 0; column < 25088; column++) {
             result[row] += m[row][column] * v[column];
         }
+        if (result[row] < 0) {
+            result[row] = 0;
+        }
     }
 }
 
@@ -68,6 +71,9 @@ void matrixVectorMultiplication_v2(float m[4096][4096], float v[4096], float (&r
     for (int row = 0; row < 4096; row++) {
         for (int column = 0; column < 4096; column++) {
             result[row] += m[row][column] * v[column];
+        }
+        if (result[row] < 0) {
+            result[row] = 0;
         }
     }
 }
@@ -77,6 +83,9 @@ void matrixVectorMultiplication_v3(float m[1000][4096], float v[4096], float (&r
         for (int column = 0; column < 4096; column++) {
             result[row] += m[row][column] * v[column];
         }
+        if (result[row] < 0) {
+            result[row] = 0;
+        }
     }
 }
 
@@ -85,6 +94,9 @@ void matrixVectorMultiplication_v4(float m[500][25088], float v[25088], float (&
         for (int column = 0; column < 25088; column++) {
             result[row] += m[row][column] * v[column];
         }
+        if (result[row] < 0) {
+            result[row] = 0;
+        }
     }
 }
 
@@ -92,6 +104,9 @@ void matrixVectorMultiplication_v5(float m[4096][500], float v[500], float (&res
     for (int row = 0; row < 4096; row++) {
         for (int column = 0; column < 500; column++) {
             result[row] += m[row][column] * v[column];
+        }
+        if (result[row] < 0) {
+            result[row] = 0;
         }
     }
 }
