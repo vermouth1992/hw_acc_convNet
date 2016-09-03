@@ -462,6 +462,8 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
   // helper logic
   reg [1:0] first_two_kernel_counter;
 
+  reg uafu_wr_fence_on_off;
+
   // read request FSM
   always@(posedge clk) begin
     if (reset) begin
@@ -477,7 +479,7 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
             // synthesis translate_off
             $display("src = %h", afu_context[127:64]);
             $display("dest = %h", afu_context[191:128]);
-            $display("num of cacheline in total = %d", afu_context[223:192]);  // in order to track the filter read
+            $display("whether use fence or not = %d", afu_context[223:192]);  // in order to track the filter read
             $display("filter address = %h", afu_context[256+64-1:256]);   // filter address # of cacheline
             $display("end of output buffer = %d", afu_context[320+64-1:320]);   
             $display("num input feature map = %d", afu_context[415:384]);  // D1, used for accumulate
@@ -492,6 +494,7 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
             read_req_state <= TX_RD_STATE_IMAGE_PREPARE;
             current_cycle_already_read_cl_image <= 0;
             current_read_filter_addr <= afu_context[256+64-1:256+6];
+            uafu_wr_fence_on_off <= afu_context[192];
           end
         end
 
@@ -669,7 +672,7 @@ module afu_user #(ADDR_LMT = 58, MDATA = 14, CACHE_WIDTH = 512) (
         TX_WR_FENCE: begin
           if (wr_req_almostfull == 1'b0) begin
             wr_req_en <= 1'b1;
-            uafu_wr_fence_valid <= 1'b1;
+            uafu_wr_fence_valid <= uafu_wr_fence_on_off;
             write_req_state <= TX_WR_FLAG;
           end else begin
             wr_req_en <= 1'b0;

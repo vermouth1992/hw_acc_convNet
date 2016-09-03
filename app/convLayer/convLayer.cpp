@@ -425,7 +425,7 @@ int ConvLayer::run() {
 
         // Initialize the command buffer
         ::memset(pVAFU2_cntxt, 0, sizeof(VAFU2_CNTXT));
-        pVAFU2_cntxt->num_cl = a_num_cl;   // note that it is number of cache line in total
+        pVAFU2_cntxt->num_cl = 1;   // note that it is number of cache line in total
         pVAFU2_cntxt->pSource = pImage;
         pVAFU2_cntxt->pDest = pDestImage;
         pVAFU2_cntxt->qword0[4] = (btUnsigned64bitInt) pFilterOffset;  // cat address to 64 unsigned int
