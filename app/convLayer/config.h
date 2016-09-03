@@ -10,15 +10,15 @@
 // UN-COMMENT appropriate #define in order to enable either Hardware or ASE.
 //    DEFAULT is to use Software Simulation.
 //****************************************************************************
-//#define  HWAFU
-#define  ASEAFU
+#define  HWAFU
+//#define  ASEAFU
 
 // convLayer configuration
 #ifdef HWAFU
-#define N 224   // image size N*N*D1
+#define N 14   // image size N*N*D1
 #define n 3     // filter size  n*n*D1*D2
-#define D1 64   // input feature maps
-#define D2 64   // output feature maps
+#define D1 512   // input feature maps
+#define D2 512   // output feature maps
 #define padding 1  // zero padding
 #define stride 1   // stride
 #endif

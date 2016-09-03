@@ -501,7 +501,7 @@ int ConvLayer::run() {
 
         // Wait for SPL VAFU to finish code
         volatile bt32bitInt done = pVAFU2_cntxt->Status & VAFU2_CNTXT_STATUS_DONE;
-        int oldValue = pFirstDestinatonCacheline->dw[0];
+        int oldValue = 0;
         while (!done) {
             // SleepMilli(delay);
             done = pVAFU2_cntxt->Status & VAFU2_CNTXT_STATUS_DONE;
