@@ -7,6 +7,7 @@ import math
 Compute a convLayer size
 """
 
+oneGiga = 1e9
 
 def convLayerSizeOriginal(imageSize, filterSize, numKernel, padding, stride=1, inGFLOP=True):
     """
@@ -22,8 +23,8 @@ def convLayerSizeOriginal(imageSize, filterSize, numKernel, padding, stride=1, i
     F = filterSize[0]
     W2, H2, D2 = (W1 - F + 2 * padding) // stride + 1, (H1 - F + 2 * padding) // stride, numKernel
     # number of operations to get one result
-    numOpPerResult = 2 * F * F * D1 + 1  # 1 is the bias
-    return W2 * H2 * D2 * numOpPerResult / 10e9
+    numOpPerResult = 2 * F * F * D1 + D1 + 1  # 1 is the bias
+    return W2 * H2 * D2 * numOpPerResult / oneGiga
 
 
 def isPowerofTwo(num):
@@ -36,7 +37,7 @@ def isPowerofTwo(num):
     return ((num & (num - 1)) == 0) and num > 0
 
 
-def convLayerSizeFFT(imageSize, filterSize, numKernel, padding, unitSize, stride=1, inGFLOP=True, addFilter=True):
+def convLayerSizeFFT(imageSize, filterSize, numKernel, padding, unitSize, stride=1, inGFLOP=True, addFilter=False):
     """
     :param unitSize: L * L, the basic FFT imageSize, L + F - 1 must be some power of 2
     :return: The number of operations in FFT: accumulation + multiplication
@@ -52,11 +53,11 @@ def convLayerSizeFFT(imageSize, filterSize, numKernel, padding, unitSize, stride
     logFFTUnitSize = int(math.log(fftUnitSize, 2))
     numTilt = int(math.ceil((W1 + 2 * padding) / float(fftUnitSize))) ** 2
     numMultImageFFT = 6 * fftUnitSize ** 2 * logFFTUnitSize * numTilt * D1
-    numMultImageFilter = fftUnitSize ** 2 * D1 * D2 * numTilt
+    numMultImageFilter = fftUnitSize ** 2 * D1 * D2 * numTilt * 6
     numMultIFFT = 6 * fftUnitSize ** 2 * logFFTUnitSize * numTilt * D2
     numAddImageFFT = fftUnitSize * logFFTUnitSize * fftUnitSize * 2 * 2 * numTilt * D1  # one complex add is two add
     numAddInDepth = fftUnitSize ** 2 * D1 * D2 * numTilt
-    numAddOverlap = (F - 1) * fftUnitSize * 2 * numTilt * D2
+    numAddOverlap = (F - 1) * fftUnitSize * 4 * numTilt * D2
     numMult = numMultImageFFT + numMultImageFilter + numMultIFFT
     numAdd = numAddImageFFT + numAddInDepth + numAddOverlap
 
@@ -69,7 +70,7 @@ def convLayerSizeFFT(imageSize, filterSize, numKernel, padding, unitSize, stride
         numOps += numFilterAdd + numFilterMult
 
     if inGFLOP:
-        return numOps / 1e9
+        return numOps / oneGiga
     else:
         return numOps
 
@@ -110,27 +111,92 @@ def estimated_cycles_execution_read_cycle(num_image_mem_bits, num_kernel_mem_bit
         "\nfill image:", fill_image_mem_cycles, "\nmemory consumption(MB):", memory_utilization
 
 
-def AlexNetGOp():
+def space_oaa_ratio(kernel_size, fft_size):
+    assert fft_size >= kernel_size, "fft size must be greater than or equal to kernel size"
+    num_multiplier = dict()
+    num_multiplier[4] = 0
+    num_multiplier[8] = 4
+    num_multiplier[16] = 24
+    num_multiplier[32] = 88
+    space_product = kernel_size * kernel_size
+    ooa_num_multiplier = fft_size * fft_size * 3 + num_multiplier[fft_size] * fft_size * 4
+    L = fft_size - kernel_size + 1
+    ooa_product = float(ooa_num_multiplier) / L / L
+    ratio = float(space_product) / float(ooa_product)
+    print "space:", space_product, "OaA:", ooa_product, "ratio:", ratio
+
+
+
+def space_ooa_layer_difference(imageSize, kernelSize, numKernels, padding, stride, L):
+    space_num_op = convLayerSizeOriginal(imageSize, kernelSize, numKernels, padding, stride)
+    ooa_num_op = convLayerSizeFFT(imageSize, kernelSize, numKernels, padding, (L, L), stride)
+    return space_num_op, ooa_num_op
+
+
+
+def CaffeNetGOp():
+    print "CaffeNet in 2012"
+    # 227x227x3
+    first_layer_space, first_layer_ooa = space_ooa_layer_difference((227, 227, 3), (11, 11, 3), 96, 0, 4, 6)
+    print "Layer 1", "space:", first_layer_space, "ooa:", first_layer_ooa
+    # 27x27x96
+    second_layer_space, second_layer_ooa = space_ooa_layer_difference((27, 27, 96), (5, 5, 96), 256, 2, 1, 4)
+    print "Layer 2", "space:", second_layer_space, "ooa:", second_layer_ooa
+    # 13x13x256
+    third_layer_space, third_layer_ooa = space_ooa_layer_difference((13, 13, 256), (3, 3, 256), 384, 1, 1, 2)
+    print "Layer 3", "space:", third_layer_space, "ooa:", third_layer_ooa
+    # 13x13x384
+    fourth_layer_space, fourth_layer_ooa = space_ooa_layer_difference((13, 13, 384), (3, 3, 384), 384, 1, 1, 2)
+    print "Layer 4", "space:", fourth_layer_space, "ooa:", fourth_layer_ooa
+    # 13x13x384
+    fifth_layer_space, fifth_layer_ooa = space_ooa_layer_difference((13, 13, 384), (3, 3, 384), 256, 1, 1, 2)
+    print "Layer 5", "space:", fifth_layer_space, "ooa:", fifth_layer_ooa
+
+def VGG16Op():
+    print "VGG16 in 2014"
+    L = 2
     # first layer
-    result = 0
-    result += convLayerSizeOriginal((227, 227, 3), (11, 11, 3), 96, 0, stride=4)
-    result += convLayerSizeOriginal((27, 27, 96), (5, 5, 96), 256, 2)
-    result += convLayerSizeOriginal((13, 13, 256), (3, 3, 256), 384, 1) * 2
-    result += convLayerSizeOriginal((13, 13, 256), (3, 3, 256), 256, 1)
-    result += (4096 * (512 * 7 * 7 * 2) + 4096 * (4096 * 2) + 4096 * 2 * 1000) / 1e9
-    return result
+    first_layer_space = convLayerSizeOriginal((224, 224, 3), (3, 3, 3), 64, 1) + \
+                        convLayerSizeOriginal((224, 224, 64), (3, 3, 64), 64, 1)
+    first_layer_ooa = convLayerSizeFFT((224, 224, 3), (3, 3, 3), 64, padding=1, unitSize=(L, L)) + \
+                      convLayerSizeFFT((224, 224, 64), (3, 3, 64), 64, padding=1, unitSize=(L, L))
+    print "Layer 1", "space:", first_layer_space, "ooa:", first_layer_ooa
+    # second layer
+    second_layer_space = convLayerSizeOriginal((112, 112, 64), (3, 3, 64), 128, 1) + \
+                         convLayerSizeOriginal((112, 112, 128), (3, 3, 128), 128, 1)
+    second_layer_ooa = convLayerSizeFFT((112, 112, 64), (3, 3, 64), 128, 1, (L, L)) + \
+                       convLayerSizeFFT((112, 112, 128), (3, 3, 128), 128, 1, (L, L))
+    print "Layer 2", "space:", second_layer_space, "ooa:", second_layer_ooa
+    # third layer
+    third_layer_space = convLayerSizeOriginal((56, 56, 128), (3, 3, 128), 256, 1) + \
+                         convLayerSizeOriginal((56, 56, 256), (3, 3, 256), 256, 1) * 2
+    third_layer_ooa = convLayerSizeFFT((56, 56, 128), (3, 3, 128), 256, 1, (L, L)) + \
+                       convLayerSizeFFT((56, 56, 256), (3, 3, 256), 256, 1, (L, L)) * 2
+    print "Layer 3", "space:", third_layer_space, "ooa:", third_layer_ooa
+    # fourth layer
+    fourth_layer_space = convLayerSizeOriginal((28, 28, 256), (3, 3, 256), 512, 1) + \
+                         convLayerSizeOriginal((28, 28, 512), (3, 3, 512), 512, 1) * 2
+    fourth_layer_ooa = convLayerSizeFFT((28, 28, 256), (3, 3, 256), 512, 1, (L, L)) + \
+                       convLayerSizeFFT((28, 28, 512), (3, 3, 512), 512, 1, (L, L)) * 2
+    print "Layer 4", "space:", fourth_layer_space, "ooa:", fourth_layer_ooa
+    # fourth layer
+    fifth_layer_space = convLayerSizeOriginal((14, 14, 512), (3, 3, 512), 512, 1) + \
+                         convLayerSizeOriginal((14, 14, 512), (3, 3, 512), 512, 1) * 2
+    fifth_layer_ooa = convLayerSizeFFT((14, 14, 512), (3, 3, 512), 512, 1, (L, L)) + \
+                       convLayerSizeFFT((14, 14, 512), (3, 3, 512), 512, 1, (L, L)) * 2
+    print "Layer 5", "space:", fifth_layer_space, "ooa:", fifth_layer_ooa
 
 
-def test():
-    imageSize = (112, 112, 64)
-    filterSize = (5, 5, 64)
-    numKernel = 128
-    padding = 3
-    print convLayerSizeOriginal(imageSize, filterSize, numKernel, padding, stride=1)
-    unitSize = findUnitSize(filterSize)
-    print convLayerSizeFFT(imageSize, filterSize, numKernel, padding, unitSize, 3, True, True)
-    print "AlexNet GOps:", AlexNetGOp()
+def DM_ratio_test():
+    kernels = [3, 5, 7, 9, 11]
+    fft_sizes = [4, 8, 16, 32]
+    for k in kernels:
+        for f in fft_sizes:
+            if f >= k:
+                print "kernel:", k, "fft:", f
+                space_oaa_ratio(k, f)
 
 
 if __name__ == "__main__":
-    test()
+    VGG16Op()
+    CaffeNetGOp()
