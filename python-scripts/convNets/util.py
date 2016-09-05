@@ -187,6 +187,50 @@ def VGG16Op():
     print "Layer 5", "space:", fifth_layer_space, "ooa:", fifth_layer_ooa
 
 
+def googLeNetOp():
+    def inception_module(name, imageSize, one_dimension, three_reduce, three_dimension,
+                         five_reduce, five_dimension, pool_proj):
+        conv_space, conv_ooa = space_ooa_layer_difference(imageSize, (1, 1, imageSize[2]), one_dimension,
+                                                          padding=0, stride=1, L=4)
+        print "inception", name, "1x1", "space:", conv_space, "ooa:", conv_ooa
+        conv_space, conv_ooa = space_ooa_layer_difference(imageSize, (1, 1, imageSize[2]), three_reduce,
+                                                          padding=0, stride=1, L=4)
+        print "inception", name, "3x3 reduce", "space:", conv_space, "ooa:", conv_ooa
+        conv_space, conv_ooa = space_ooa_layer_difference((28, 28, three_reduce), (3, 3, three_reduce),
+                                                          three_dimension, padding=1, stride=1, L=2)
+        print "inception", name, "3x3", "space:", conv_space, "ooa:", conv_ooa
+        conv_space, conv_ooa = space_ooa_layer_difference(imageSize, (1, 1, imageSize[2]), five_reduce, padding=0,
+                                                          stride=1, L=4)
+        print "inception", name, "5x5 reduce", "space:", conv_space, "ooa:", conv_ooa
+        conv_space, conv_ooa = space_ooa_layer_difference((28, 28, five_reduce), (3, 3, five_reduce), five_dimension,
+                                                          padding=1, stride=1, L=2)
+        print "inception", name, "5x5", "space:", conv_space, "ooa:", conv_ooa
+        conv_space, conv_ooa = space_ooa_layer_difference(imageSize, (3, 3, imageSize[2]), pool_proj, padding=1, stride=1, L=2)
+        print "inception", name, "pool proj", "space:", conv_space, "ooa:", conv_ooa
+
+        print "output dimension", one_dimension + three_dimension + five_dimension + pool_proj
+
+    print "GoogLeNet in 2014"
+    conv_space, conv_ooa = space_ooa_layer_difference((224, 224, 3), (7, 7, 3), 64, 3, 2, 2)
+    print "layer 1", "space:", conv_space, "ooa:", conv_ooa
+    conv_space, conv_ooa = space_ooa_layer_difference((56, 56, 64), (1, 1, 64), 64, 0, 1, 4)
+    print "layer 2 reduce", "space:", conv_space, "ooa:", conv_ooa
+    conv_space, conv_ooa = space_ooa_layer_difference((56, 56, 64), (3, 3, 64), 192, 1, 1, 2)
+    print "layer 2", "space:", conv_space, "ooa:", conv_ooa
+
+    # inception_3, 28x28x192
+    inception_module("3a", (28, 28, 192), 64, 96, 128, 16, 32, 32)
+    inception_module("3b", (28, 28, 256), 128, 128, 192, 32, 96, 64)
+    # inception_4 14x14x480
+    inception_module("4a", (14, 14, 480), 192, 96, 208, 16, 48, 64)
+    inception_module("4b", (14, 14, 512), 160, 112, 224, 24, 64, 64)
+    inception_module("4c", (14, 14, 512), 128, 128, 256, 24, 64, 64)
+    inception_module("4d", (14, 14, 512), 112, 144, 288, 32, 64, 64)
+    inception_module("4e", (14, 14, 512), 256, 160, 320, 32, 128, 128)
+    #inception 4 7x7x832
+    inception_module("5a", (7, 7, 832), 256, 160, 320, 32, 128, 128)
+    inception_module("5b", (7, 7, 832), 384, 192, 384, 48, 128, 128)
+
 def DM_ratio_test():
     kernels = [3, 5, 7, 9, 11]
     fft_sizes = [4, 8, 16, 32]
@@ -198,5 +242,6 @@ def DM_ratio_test():
 
 
 if __name__ == "__main__":
-    VGG16Op()
-    CaffeNetGOp()
+    # VGG16Op()
+    # CaffeNetGOp()
+    googLeNetOp()
