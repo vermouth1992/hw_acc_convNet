@@ -9,6 +9,7 @@ Compute a convLayer size
 
 oneGiga = 1e9
 
+
 def convLayerSizeOriginal(imageSize, filterSize, numKernel, padding, stride=1, inGFLOP=True):
     """
     :param imageSize: (W1, H1, D1), represented as a tuple
@@ -101,6 +102,17 @@ def predict_convLayer_harp(N, n, D1, D2, padding, stride, fft_size):
     return total_image_tile * total_image_tile * D1 * D2 * 5e-6
 
 
+def memory_consumption_estimation(t_k, t_i, P, D1, D2, f, B, kernel_buffer_depth, one_image_buffer=False):
+    kernel_constraint = 8 * t_k * P * P * D1 * f * 1e6 / B / 1024 ** 3
+    image_constraint = 8 * P * P * D1 * D2 * f * 1e6 * t_k / (D2 * B * 1024 ** 3 - 8 * t_i * P * P * f * 1e6 * t_k)
+    x = max(kernel_constraint, image_constraint)
+    memory_consumption = x * P * P * t_i + kernel_buffer_depth * P * P * t_k * 2
+    if one_image_buffer == False:
+        memory_consumption += x * P * P * t_i
+    # in MB
+    return memory_consumption * 8 / 1024 / 1024
+
+
 def estimated_cycles_execution_read_cycle(num_image_mem_bits, num_kernel_mem_bits, D1, fft_size):
     execution_cycles = 2 ** (num_image_mem_bits + num_kernel_mem_bits) / float(D1)
     fill_kernel_mem_cycles = 2 ** num_kernel_mem_bits * fft_size * fft_size * 8 / 32
@@ -126,12 +138,10 @@ def space_oaa_ratio(kernel_size, fft_size):
     print "space:", space_product, "OaA:", ooa_product, "ratio:", ratio
 
 
-
 def space_ooa_layer_difference(imageSize, kernelSize, numKernels, padding, stride, L):
     space_num_op = convLayerSizeOriginal(imageSize, kernelSize, numKernels, padding, stride)
     ooa_num_op = convLayerSizeFFT(imageSize, kernelSize, numKernels, padding, (L, L), stride)
     return space_num_op, ooa_num_op
-
 
 
 def CaffeNetGOp():
@@ -152,6 +162,7 @@ def CaffeNetGOp():
     fifth_layer_space, fifth_layer_ooa = space_ooa_layer_difference((13, 13, 384), (3, 3, 384), 256, 1, 1, 2)
     print "Layer 5", "space:", fifth_layer_space, "ooa:", fifth_layer_ooa
 
+
 def VGG16Op():
     print "VGG16 in 2014"
     L = 2
@@ -169,9 +180,9 @@ def VGG16Op():
     print "Layer 2", "space:", second_layer_space, "ooa:", second_layer_ooa
     # third layer
     third_layer_space = convLayerSizeOriginal((56, 56, 128), (3, 3, 128), 256, 1) + \
-                         convLayerSizeOriginal((56, 56, 256), (3, 3, 256), 256, 1) * 2
+                        convLayerSizeOriginal((56, 56, 256), (3, 3, 256), 256, 1) * 2
     third_layer_ooa = convLayerSizeFFT((56, 56, 128), (3, 3, 128), 256, 1, (L, L)) + \
-                       convLayerSizeFFT((56, 56, 256), (3, 3, 256), 256, 1, (L, L)) * 2
+                      convLayerSizeFFT((56, 56, 256), (3, 3, 256), 256, 1, (L, L)) * 2
     print "Layer 3", "space:", third_layer_space, "ooa:", third_layer_ooa
     # fourth layer
     fourth_layer_space = convLayerSizeOriginal((28, 28, 256), (3, 3, 256), 512, 1) + \
@@ -181,9 +192,9 @@ def VGG16Op():
     print "Layer 4", "space:", fourth_layer_space, "ooa:", fourth_layer_ooa
     # fourth layer
     fifth_layer_space = convLayerSizeOriginal((14, 14, 512), (3, 3, 512), 512, 1) + \
-                         convLayerSizeOriginal((14, 14, 512), (3, 3, 512), 512, 1) * 2
+                        convLayerSizeOriginal((14, 14, 512), (3, 3, 512), 512, 1) * 2
     fifth_layer_ooa = convLayerSizeFFT((14, 14, 512), (3, 3, 512), 512, 1, (L, L)) + \
-                       convLayerSizeFFT((14, 14, 512), (3, 3, 512), 512, 1, (L, L)) * 2
+                      convLayerSizeFFT((14, 14, 512), (3, 3, 512), 512, 1, (L, L)) * 2
     print "Layer 5", "space:", fifth_layer_space, "ooa:", fifth_layer_ooa
 
 
@@ -205,7 +216,8 @@ def googLeNetOp():
         conv_space, conv_ooa = space_ooa_layer_difference((28, 28, five_reduce), (3, 3, five_reduce), five_dimension,
                                                           padding=1, stride=1, L=2)
         print "inception", name, "5x5", "space:", conv_space, "ooa:", conv_ooa
-        conv_space, conv_ooa = space_ooa_layer_difference(imageSize, (3, 3, imageSize[2]), pool_proj, padding=1, stride=1, L=2)
+        conv_space, conv_ooa = space_ooa_layer_difference(imageSize, (3, 3, imageSize[2]), pool_proj, padding=1,
+                                                          stride=1, L=2)
         print "inception", name, "pool proj", "space:", conv_space, "ooa:", conv_ooa
 
         print "output dimension", one_dimension + three_dimension + five_dimension + pool_proj
@@ -227,9 +239,10 @@ def googLeNetOp():
     inception_module("4c", (14, 14, 512), 128, 128, 256, 24, 64, 64)
     inception_module("4d", (14, 14, 512), 112, 144, 288, 32, 64, 64)
     inception_module("4e", (14, 14, 512), 256, 160, 320, 32, 128, 128)
-    #inception 4 7x7x832
+    # inception 4 7x7x832
     inception_module("5a", (7, 7, 832), 256, 160, 320, 32, 128, 128)
     inception_module("5b", (7, 7, 832), 384, 192, 384, 48, 128, 128)
+
 
 def DM_ratio_test():
     kernels = [3, 5, 7, 9, 11]
