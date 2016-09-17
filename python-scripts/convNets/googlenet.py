@@ -8,6 +8,7 @@ from keras.optimizers import SGD
 from googlenet_custom_layers import PoolHelper, LRN
 import numpy as np
 
+from common import *
 
 def create_googlenet(weights_path=None):
     # creates GoogLeNet a.k.a. Inception v1 (Szegedy, 2015)
@@ -331,16 +332,8 @@ def create_googlenet(weights_path=None):
     return googlenet
 
 
-def getCategory(index):
-    synset_path = "./"
-    f = open(synset_path + "synset_words.txt", "r")
-    for i, line in enumerate(f):
-        if i == index:
-            return line
-
-
 if __name__ == "__main__":
-    img = imresize(imread('goldfish.jpeg', mode='RGB'), (224, 224)).astype(np.float32)
+    img = imresize(imread(data_set_root + 'Lenna.png', mode='RGB'), (224, 224)).astype(np.float32)
     img[:, :, 0] -= 123.68
     img[:, :, 1] -= 116.779
     img[:, :, 2] -= 103.939
@@ -349,7 +342,7 @@ if __name__ == "__main__":
     img = np.expand_dims(img, axis=0)
 
     # Test pretrained model
-    model = create_googlenet('googlenet_weights.h5')
+    model = create_googlenet(data_set_root + 'googlenet_weights.h5')
     sgd = SGD(lr=0.1, decay=1e-6, momentum=0.9, nesterov=True)
     model.compile(optimizer=sgd, loss='categorical_crossentropy')
     out = model.predict(img)  # note: the model has three outputs

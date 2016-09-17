@@ -57,17 +57,8 @@ def VGG_16(weights_path=None):
 
     return model
 
-
-def getCategory(index):
-    synset_path = "./"
-    f = open(synset_path + "synset_words.txt", "r")
-    for i, line in enumerate(f):
-        if i == index:
-            return line
-
-
 if __name__ == "__main__":
-    im = cv2.resize(cv2.imread(data_set_root + 'goldfish.jpeg'), (224, 224)).astype(np.float32)
+    im = cv2.resize(cv2.imread(data_set_root + 'Lenna.png'), (224, 224)).astype(np.float32)
     im[:, :, 0] -= 103.939
     im[:, :, 1] -= 116.779
     im[:, :, 2] -= 123.68
