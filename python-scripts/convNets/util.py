@@ -95,6 +95,7 @@ def findUnitSize(filterSize):
 
 
 def predict_convLayer_harp(N, n, D1, D2, padding, stride, fft_size):
+    """ Note that for 1x1 kernel, it is the same """
     assert fft_size > n, "fft size must be greater than n"
     tile_size = fft_size + 1 - n
     total_image_tile = int(math.ceil(float(N + padding * 2) / float(tile_size)))
