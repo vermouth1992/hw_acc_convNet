@@ -106,6 +106,8 @@ def memory_consumption_estimation(t_k, t_i, P, D1, D2, f, B, kernel_buffer_depth
     kernel_constraint = 8 * t_k * P * P * D1 * f * 1e6 / B / 1024 ** 3
     image_constraint = 8 * P * P * D1 * D2 * f * 1e6 * t_k / (D2 * B * 1024 ** 3 - 8 * t_i * P * P * f * 1e6 * t_k)
     x = max(kernel_constraint, image_constraint)
+    print "x =", x
+    x = 2 ** int(math.ceil(math.log(x, 2)))
     memory_consumption = x * P * P * t_i + kernel_buffer_depth * P * P * t_k * 2
     if one_image_buffer == False:
         memory_consumption += x * P * P * t_i
