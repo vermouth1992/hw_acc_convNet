@@ -13,7 +13,7 @@ def googLeNetDelay(fft_size):
         three_reduce_delay = predict_convLayer_harp(N, 1, D1, three_reduce, 0, 1, fft_size)
         three_dimension_delay = predict_convLayer_harp(N, 3, three_reduce, three_dimension, 1, 1, fft_size)
         five_reduce_delay = predict_convLayer_harp(N, 1, D1, five_reduce, 0, 1, fft_size)
-        five_dimension_delay = predict_convLayer_harp(N, 5, five_reduce, five_dimension, 1, 1, fft_size)
+        five_dimension_delay = predict_convLayer_harp(N, 5, five_reduce, five_dimension, 2, 1, fft_size)
         pool_proj_delay = predict_convLayer_harp(N, 1, D1, pool_proj, 0, 1, fft_size)
         total_delay = one_dimension_delay + three_reduce_delay + three_dimension_delay + five_reduce_delay \
                       + five_dimension_delay + pool_proj_delay
