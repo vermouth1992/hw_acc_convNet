@@ -49,14 +49,14 @@ module afu_user # (
 
   genvar i, j;
   generate
-    for (i=0; i<4; i=i+1) begin: fft_input_generate_first
-      for (j=0; j<4; j=j+1) begin: fft_input_generate_second
+    for (i=0; i<4; i=i+1) begin: pe_data_in_first
+      for (j=0; j<4; j=j+1) begin: pe_data_in_second
         assign pe_data_in[i][j] = input_fifo_dout[128*i+32*j+31 : 128*i+32*j];
       end
     end
 
-    for (i=0; i<2; i=i+1) begin: fft_input_generate_first
-      for (j=0; j<2; j=j+1) begin: fft_input_generate_second
+    for (i=0; i<2; i=i+1) begin: pe_data_out_first
+      for (j=0; j<2; j=j+1) begin: pe_data_out_second
         assign output_fifo_din[128*i+32*j+31 : 128*i+32*j] = pe_data_out[i][j];
       end
     end

@@ -197,7 +197,7 @@ module F_2x3 (
   // data
   input [31:0] data_in [0:3],
   input [31:0] filter_in [0:3],
-  output [31:0] data_out [0:1],
+  output [31:0] data_out [0:1]
   // // control
   // input next,
   // output next_out
@@ -245,7 +245,7 @@ module F_2x3 (
   wire [31:0] m2_add_m3;
   addfp32 m2_m3(.clk(clk), .enable(1'b1), .rst(reset), .a(multiplier_out[2]), .b(multiplier_out[3]), .out(m2_add_m3));
 
-  wire shiftFIFO_m1;
+  wire [31:0] shiftFIFO_m1;
   shiftRegFIFO #(11, 32) shiftRegFIFO_inst_m1 (.clk(clk), .X  (multiplier_out[1]), .Y  (shiftFIFO_m1));
 
   // second adder pipeline

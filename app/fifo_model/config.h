@@ -9,13 +9,13 @@
 // UN-COMMENT appropriate #define in order to enable either Hardware or ASE.
 //    DEFAULT is to use Software Simulation.
 //****************************************************************************
-#define  HWAFU
-// #define  ASEAFU
+// #define  HWAFU
+#define  ASEAFU
 
 #define bt32BitsWordLength
 #define M 8
 
-#define numMatrixWorkSpace 2000
+#define numMatrixWorkSpace 10
 
 #ifdef bt32BitsWordLength
 #define oneMatrixSizeBytes M * M * 4
