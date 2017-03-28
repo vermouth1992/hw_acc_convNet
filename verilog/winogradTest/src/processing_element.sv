@@ -7,7 +7,7 @@ module processing_element (
   output [31:0] data_out [0:1][0:1],
   // control
   input next,
-  input next_out
+  output next_out
 );
 
   genvar i, j;

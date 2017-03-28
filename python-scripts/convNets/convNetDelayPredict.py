@@ -1,4 +1,5 @@
 from util import *
+import random
 
 """
 Predict GoogLeNet Inception Module delay
@@ -54,3 +55,45 @@ def googLeNetDelay(fft_size):
     delay = inception_module("5b", (7, 7, 832), 384, 192, 384, 48, 128, 128)
     total_delay += delay
     print "total delay:", total_delay, "ms"
+
+
+def VGG16_delay_winograd():
+    """
+    predict delay using winograd algorithm for VGG16
+    """
+    scale_percentage = 0.2
+    total_num_dsp = 128
+    # CONV1
+    conv1_delay = predict_convLayer_harp_winograd(224, 3, 3, 64, 1, 1, total_num_dsp)
+    conv1_delay += predict_convLayer_harp_winograd(224, 3, 64, 64, 1, 1, total_num_dsp)
+    conv1_delay *= (1 + random.random() * scale_percentage)
+    print 'conv1 delay: %.2f' % conv1_delay
+
+    # CONV2
+    conv2_delay = predict_convLayer_harp_winograd(112, 3, 64, 128, 1, 1, total_num_dsp)
+    conv2_delay += predict_convLayer_harp_winograd(112, 3, 128, 128, 1, 1, total_num_dsp)
+    conv2_delay *= (1 + random.random() * scale_percentage)
+    print 'conv2 delay: %.2f' % conv2_delay
+
+    # CONV3
+    conv3_delay = predict_convLayer_harp_winograd(56, 3, 128, 256, 1, 1, total_num_dsp)
+    conv3_delay += predict_convLayer_harp_winograd(56, 3, 256, 256, 1, 1, total_num_dsp) * 2
+    conv3_delay *= (1 + random.random() * scale_percentage)
+    print 'conv3 delay: %.2f' % conv3_delay
+
+    # CONV4
+    conv4_delay = predict_convLayer_harp_winograd(28, 3, 256, 512, 1, 1, total_num_dsp)
+    conv4_delay += predict_convLayer_harp_winograd(28, 3, 512, 512, 1, 1, total_num_dsp) * 2
+    conv4_delay *= (1 + random.random() * scale_percentage)
+    print 'conv4 delay: %.2f' % conv4_delay
+
+    # CONV5
+    conv5_delay = predict_convLayer_harp_winograd(14, 3, 512, 512, 1, 1, total_num_dsp) * 3
+    conv5_delay *= (1 + random.random() * scale_percentage)
+    print 'conv5 delay: %.2f' % conv5_delay
+
+    total_delay = conv1_delay + conv2_delay + conv3_delay + conv4_delay + conv5_delay
+    print 'total delay: %.2f' % total_delay
+
+if __name__ == '__main__':
+    VGG16_delay_winograd()

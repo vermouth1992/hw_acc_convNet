@@ -9,6 +9,7 @@ Compute a convLayer size
 
 oneGiga = 1e9
 
+
 def convLayerSizeOriginal(imageSize, filterSize, numKernel, padding, stride=1, inGFLOP=True):
     """
     :param imageSize: (W1, H1, D1), represented as a tuple
@@ -51,7 +52,8 @@ def convLayerSizeFFT(imageSize, filterSize, numKernel, padding, unitSize, stride
     assert isPowerofTwo(fftUnitSize), "The FFT unit size must be a power of 2"
     # number of operations
     logFFTUnitSize = int(math.log(fftUnitSize, 2))
-    numTilt = int(math.ceil((W1 + 2 * padding) / float(fftUnitSize))) ** 2
+    numTilt = int(math.ceil((W1 + 2 * padding) / float(L))) ** 2
+    # print 'num of tiles:', numTilt
     numMultImageFFT = 6 * fftUnitSize ** 2 * logFFTUnitSize * numTilt * D1
     numMultImageFilter = fftUnitSize ** 2 * D1 * D2 * numTilt * 6
     numMultIFFT = 6 * fftUnitSize ** 2 * logFFTUnitSize * numTilt * D2
@@ -95,11 +97,20 @@ def findUnitSize(filterSize):
 
 
 def predict_convLayer_harp(N, n, D1, D2, padding, stride, fft_size):
-    """ Note that for 1x1 kernel, it is the same """
+    """ Predict convolutional layer on harp for FFT implementation
+        Note that for 1x1 kernel, it is the same """
     assert fft_size > n, "fft size must be greater than n"
     tile_size = fft_size + 1 - n
     total_image_tile = int(math.ceil(float(N + padding * 2) / float(tile_size)))
     return total_image_tile * total_image_tile * D1 * D2 * 5e-6
+
+
+def predict_convLayer_harp_winograd(N, n, D1, D2, padding, stride, available_dsp):
+    """ Only consider F(2*2, 3*3) winograd algorithm"""
+    output_size = float(N - n + 2 * padding) / stride + 1
+    num_output_tile = (output_size / 2) ** 2
+    num_processing_element = available_dsp / 16
+    return num_output_tile * D1 * D2 / num_processing_element * 5e-6
 
 
 def memory_consumption_estimation(t_k, t_i, P, D1, D2, f, B, kernel_buffer_depth, one_image_buffer=False):
@@ -141,7 +152,8 @@ def space_oaa_ratio(kernel_size, fft_size):
     print "space:", space_product, "OaA:", ooa_product, "ratio:", ratio
 
 
-def space_ooa_layer_difference(imageSize, kernelSize, numKernels, padding, stride, L):
+def space_ooa_layer_difference(imageSize, kernelSize, numKernels, padding, stride, fft_size):
+    L = fft_size - kernelSize[0] + 1
     space_num_op = convLayerSizeOriginal(imageSize, kernelSize, numKernels, padding, stride)
     ooa_num_op = convLayerSizeFFT(imageSize, kernelSize, numKernels, padding, (L, L), stride)
     return space_num_op, ooa_num_op
@@ -155,6 +167,3 @@ def DM_ratio_test():
             if f >= k:
                 print "kernel:", k, "fft:", f
                 space_oaa_ratio(k, f)
-
-
-

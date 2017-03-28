@@ -8,6 +8,7 @@ from arithmetics_test.floating_point import hex_to_num
 
 
 def transformLine(line):
+    
     assert len(line) == 16
     data = np.array(line)
     output = []
