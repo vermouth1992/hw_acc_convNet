@@ -1,4 +1,4 @@
-from util import *
+from convNets.util import *
 import sys
 
 
