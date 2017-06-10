@@ -28,11 +28,11 @@ def convLayerSizeOriginal(imageSize, filterSize, numKernel, padding, stride=1, i
     return W2 * H2 * D2 * numOpPerResult / oneGiga
 
 
-def isPowerofTwo(num):
+def isPowerOfTwo(num):
     """
-    >>> isPowerofTwo(2 ** 10)
+    >>> isPowerOfTwo(2 ** 10)
     True
-    >>> isPowerofTwo(2 ** 10 - 1)
+    >>> isPowerOfTwo(2 ** 10 - 1)
     False
     """
     return ((num & (num - 1)) == 0) and num > 0
@@ -49,7 +49,7 @@ def convLayerSizeFFT(imageSize, filterSize, numKernel, padding, unitSize, stride
     W2, H2, D2 = (W1 - F + 2 * padding) // stride + 1, (H1 - F + 2 * padding) // stride, numKernel
     L = unitSize[0]
     fftUnitSize = L + F - 1
-    assert isPowerofTwo(fftUnitSize), "The FFT unit size must be a power of 2"
+    assert isPowerOfTwo(fftUnitSize), "The FFT unit size must be a power of 2"
     # number of operations
     logFFTUnitSize = int(math.log(fftUnitSize, 2))
     numTilt = int(math.ceil((W1 + 2 * padding) / float(L))) ** 2
