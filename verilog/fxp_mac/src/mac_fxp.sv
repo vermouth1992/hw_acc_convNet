@@ -17,7 +17,7 @@ module mac_fxp # (
   output [15:0] out,
   // control
   input start,
-  input end,
+  input stop,
   output output_valid,
   // config
   input [4:0] right_shift_amount    // this must be registered from outside, use to implement dynamic range
@@ -33,7 +33,6 @@ module mac_fxp # (
              .CYCLES(MULTIPLIER_CYCLE)
     ) multfxp_inst (
       .clk   (clk),
-      .enable(clk_en),
       .rst   (rst),
       .a     (operand_a),
       .b     (operand_b),
@@ -59,12 +58,16 @@ module mac_fxp # (
   assign internal_output_truncate = $signed(internal_output_truncate) >>> right_shift_amount;
   assign out = {internal_output_truncate[39], internal_output_truncate[14:0]};
 
-  shiftRegFIFO #(MULTIPLIER_CYCLE, 1) output_valid_fifo (.X  (end), .Y  (output_valid), .clk(clk));
+  wire multiply_output_valid;
+
+  shiftRegFIFO #(MULTIPLIER_CYCLE, 1) output_valid_fifo (.X  (stop), .Y  (output_valid), .clk(clk));
+  shiftRegFIFO #(MULTIPLIER_CYCLE, 1) clk_en_fifo (.X  (clk_en), .Y  (multiply_output_valid), .clk(clk));
 
   always_ff @(posedge clk) begin
     if (start) begin
       accumulator_reg <= 0;
-    else begin
+    else if (multiply_output_valid) begin
+      // only when multiplier output valid then accumulate the result
       accumulator_reg <= internal_output;
     end
   end
@@ -78,7 +81,6 @@ module multfxp # (
   parameter CYCLES = 3  // The synthesis tool will automatically pipeline the design
   ) (
   input clk,
-  input enable, 
   input rst, 
   input signed [WIDTH_A-1:0] a, 
   input signed [WIDTH_B-1:0] b, 
@@ -108,25 +110,5 @@ module addfxp(a, b, q, clk);
 
    assign                    q = a + b;
    
-endmodule
-
-module shiftRegFIFO(X, Y, clk);
-   parameter depth=1, width=1;
-
-   output [width-1:0] Y;
-   input  [width-1:0] X;
-   input              clk;
-
-   reg [width-1:0]    mem [depth-1:0];
-   integer            index;
-
-   assign Y = mem[depth-1];
-
-   always @ (posedge clk) begin
-      for(index=1;index<depth;index=index+1) begin
-         mem[index] <= mem[index-1];
-      end
-      mem[0]<=X;
-   end
 endmodule
 
