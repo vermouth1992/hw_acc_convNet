@@ -63,7 +63,7 @@ struct Matrix {
 #ifdef bt32BitsWordLength
     btUnsigned32bitInt dw[M * M];
 #else
-    btUnsigned16bitInt dw[M * M];
+    short int dw[M * M];
 #endif
 };
 
@@ -414,13 +414,12 @@ btInt HelloSPLLBApp::run() {
             // Init the src/dest buffers, based on the desired sequence (either fixed or random).
             MSG("Initializing source matrix. (random)");
 
-            struct OneCLSingle *pSourceCLSingle = reinterpret_cast<struct OneCLSingle *>(pSource);
-
             std::srand((uint) std::time(0));
-            for (int i = 0; i < a_num_cl; i++) {
-                for (int j = 0; j < 16; j++) {
-                    float random = (float) (std::rand() % 256 + 10);
-                    (pSourceCLSingle + i)->dw[j] = random;
+            for (int i = 0; i < M; i++) {
+                for (int j = 0; j < M; j++) {
+                    short int random = 10;
+                    int index = posToIndex(i, j);
+                    pSourceMatrix->dw[index] = random;
                 }
             }
 

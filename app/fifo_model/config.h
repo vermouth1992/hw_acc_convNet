@@ -12,10 +12,10 @@
 // #define  HWAFU
 #define  ASEAFU
 
-#define bt32BitsWordLength
-#define M 8
+// #define bt32BitsWordLength
+#define M 32
 
-#define numMatrixWorkSpace 10
+#define numMatrixWorkSpace 1
 
 #ifdef bt32BitsWordLength
 #define oneMatrixSizeBytes M * M * 4

@@ -1,3 +1,3 @@
 make clean;
-make prefix=/usr/local/aalsdk/;
-export ASE_WORKDIR=/import/usc/home/zhan527/project/ase
+make;
+export ASE_WORKDIR=/home/chizhang/Developer/harp_project/ase

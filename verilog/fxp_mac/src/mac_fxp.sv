@@ -2,10 +2,13 @@
  * Dynamic range fixed point multiply-accumulate unit
  */
 
-/* Notes right_shift_amount = Qc - (Qa + Qb), where Qa, Qb is the number of fraction bits of input and 
+/* 1. Notes right_shift_amount = Qc - (Qa + Qb), where Qa, Qb is the number of fraction bits of input and 
  * Qc is the number of fraction bits of output
+ * 2. The data starting from the next cycle of "start" will be multiplier and accumulated. The data
+ *    at the same cycle when clk_en is high is valid. The data at the cycle after output_valid is the
+ *    sum.
  */
-module mac_fxp # (
+module macfxp16 # (
   parameter MULTIPLIER_CYCLE = 6
   ) (
   input clk,    // Clock
@@ -40,7 +43,7 @@ module mac_fxp # (
     );
 
   // signed extend multiply output
-  assign signed_ext_multiply_output = {8{multiply_output[31]}, multiply_output};
+  assign signed_ext_multiply_output = {{8{multiply_output[31]}}, {multiply_output[31:0]}};
 
   wire [39:0] internal_output;
 
@@ -55,18 +58,21 @@ module mac_fxp # (
 
   wire [39:0] internal_output_truncate;
   // truncate the output
-  assign internal_output_truncate = $signed(internal_output_truncate) >>> right_shift_amount;
+  assign internal_output_truncate = $signed(internal_output) >>> right_shift_amount;
   assign out = {internal_output_truncate[39], internal_output_truncate[14:0]};
 
   wire multiply_output_valid;
+  wire start_internal;
 
+  // use for capability to immediately start after end is asserted
+  shiftRegFIFO #(MULTIPLIER_CYCLE, 1) start_fifo (.X(start), .Y(start_internal), .clk(clk));
   shiftRegFIFO #(MULTIPLIER_CYCLE, 1) output_valid_fifo (.X  (stop), .Y  (output_valid), .clk(clk));
   shiftRegFIFO #(MULTIPLIER_CYCLE, 1) clk_en_fifo (.X  (clk_en), .Y  (multiply_output_valid), .clk(clk));
 
   always_ff @(posedge clk) begin
-    if (start) begin
+    if (start_internal) begin
       accumulator_reg <= 0;
-    else if (multiply_output_valid) begin
+    end else if (multiply_output_valid) begin
       // only when multiplier output valid then accumulate the result
       accumulator_reg <= internal_output;
     end
