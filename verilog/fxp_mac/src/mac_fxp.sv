@@ -5,8 +5,9 @@
 /* 1. Notes right_shift_amount = Qc - (Qa + Qb), where Qa, Qb is the number of fraction bits of input and 
  * Qc is the number of fraction bits of output
  * 2. The data starting from the next cycle of "start" will be multiplier and accumulated. The data
- *    at the same cycle when clk_en is high is valid. The data at the cycle after output_valid is the
- *    sum.
+ *    at the same cycle when clk_en is high is valid. The data at the same cycle when output_valid is high
+ *    is the sum.
+ *    
  */
 module macfxp16 # (
   parameter MULTIPLIER_CYCLE = 6
