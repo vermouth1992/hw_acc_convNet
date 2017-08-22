@@ -171,12 +171,12 @@ class SPN:
         num_mux_stage2 = self.n / self.p
         for i_i, i in enumerate(self.input_idx):
             found = False
-            idx_mux_stage0 = i // 4
-            idx_pin_stage0 = i % 4
+            idx_mux_stage0 = i // self.p
+            idx_pin_stage0 = i % self.p
             o = self.output_idx[i_i]
-            idx_mux_stage2 = o // 4
-            idx_pin_stage2 = o % 4
-            for r0 in range(4):
+            idx_mux_stage2 = o // self.p
+            idx_pin_stage2 = o % self.p
+            for r0 in range(self.p):
                 if found:
                     break
                 if r0 in self.conf_stage0[idx_mux_stage0]:
