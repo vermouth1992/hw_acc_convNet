@@ -45,8 +45,9 @@ endmodule
 """
 
 spn_verilog_fixed_above = """
-    localparam SEL_WIDTH = $log2(PARA);  // data width for one mux sel signal
-    localparam MEM_ADDR_WIDTH = $log2(MEM_DEPTH);   // log(MEM_DEPTH,2)
+    parameter DATA_WIDTH = 32;
+    localparam SEL_WIDTH = $clog2(PARA);  // data width for one mux sel signal
+    localparam MEM_ADDR_WIDTH = $clog2(MEM_DEPTH);   // log(MEM_DEPTH,2)
 
     input clk,rst,valid_in;
     input[DATA_WIDTH-1:0] input_stream[PARA-1:0];
@@ -113,14 +114,8 @@ spn_verilog_fixed_below = """
             end
             if (valid_mem_in) begin
             // mem: get control signal
-                counter_mem_addr_0 <= counter_mem_addr_0+1;
-                counter_mem_addr_1 <= counter_mem_addr_1+1;
-                counter_mem_addr_2 <= counter_mem_addr_2+1;
-                counter_mem_addr_3 <= counter_mem_addr_3+1;
-                mem_addr[0] <= control_mem_0[counter_mem_addr_0*MEM_ADDR_WIDTH+:MEM_ADDR_WIDTH];
-                mem_addr[1] <= control_mem_1[counter_mem_addr_1*MEM_ADDR_WIDTH+:MEM_ADDR_WIDTH];
-                mem_addr[2] <= control_mem_2[counter_mem_addr_2*MEM_ADDR_WIDTH+:MEM_ADDR_WIDTH];
-                mem_addr[3] <= control_mem_3[counter_mem_addr_3*MEM_ADDR_WIDTH+:MEM_ADDR_WIDTH];
+{control_mem_increment}
+{mem_addr_update}
                 mem_delay1 <= mem_input;
             end
             if (valid_delay1) begin
@@ -143,6 +138,9 @@ spn_verilog_fixed_below = """
 
 endmodule
 """
+
+control_mem_increment_template = '                counter_mem_addr_{} <= counter_mem_addr_{}+1;\n'
+mem_addr_update_template = '                mem_addr[{}] <= control_mem_{}[counter_mem_addr_{}*MEM_ADDR_WIDTH+:MEM_ADDR_WIDTH];\n'
 
 ###########################
 # SPN software simulation #
@@ -244,9 +242,9 @@ class SPN:
         # meta data
         output_str += 4 * ' ' + '// [BEGIN] VAR DEF\n'
         output_str += 4 * ' ' + '// width for one mem addr, or mux sel signal\n'
-        output_str += 4 * ' ' + 'reg[{}:0] mem_addr[{}:0];\n'.format(bits_per_addr - 1, self.p - 1)
-        output_str += 4 * ' ' + 'reg[{}:0] sel_perm0[{}:0];\n'.format(bits_per_mux - 1, self.p - 1)
-        output_str += 4 * ' ' + 'reg[{}:0] sel_perm2[{}:0];\n'.format(bits_per_mux - 1, self.p - 1)
+        output_str += 4 * ' ' + 'reg[{}:0] mem_addr[{}:0];     // stage1: temp perm\n'.format(bits_per_addr - 1, self.p - 1)
+        output_str += 4 * ' ' + 'reg[{}:0] sel_perm0[{}:0];    // stage0: spatial perm\n'.format(bits_per_mux - 1, self.p - 1)
+        output_str += 4 * ' ' + 'reg[{}:0] sel_perm2[{}:0];    // stage2: spatial perm\n'.format(bits_per_mux - 1, self.p - 1)
         output_str += '\n\n'
         output_str += 4 * ' ' + '// counter used for traversing control_* (simply add 1 each cycle)\n'
         for p_i in range(self.p):
@@ -296,7 +294,14 @@ class SPN:
         output_str += 12 * ' ' + '// [END] VAR INIT'
         output_str += '\n'
         # write
-        spn_verilog_str += output_str + spn_verilog_fixed_below
+        control_mem_increment = ''
+        mem_addr_update = ''
+        for i in range(self.p):
+            control_mem_increment += control_mem_increment_template.format(i,i)
+            mem_addr_update += mem_addr_update_template.format(i,i,i)
+        spn_verilog_str += output_str + spn_verilog_fixed_below\
+            .format(control_mem_increment=control_mem_increment,\
+                mem_addr_update=mem_addr_update)
 
         with open(output_file, 'w') as f:
             f.write(spn_verilog_str)
@@ -388,11 +393,14 @@ def log_streaming_data_SPN(N, p, input_data, output_data, resources):
     for k in sorted(raw_sequence.keys()):
         print('{}'.format(k))
         for tup in raw_sequence[k]:
-            # import pdb;pdb.set_trace()
             row_len += len(tup)
-            str_tup = '  '.join(v_tostr_tuple(tup))
+            str_tup = ''
+            for start_i in range(0,len(tup),N):
+                if start_i > 0:
+                    str_tup += '\n'*2
+                str_tup += '  '.join(v_tostr_tuple(tup[start_i:start_i+N]))
             print str_tup + ' ',
-            if row_len == N:
+            if row_len >= N:
                 row_len = 0
                 print('\n')
     for k in resources.keys():
